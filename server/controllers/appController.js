@@ -5,14 +5,7 @@ const User = require("../models/registerModel");
 exports.contactDetails = async (req, res) => {
     try {
       const { name, email, phoneNo, subject, message } = req.body;
-      const user = await User.findOne({ email });
-  
-      if (!user) {
-        return res.status(404).json({
-          message: "User not found",
-          status: false,
-        });
-      }
+     
       const newContactDetails = new Contact({
         name,
         email,
