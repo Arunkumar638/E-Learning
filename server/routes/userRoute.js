@@ -11,6 +11,7 @@ router.post('/verify',userController.verifyToken);
 router.post('/contact',appController.contactDetails)
 
 router.get('/getalluser', userController.getAllUser);
+router.get('/getcourses', appController.getAllCourses);
 
 router.put('/reset',userController.resetUserByEmail)
 

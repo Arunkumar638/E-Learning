@@ -6,7 +6,7 @@ import { Checkbox, Form, Input } from "antd";
 import { useRouter } from "next/navigation";
 import swal from "sweetalert";
 import { Toaster, toast } from "sonner";
-import { contact } from "@/actions/messageActions";
+import { contact } from "@/actions/otherActions";
 const { TextArea } = Input;
 const contactUs = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
@@ -26,11 +26,7 @@ const contactUs = () => {
     contact(values)
       .then((data) => {
         if (data.status == true) {
-          swal({
-            title: "Success!",
-            text: data.message,
-            icon: "success",
-          });
+          toast.success(data.message);
           form.resetFields();
         }
       })
@@ -42,7 +38,6 @@ const contactUs = () => {
           notifyError(message);
         }
       });
-    console.log(values);
   };
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);

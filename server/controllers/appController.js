@@ -1,6 +1,6 @@
 const sendEmail = require("../services/resetEmail");
 const Contact = require("../models/contactModel");
-const User = require("../models/registerModel");
+const Courses = require("../models/courseModel");
 
 exports.contactDetails = async (req, res) => {
     try {
@@ -25,11 +25,24 @@ exports.contactDetails = async (req, res) => {
       await newContactDetails.save();
       res.status(201).json({
         status: true,
-        message: "Message sent Successfully",
+        message: "Message sent successfully",
       });
     } catch (error) {
       res.status(500).json({
         message: "Failed to send email",
+        status: false,
+        error: error.message,
+      });
+    }
+  };
+
+  exports.getAllCourses = async (req, res) => {
+    try {
+      const courses = await Courses.find();
+      res.json(courses);
+    } catch (error) {
+      res.status(500).json({
+        message: "Failed to get all courses",
         status: false,
         error: error.message,
       });

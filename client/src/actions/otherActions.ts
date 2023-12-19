@@ -20,3 +20,22 @@ export const contact = async (data: any) => {
       throw error;
     });
 };
+
+export const getCourses = async () => {
+  return axios({
+    method: "get",
+    url: `${baseUrl}/getcourses`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
