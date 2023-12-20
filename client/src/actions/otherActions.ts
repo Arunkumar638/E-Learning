@@ -39,3 +39,23 @@ export const getCourses = async () => {
       throw error;
     });
 };
+
+export const addWish = async (data: any) => {
+  return axios({
+    method: "post",
+    url: `${baseUrl}/wishlist`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    data: data,
+    timeout: 5000,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};

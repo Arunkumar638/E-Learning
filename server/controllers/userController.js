@@ -1,5 +1,4 @@
 const User = require("../models/registerModel");
-const Login = require("../models/loginModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
@@ -48,64 +47,28 @@ exports.registerUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
 
   try {
     // Check if the user exists
     const user = await User.findOne({ email });
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!user && isPasswordCorrect) {
       return res.status(401).json({ message: "Invalid Email", status: false });
     }
-
-    const userExist = await Login.findOne({ email });
-    if (userExist) {
-      try {
-        const isPasswordCorrect = await bcrypt.compare(password, user.password);
-        if (!isPasswordCorrect) {
-          return res
-            .status(401)
-            .json({ message: "Invalid Password", status: false });
-        }
-        const login = await Login.findOneAndUpdate(
-          { email },
-          {
-            password: hashedPassword,
-          },
-          {
-            new: true,
-          }
-        );
-        return res
-          .status(201)
-          .json({ message: "Login Succcess", status: "Success" });
-      } catch (error) {
-        return res.status(401).json({
-          message: "Login Failed",
-          status: "Failed",
-          error: error.message,
-        });
-      }
-    }
     // Check if the password is correct
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
-    if (!isPasswordCorrect) {
+
+    if (!isPasswordCorrect && user) {
       return res
         .status(401)
         .json({ message: "Invalid password", status: false });
     }
 
     // Create and send a JWT token
-    const token = jwt.sign({ userId: user._id }, secretKey,{ expiresIn: '7d' });
-    const LoginUser = new Login({
-      email,
-      password: hashedPassword,
-      token: token,
-    });
-    await LoginUser.save();
+    const token = jwt.sign({ userId: user._id }, secretKey);
+
     res
       .status(201)
-      .json({ message: "Login successful", token, status: true, new: true });
+      .json({ message: "Login successful", token, status: true });
   } catch (error) {
     res
       .status(500)
@@ -268,30 +231,6 @@ exports.resetUserByEmail = async (req, res) => {
   }
 };
 
-exports.deleteUserById = async (req, res) => {
-  const { id } = req.body;
-  try {
-    const user = await User.findByIdAndDelete(id);
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        status: false,
-      });
-    }
-
-    res.json({
-      message: "User deleted successfully",
-      status: true,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to delete user",
-      status: false,
-      error: error.message,
-    });
-  }
-};
 
 exports.getAllUser = async (req, res) => {
   try {
@@ -328,26 +267,31 @@ exports.loginStatus = async (req, res) => {
 };
 
 exports.deleteUserByToken = async (req, res) => {
+
   try {
     const { token } = req.body;
 
-    const user = await Login.findOne({ token });
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        status: false,
-      });
-    }
-    const deleteUser = await Login.findByIdAndDelete(user._id);
+   jwt.verify(token, secretKey, (err, decoded) => {
+      if (err) {
+        // Token verification failed (token is invalid or expired)
+        return res.status(500).json({
+          message: "Token Expired",
+          status: false,
+          error: err.message,
+        });
+      } else {
+        // Token is valid
+         console.log('Token decoded:', decoded);
+      }
+    });
+ 
     res.json({
-      message: "User deleted successfully",
+      message: "Logged out successfully",
       status: true,
-      data: deleteUser,
     });
   } catch (error) {
     res.status(500).json({
-      message: "Failed to get all users",
+      message: "Failed to get user",
       status: false,
       error: error.message,
     });

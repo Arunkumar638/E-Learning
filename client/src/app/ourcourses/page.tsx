@@ -4,6 +4,7 @@ import Script from "next/script";
 import { Footer, Subscribe } from "../../components/components";
 import { Suspense, lazy, useEffect, useState } from "react";
 import { getCourses } from "@/actions/otherActions";
+import { Toaster, toast } from "sonner";
 
 interface combineCourse {
   courseid: string;
@@ -12,21 +13,31 @@ interface combineCourse {
   lectures: String;
   type: String;
   price: String;
+  _id:String;
 }
 
 const ourCourses = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
   const [courses, setCourses] = useState<combineCourse[]>([]);
   const [isCourseCard, setIsCourseCard] = useState(false);
+  const [isLogin, setIsLogin] = useState(false)
+
+  const notifyError = () => {
+    const data = `Please Login first`
+      toast.error(data);
+  };
 
   useEffect(() => {
     getCourses().then((data) => {
       if (data) {
         setCourses(data);
         setIsCourseCard(true);
-        console.log(data[0]);
       }
     });
+    const data = localStorage.getItem('token')
+    if(data){
+      setIsLogin(true);
+    }
   }, []);
   return (
     <>
@@ -105,6 +116,7 @@ const ourCourses = () => {
                       placeholder="Search for..."
                       className="form-control"
                     />
+                    <Toaster position="top-right" expand={true} richColors />
                     <button type="submit" className="search-btn">
                       <i className="ri-search-line" />
                     </button>
@@ -119,20 +131,17 @@ const ourCourses = () => {
                   <div className="col-xl-4 col-md-6">
                     <div className="single-courses-item" key={index}>
                       <div className="courses-img">
-                        <a href="courses.html">
+                        {isLogin?<a href={`/coursedetails/?=${course._id}`}>
                           <img
                             src="assets/images/courses/courses-1.jpg"
                             alt="Image"
                           />
-                        </a>
-                        <ul>
-                          <li>
-                            <a href="courses.html">Featured</a>
-                          </li>
-                          <li className="bg-5696fa">
-                            <span>-15%</span>
-                          </li>
-                        </ul>
+                        </a>:<a href="#" onClick={notifyError}>
+                          <img
+                            src="assets/images/courses/courses-1.jpg"
+                            alt="Image"
+                          />
+                        </a>}  
                       </div>
                       <div className="courses-content">
                         <ul className="courses-view">
@@ -150,9 +159,11 @@ const ourCourses = () => {
                           </li>
                         </ul>
                         <h3>
-                          <a href="/coursedetails/=${course._id}">
+                         { isLogin ? <a href={`/coursedetails/?=${course._id}`}>
                             {course.title}
-                          </a>
+                          </a>:<a onClick={notifyError} href="#">
+                            {course.title}
+                          </a>}
                         </h3>
                         <ul className="courses-time d-flex justify-content-between">
                           <li>

@@ -90,19 +90,31 @@ export const reset = async (data: any) => {
     });
 };
 
-export const verifyToken = async (data: any) => {
-  // const token = data.token;
-  //  jwt.verify(token, secretKey, (error:any, decoded:any) => {
-  //   if (error.message) {
-  //     // Token verification failed (token is invalid or expired)
-  //     const message = "Token Expired";
-  //     return message;
-  //   } else {
-  //     // Token is valid
-  //      console.log('Token decoded:', decoded);
-  //   }
+export const logoutUser = async (data: any) => {
 
-  // });
+  return axios({
+    method: "delete",
+    url: `${baseUrl}/logout`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    data: data,
+    timeout: 5000, 
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+      
+    });
+};
+
+
+export const verifyToken = async (data: any) => {
+  
   try {
     const response = await axios({
       method: "post",

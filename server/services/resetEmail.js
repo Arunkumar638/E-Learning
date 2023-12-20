@@ -17,7 +17,7 @@ const sendEmail = async (option) => {
       to: option.email,
       subject: option.subject,
       text: option.message,
-      html: `<div>Hi&nbsp;${option.user},<br/><p>${option.htmlmessage}</p><a href="http://${link}?token=${option.token}">Reset Password</a></div>`,
+      html: `<div>Hi&nbsp;${option.user},<br/><p>${option.htmlmessage}</p><a href="http://${link}?=${option.token}">Reset Password</a></div>`,
     };
     await transporter.sendMail(emailOptions);
   } else {

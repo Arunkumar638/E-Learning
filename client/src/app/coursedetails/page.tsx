@@ -2,10 +2,66 @@
 
 import Script from "next/script";
 import {Footer,Pagetitle} from "../../components/components";
-import { Suspense,lazy } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
+import { addWish, getCourses } from "@/actions/otherActions";
+import { Toaster, toast } from "sonner";
+
+interface combineCourse {
+  description:String;
+  requirements:String;
+  title:String;
+  contents:String;
+  lectures:String;
+  price:String;
+  enrolled:String;
+  language:String;
+  duration:String;
+  instructor:String;
+  deadline:String;
+  _id:String;
+}
 
 const courseDetails = () => {
   const Navbar = lazy(() => import('../../components/navBar'));
+  const [courses, setCourses] = useState<combineCourse[]>([]);
+  const [id, setId] = useState("");
+  const token = localStorage.getItem('token');
+ 
+  const notifyError = (data:any) =>{
+    toast.error(data.message)
+  }
+  
+  const addWishList = () => {
+    const data = {
+      "token":token,
+      "courseId":id,
+      "status":true
+    }
+  addWish(data).then((data)=>{
+    if(data.status == true){
+     toast.success(data.message);
+    }
+
+  }).catch((error)=>{
+    console.log(error);
+    if (error.response) {
+      const message = error.response.data;
+      console.log(message);
+      console.log("Response data:", error.response.data);
+      console.log("Response status:", error.response.status);
+      notifyError(message);
+  }
+  })
+}
+  useEffect(()=>{
+    const urlToken = window.location.search.split("=")[1];
+    setId(urlToken);
+    getCourses().then((data) => {
+      if (data) {
+        setCourses(data);
+      }
+    });
+  },[])
   return (
     <>
       <meta charSet="utf-8" />
@@ -41,6 +97,7 @@ const courseDetails = () => {
                 <div className="tab">
                   <ul className="nav nav-tabs" id="myTab" role="tablist">
                     <li className="nav-item" role="presentation">
+                    <Toaster position="top-right" expand={true} richColors />
                       <button
                         className="nav-link active"
                         id="overview-tab"
@@ -54,7 +111,7 @@ const courseDetails = () => {
                         Overview
                       </button>
                     </li>
-                    <li className="nav-item" role="presentation">
+                    {/* <li className="nav-item" role="presentation">
                       <button
                         className="nav-link"
                         id="curriculum-tab"
@@ -95,7 +152,7 @@ const courseDetails = () => {
                       >
                         Reviews
                       </button>
-                    </li>
+                    </li> */}
                   </ul>
                   <div className="tab-content" id="myTabContent">
                     <div
@@ -104,79 +161,25 @@ const courseDetails = () => {
                       role="tabpanel"
                       aria-labelledby="overview-tab"
                     >
-                      <div className="overview-content">
+                      {courses.map((course, index) => (
+                       id==course._id &&
+                      <div className="overview-content" key={index}>
+                        <h3>{course.title}</h3>
                         <h3>Description</h3>
                         <p>
-                          Quisque velit nisi, pretium ut lacinia in, elementum
-                          id enim. Praesent sapien massa, convallis a
-                          pellentesque nec, egestas non nisi. Curabitur aliquet
-                          quam id dui posuere blandit. Donec rutrum congue leo
-                          eget malesuada. Vivamus magna justo, lacinia eget
-                          consectetur sed, convallis at tellus. Cras ultricies
-                          ligula sed magna dictum porta. Vivamus suscipit tortor
-                          eget felis porttitor volutpat. Nulla quis lorem ut
-                          libero malesuada feugiat. Vestibulum ante ipsum primis
-                          in faucibus orci luctus ultrices posuere cubilia
-                          Curae; Donec velit neque, auctor sit amet aliquam vel,
-                          ullamcorper sit amet ligula. Curabitur aliquet quam id
-                          dui.
-                        </p>
-                        <p>
-                          Donec sollicitudin molestie malesuada. Cras ultricies
-                          ligula sed magna dictum porta. Curabitur arcu erat,
-                          accumsan id imperdiet et, porttitor at sem. Curabitur
-                          non nulla sit amet nisl tempus convallis quis ac
-                          lectus. Vivamus suscipit tortor felis porttitor
-                          volutpat. Curabitur non nulla sit amet nisl tempus
-                          convallis quis ac lectus. Proin eget tortor risus.
-                          Vivamus suscipit tortor.
+                          {course.description}
                         </p>
                         <div className="gap-mb-35" />
                         <h3>Requirements</h3>
                         <p>
-                          Donec sollicitudin molestie malesuada. Cras ultricies
-                          ligula sed magna dictum porta. Curabitur arcu erat,
-                          accumsan id imperdiet et, porttitor at sem. Curabitur
-                          non nulla sit amet nisl tempus convallis quis ac
-                          lectus. Vivamus suscipit tortor felis porttitor
-                          volutpat. Curabitur non nulla sit amet nisl tempus
-                          convallis quis ac lectus. Proin eget tortor risus.
-                          Vivamus suscipit tortor.
+                          {course.requirements}
                         </p>
-                        <ul>
-                          <li>
-                            Praesent sapien massa, convallis a pellentesque nec,
-                            egestas non nisi.
-                          </li>
-                          <li>
-                            Curabitur aliquet quam id dui posuere blandit.{" "}
-                          </li>
-                          <li>
-                            {" "}
-                            Vivamus magna justo, lacinia eget consectetur sed,
-                            convallis at tellus.
-                          </li>
-                        </ul>
                         <div className="gap-mb-35" />
                         <h3>What you'll learn</h3>
                         <p>
-                          Quisque velit nisi, pretium ut lacinia in, elementum
-                          id enim. Praesent sapien massa, convallis a
-                          pellentesque nec, egestas non nisi. Curabitur aliquet
-                          quam id dui posuere blandit. Donec rutrum congue leo
-                          eget malesuada. Vivamus magna justo, lacinia.
+                          {course.contents}
                         </p>
-                        <p>
-                          Donec sollicitudin molestie malesuada. Cras ultricies
-                          ligula sed magna dictum porta. Vivamus suscipit tortor
-                          eget felis porttitor volutpat. Nulla quis lorem ut
-                          libero malesuada feugiat. Vestibulum ante ipsum primis
-                          in faucibus orci luctus ultrices posuere cubilia
-                          Curae; Donec velit neque, auctor sit amet aliquam vel,
-                          ullamcorper sit amet ligula. Curabitur aliquet quam id
-                          dui.
-                        </p>
-                      </div>
+                      </div>))}
                     </div>
                     <div
                       className="tab-pane fade"
@@ -761,39 +764,41 @@ const courseDetails = () => {
                     </div>
                   </div>
                   <div className="price-status">
-                    <ul className="in-price-list">
+                  {courses.map((course, index) => (
+                    id==course._id &&
+                  <ul className="in-price-list" key={index}>
                       <li>
-                        Price <span>$140.00</span>
+                        Price <span>{course.price}</span>
                       </li>
                       <li>
-                        Instructor: <span>Maggie Strickland</span>
+                        Instructor: <span>{course.instructor}</span>
                       </li>
                       <li>
-                        Duration: <span>11 weeks</span>
+                        Duration: <span>{course.duration}</span>
                       </li>
                       <li>
-                        Lectures: <span>11</span>
+                        Lectures: <span>{course.lectures}</span>
                       </li>
                       <li>
-                        Enrolled: <span>39 students</span>
+                        Enrolled: <span>{course.enrolled} students</span>
                       </li>
                       <li>
-                        Language: <span>English</span>
+                        Language: <span>{course.language}</span>
                       </li>
                       <li>
-                        Deadline: <span>05 Oct 2021</span>
+                        Deadline: <span>{course.deadline}</span>
                       </li>
-                    </ul>
+                    </ul>))}
                     <ul className="cart-wish-btn">
                       <li>
-                        <a href="#" className="default-btn">
+                        <a href="/cart" className="default-btn">
                           Add To Cart
                         </a>
                       </li>
                       <li>
-                        <a href="#" className="default-btn active">
+                        <button onClick={addWishList} className="default-btn active">
                           Add To Wishlist
-                        </a>
+                        </button>
                       </li>
                     </ul>
                     <ul className="social-link">

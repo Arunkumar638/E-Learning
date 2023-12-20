@@ -1,6 +1,11 @@
 'use client'
 import { useState, useEffect } from "react";
 import Script from "next/script";
+import { logoutUser } from "@/actions/userActions";
+import { useRouter } from "next/navigation";
+import swal from "sweetalert";
+import { Toaster, toast } from "sonner";
+import { getCourses } from "@/actions/otherActions";
 
  const Navbar = ({active}:any) =>{
   
@@ -15,8 +20,61 @@ import Script from "next/script";
     const [isBlog, setIsBlog] = useState(false);
     const [isBlogDetails, setIsBlogDetails] = useState(false);
     const [isContactUs, setIsContactUs] = useState(false);
+    const [isLogin, setIsLogin] = useState(false);
+    const [token, setToken] = useState("");
+    const [course, setCourse] = useState({
+      _id:"",
+    })
+    const router = useRouter();
+
+    const notifyError = (data: any) => {
+      if(data.message){
+      toast.error(data.message);
+      }
+      else{
+        toast.error(data);
+      }
+    };
+    
+    const logout = () =>{
+      const data = {"token":token}
+      logoutUser(data)
+      .then((data) => {
+        if (data.status == true) {
+          localStorage.removeItem('token');
+          swal({
+            title: "Success!",
+            text: data.message,
+            icon: "success",
+          });
+          setIsLogin(false);
+          router.push('/');
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          const message = error.response.data;
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
+          notifyError(message);
+        }
+      });
+    }
+
 
     useEffect(()=>{
+      const data = localStorage.getItem('token')
+      if(data){
+        setIsLogin(true);
+        setToken(data);
+      }
+
+    getCourses().then((data) => {
+      if (data) {
+        setCourse(data[0]);
+      }
+    });
+
     if(active == 'home'){
       setIsHome(true);
     }
@@ -123,7 +181,7 @@ import Script from "next/script";
                       </li>
                       <li className="nav-item">
                         <a
-                          href="/coursedetails"
+                          href={`/coursedetails/?=${course._id}`}
                           className={`nav-link ${isCourseDetails?`active`:``}`}
                         >
                           Course Details
@@ -175,13 +233,23 @@ import Script from "next/script";
                       </li>
                     </ul>
                   </li>
+                  <Toaster position="top-right" expand={true} richColors />
                   <li className="nav-item">
                     <a href="/contactus" className={`nav-link ${isContactUs?`active`:``}`}>
                       Contact Us
                     </a>
                   </li>
                 </ul>
-                <div className="others-options">
+                {isLogin ? <div className="others-options">
+                  <ul className="d-flex justify-content-between align-items-center">
+                    <li>
+                      <button onClick={logout} className="default-btn">
+                        Log out
+                        <i className="ri-login-box-line" />
+                      </button>
+                    </li>
+                  </ul>
+                </div>:<div className="others-options">
                   <ul className="d-flex justify-content-between align-items-center">
                     <li>
                       <a href="/login" className="sign-in">
@@ -196,7 +264,7 @@ import Script from "next/script";
                       </a>
                     </li>
                   </ul>
-                </div>
+                </div>}
               </div>
             </nav>
           </div>
@@ -210,7 +278,22 @@ import Script from "next/script";
                 <div className="circle circle-three" />
               </div>
             </div>
-            <div className="container">
+            {isLogin ? <div className="container">
+              <div className="option-inner">
+                <div className="others-options justify-content-center d-flex align-items-center">
+                  <ul>
+                    <li>
+                    </li>
+                    <li>
+                      <a href="#" className="default-btn">
+                        Logout
+                        <i className="ri-edit-line" />
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>:<div className="container">
               <div className="option-inner">
                 <div className="others-options justify-content-center d-flex align-items-center">
                   <ul>
@@ -229,7 +312,7 @@ import Script from "next/script";
                   </ul>
                 </div>
               </div>
-            </div>
+            </div>}
           </div>
         </div>
       </div>

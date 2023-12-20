@@ -36,20 +36,13 @@ const Login = () => {
   const onFinish = (values: any) => {
     console.log(values);
     loginUser(values).then((data)=>{
-      if(data.status = "Success" && data.new == true){
+      if(data.status == true){
         swal({
           title: "Success!",
           text: data.message,
           icon: "success",
         });
         localStorage.setItem('token',data.token);
-      }
-      if(data.status = "Success"){
-        swal({
-          title: "Success!",
-          text: data.message,
-          icon: "success",
-        });
         form.resetFields();
       }
       userRoute();
