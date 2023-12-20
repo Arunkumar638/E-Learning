@@ -2,10 +2,34 @@
 
 import Script from "next/script";
 import {Footer, Pagetitle} from "../../components/components";
-import { Suspense,lazy } from "react";
+import { Suspense,lazy, useEffect, useState } from "react";
+import { getCourses } from "@/actions/otherActions";
+
+interface combineBlog {
+  description:String;
+  about:String;
+  usertype:String;
+  title:String;
+  date:String;
+  views:String;
+  goal:String;
+  _id:String;
+}
 
 const blogDetails = () => {
   const Navbar = lazy(() => import('../../components/navBar'));
+  const [id, setId] = useState("")
+  const [blogs, setBlogs] = useState<combineBlog[]>([])
+  useEffect(()=>{
+    const urlToken = window.location.search.split("=")[1];
+    setId(urlToken);
+    getCourses().then((data) => {
+      if (data) {
+        setBlogs(data);
+      }
+    });
+  },[])
+
   return (
     <>
       <meta charSet="utf-8" />
@@ -44,66 +68,41 @@ const blogDetails = () => {
                     alt="Image"
                   />
                 </div>
-                <div className="blog-top-content">
+                {blogs.map((blog, index) => (
+                       id==blog._id &&
+                       <div className="blog-top-content">
                   <div className="news-content">
                     <ul className="admin">
                       <li>
                         <a href="/blog">
                           <i className="ri-user-line" />
-                          <span>Admin</span>
+                          <span>{blog.usertype}</span>
                         </a>
                       </li>
                       <li>
                         <i className="ri-time-fill" />
-                        <span>Sep 8,2021</span>
+                        <span>{blog.date}</span>
                       </li>
                       <li>
                         <i className="ri-eye-fill" />
-                        <span>32.2k Views</span>
+                        <span>{blog.views} Views</span>
                       </li>
                     </ul>
                     <h3>
-                      Education for Foreign Students &amp; Institution’s
-                      Teachers
+                      {blog.title}
                     </h3>
                     <p>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod tempor incididunt ut labore dolore magna
-                      aliqua. Quis ipsum suspendisse ultrices gravida. Risus
-                      commodo viverra maecenas accumsan lacus vel facilisis
-                      ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                      eiusmod tempo.
-                    </p>
-                    <p>
-                      Praesent dapibus, neque id cursus faucibus, tortor neque
-                      egestas auguae, eu vulputate magna eros eu Aliquam erat
-                      volutpat. Nam dui mi, tincidunt quis, accumsan porttitor,
-                      facilisis luctus, metus.
+                      {blog.description}
                     </p>
                   </div>
                   <blockquote>
                     <p>
-                      ‘’Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod tempor idunt ut labore et dolore magna
-                      aliqua. Quis ipsum suspendisse ultrices gravida. Risus
-                      modo viverra maecenas accumsan lacus vel facilisis.’’
+                      ‘’{blog.goal}’’
                     </p>
                   </blockquote>
                   <div className="news-content-2">
                     <p>
-                      Phasellus ultrices nulla quis nibh. Quisque a lectus.
-                      Donec consectetuer ligula vulputate sem tristique Nam
-                      nulla quam, gravida non, commodo a, sodales sit amet, nisi
-                      nulla quis nibh. Quisque a lectus. Lorem ipsum dolor sit
-                      amet, consectetuer adipiscing elit. Donec odio. Quisque
-                      volutpat mattis eros. malesuada erat ut turpis.
-                      Suspendisse urna nibh, viverra non semper suscipit
-                    </p>
-                    <p>
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Amet voluptates ipsa debitis voluptatem repellat animi
-                      dolor aliquam aut soluta blanditiis, quas adipisci cumque,
-                      velit aliquid consectetur nostrum minus corporis earum!
+                      {blog.about}
                     </p>
                   </div>
                   <div className="row">
@@ -169,7 +168,7 @@ const blogDetails = () => {
                       </li>
                     </ul>
                   </div>
-                </div>
+                </div>))}
                 <div className="comments">
                   <h3>Comments (2)</h3>
                   <ul>

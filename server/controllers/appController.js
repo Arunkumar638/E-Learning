@@ -1,6 +1,7 @@
 const sendEmail = require("../services/resetEmail");
 const Contact = require("../models/contactModel");
 const Courses = require("../models/courseModel");
+const Blogs = require("../models/blogModel");
 const Wishlist = require("../models/wishlistModel");
 const jwt = require("jsonwebtoken");
 
@@ -47,6 +48,19 @@ exports.contactDetails = async (req, res) => {
     } catch (error) {
       res.status(500).json({
         message: "Failed to get all courses",
+        status: false,
+        error: error.message,
+      });
+    }
+  };
+
+  exports.getAllBlogs = async (req, res) => {
+    try {
+      const blogs = await Blogs.find();
+      res.status(200).json(blogs);
+    } catch (error) {
+      res.status(500).json({
+        message: "Failed to get all blogs",
         status: false,
         error: error.message,
       });

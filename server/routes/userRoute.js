@@ -12,6 +12,7 @@ router.post("/contact", appController.contactDetails);
 router.post("/wishlist", appController.addWishlist);
 router.get("/getalluser", userController.getAllUser);
 router.get("/getcourses", appController.getAllCourses);
+router.get("/getblogs", appController.getAllBlogs);
 
 router.put("/reset", userController.resetUserByEmail);
 

@@ -2,10 +2,29 @@
 
 import Script from "next/script";
 import {Footer, Subscribe, Pagetitle} from "../../components/components";
-import { Suspense,lazy } from "react";
+import { Suspense,lazy, useEffect, useState } from "react";
+import { getBlogs } from "@/actions/otherActions";
+
+interface combineBlog {
+  title: string;
+  usertype: String;
+  date: String;
+  views: String;
+  _id:String;
+}
 
 const Blog = () => {
   const Navbar = lazy(() => import('../../components/navBar'));
+  const [blogs, setBlogs] = useState<combineBlog[]>([]);
+  const [isBlogCard, setIsBlogCard] = useState(false);
+  useEffect(() => {
+    getBlogs().then((data) => {
+      if (data) {
+        setBlogs(data);
+        setIsBlogCard(true);
+      }
+    });
+  }, []);
   return (
     <>
       <meta charSet="utf-8" />
@@ -42,146 +61,11 @@ const Blog = () => {
             </h2>
           </div>
           <div className="row justify-content-center">
+          {isBlogCard
+              && blogs.map((blog, index) => (
             <div className="col-xl-4 col-md-6">
-              <div className="single-blog-item">
-                <a href="/blogdetails">
-                  <img src="assets/images/blog/blog-1.jpg" alt="Image" />
-                </a>
-                <div className="blog-content">
-                  <ul className="d-flex justify-content-between">
-                    <li>
-                      <a href="/blog">
-                        <i className="ri-user-line" />
-                        <span>Admin</span>
-                      </a>
-                    </li>
-                    <li>
-                      <i className="ri-time-fill" />
-                      <span>Sep 8,2021</span>
-                    </li>
-                    <li>
-                      <i className="ri-eye-fill" />
-                      <span>32.2k Views</span>
-                    </li>
-                  </ul>
-                  <h3>
-                    <a href="/blogdetails">
-                      Education for Foreign Students &amp; Institution’s
-                      Teachers
-                    </a>
-                  </h3>
-                  <a href="/blogdetails" className="read-more">
-                    More Details
-                    <i className="ri-arrow-right-line" />
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="col-xl-4 col-md-6">
-              <div className="single-blog-item">
-                <a href="/blogdetails">
-                  <img src="assets/images/blog/blog-2.jpg" alt="Image" />
-                </a>
-                <div className="blog-content">
-                  <ul className="d-flex justify-content-between">
-                    <li>
-                      <a href="/blog">
-                        <i className="ri-user-line" />
-                        <span>Admin</span>
-                      </a>
-                    </li>
-                    <li>
-                      <i className="ri-time-fill" />
-                      <span>Sep 9,2021</span>
-                    </li>
-                    <li>
-                      <i className="ri-eye-fill" />
-                      <span>33.2k Views</span>
-                    </li>
-                  </ul>
-                  <h3>
-                    <a href="/blogdetails">
-                      Mastering on Data Modeling For Fundamentals Courses
-                    </a>
-                  </h3>
-                  <a href="/blogdetails" className="read-more">
-                    More Details
-                    <i className="ri-arrow-right-line" />
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="col-xl-4 col-md-6">
-              <div className="single-blog-item">
-                <a href="/blogdetails">
-                  <img src="assets/images/blog/blog-3.jpg" alt="Image" />
-                </a>
-                <div className="blog-content">
-                  <ul className="d-flex justify-content-between">
-                    <li>
-                      <a href="/blog">
-                        <i className="ri-user-line" />
-                        <span>Admin</span>
-                      </a>
-                    </li>
-                    <li>
-                      <i className="ri-time-fill" />
-                      <span>Sep 10,2021</span>
-                    </li>
-                    <li>
-                      <i className="ri-eye-fill" />
-                      <span>34.2k Views</span>
-                    </li>
-                  </ul>
-                  <h3>
-                    <a href="/blogdetails">
-                      Application Deadline to Graduate at Fall Convocation
-                    </a>
-                  </h3>
-                  <a href="/blogdetails" className="read-more">
-                    More Details
-                    <i className="ri-arrow-right-line" />
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="col-xl-4 col-md-6">
-              <div className="single-blog-item">
-                <a href="/blogdetails">
-                  <img src="assets/images/blog/blog-4.jpg" alt="Image" />
-                </a>
-                <div className="blog-content">
-                  <ul className="d-flex justify-content-between">
-                    <li>
-                      <a href="/blog">
-                        <i className="ri-user-line" />
-                        <span>Admin</span>
-                      </a>
-                    </li>
-                    <li>
-                      <i className="ri-time-fill" />
-                      <span>Sep 11,2021</span>
-                    </li>
-                    <li>
-                      <i className="ri-eye-fill" />
-                      <span>35.2k Views</span>
-                    </li>
-                  </ul>
-                  <h3>
-                    <a href="/blogdetails">
-                      USA Coordinates &amp; Participates in a Variety of Fairs
-                    </a>
-                  </h3>
-                  <a href="/blogdetails" className="read-more">
-                    More Details
-                    <i className="ri-arrow-right-line" />
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="col-xl-4 col-md-6">
-              <div className="single-blog-item">
-                <a href="/blogdetails">
+              <div className="single-blog-item" key={index}>
+                <a href={`/blogdetails/?=${blog._id}`}>
                   <img src="assets/images/blog/blog-5.jpg" alt="Image" />
                 </a>
                 <div className="blog-content">
@@ -189,22 +73,21 @@ const Blog = () => {
                     <li>
                       <a href="/blog">
                         <i className="ri-user-line" />
-                        <span>Admin</span>
+                        <span>{blog.usertype}</span>
                       </a>
                     </li>
                     <li>
                       <i className="ri-time-fill" />
-                      <span>Sep 11,2021</span>
+                      <span>{blog.date}</span>
                     </li>
                     <li>
                       <i className="ri-eye-fill" />
-                      <span>35.2k Views</span>
+                      <span>{blog.views} Views</span>
                     </li>
                   </ul>
                   <h3>
-                    <a href="/blogdetails">
-                      Is Poor Internet the Real Culprit? The Lessons of Online
-                      Learning
+                    <a href={`/blogdetails/?=${blog._id}`}>
+                      {blog.title}
                     </a>
                   </h3>
                   <a href="/blogdetails" className="read-more">
@@ -213,41 +96,7 @@ const Blog = () => {
                   </a>
                 </div>
               </div>
-            </div>
-            <div className="col-xl-4 col-md-6">
-              <div className="single-blog-item">
-                <a href="/blogdetails">
-                  <img src="assets/images/blog/blog-6.jpg" alt="Image" />
-                </a>
-                <div className="blog-content">
-                  <ul className="d-flex justify-content-between">
-                    <li>
-                      <a href="/blog">
-                        <i className="ri-user-line" />
-                        <span>Admin</span>
-                      </a>
-                    </li>
-                    <li>
-                      <i className="ri-time-fill" />
-                      <span>Sep 11,2021</span>
-                    </li>
-                    <li>
-                      <i className="ri-eye-fill" />
-                      <span>35.2k Views</span>
-                    </li>
-                  </ul>
-                  <h3>
-                    <a href="/blogdetails">
-                      Institution’s Teachers Day Toronto City Hall
-                    </a>
-                  </h3>
-                  <a href="/blogdetails" className="read-more">
-                    More Details
-                    <i className="ri-arrow-right-line" />
-                  </a>
-                </div>
-              </div>
-            </div>
+            </div>))}
           </div>
         </div>
       </div>
