@@ -1,8 +1,8 @@
 "use client";
 
 import Script from "next/script";
-import {Footer, Subscribe, Pagetitle} from "../../components/components";
-import { Suspense,lazy, useEffect, useState } from "react";
+import { Footer, Subscribe, Pagetitle } from "../../components/components";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { getBlogs } from "@/actions/otherActions";
 
 interface combineBlog {
@@ -10,11 +10,11 @@ interface combineBlog {
   usertype: String;
   date: String;
   views: String;
-  _id:String;
+  _id: String;
 }
 
 const Blog = () => {
-  const Navbar = lazy(() => import('../../components/navBar'));
+  const Navbar = lazy(() => import("../../components/navBar"));
   const [blogs, setBlogs] = useState<combineBlog[]>([]);
   const [isBlogCard, setIsBlogCard] = useState(false);
   useEffect(() => {
@@ -47,11 +47,11 @@ const Blog = () => {
       <link rel="stylesheet" href="assets/css/responsive.css" />
       <link rel="icon" type="image/png" href="assets/images/favicon.png" />
       <title>Jufa - Coach Online Courses HTML Template</title>
-     
+
       <Suspense fallback={<div>Loading...</div>}>
-        <Navbar active="blog"/>
+        <Navbar active="blog" />
       </Suspense>
-      <Pagetitle page="Blog"/>
+      <Pagetitle page="Blog" />
       <div className="blog-area ptb-100">
         <div className="container">
           <div className="section-title">
@@ -61,42 +61,41 @@ const Blog = () => {
             </h2>
           </div>
           <div className="row justify-content-center">
-          {isBlogCard
-              && blogs.map((blog, index) => (
-            <div className="col-xl-4 col-md-6">
-              <div className="single-blog-item" key={index}>
-                <a href={`/blogdetails/?=${blog._id}`}>
-                  <img src="assets/images/blog/blog-5.jpg" alt="Image" />
-                </a>
-                <div className="blog-content">
-                  <ul className="d-flex justify-content-between">
-                    <li>
-                      <a href="/blog">
-                        <i className="ri-user-line" />
-                        <span>{blog.usertype}</span>
-                      </a>
-                    </li>
-                    <li>
-                      <i className="ri-time-fill" />
-                      <span>{blog.date}</span>
-                    </li>
-                    <li>
-                      <i className="ri-eye-fill" />
-                      <span>{blog.views} Views</span>
-                    </li>
-                  </ul>
-                  <h3>
+            {isBlogCard &&
+              blogs.map((blog, index) => (
+                <div className="col-xl-4 col-md-6">
+                  <div className="single-blog-item" key={index}>
                     <a href={`/blogdetails/?=${blog._id}`}>
-                      {blog.title}
+                      <img src="assets/images/blog/blog-5.jpg" alt="Image" />
                     </a>
-                  </h3>
-                  <a href="/blogdetails" className="read-more">
-                    More Details
-                    <i className="ri-arrow-right-line" />
-                  </a>
+                    <div className="blog-content">
+                      <ul className="d-flex justify-content-between">
+                        <li>
+                          <a href="/blog">
+                            <i className="ri-user-line" />
+                            <span>{blog.usertype}</span>
+                          </a>
+                        </li>
+                        <li>
+                          <i className="ri-time-fill" />
+                          <span>{blog.date}</span>
+                        </li>
+                        <li>
+                          <i className="ri-eye-fill" />
+                          <span>{blog.views} Views</span>
+                        </li>
+                      </ul>
+                      <h3>
+                        <a href={`/blogdetails/?=${blog._id}`}>{blog.title}</a>
+                      </h3>
+                      <a href="/blogdetails" className="read-more">
+                        More Details
+                        <i className="ri-arrow-right-line" />
+                      </a>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>))}
+              ))}
           </div>
         </div>
       </div>

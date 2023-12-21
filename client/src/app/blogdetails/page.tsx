@@ -1,34 +1,34 @@
 "use client";
 
 import Script from "next/script";
-import {Footer, Pagetitle} from "../../components/components";
-import { Suspense,lazy, useEffect, useState } from "react";
-import { getCourses } from "@/actions/otherActions";
+import { Footer, Pagetitle } from "../../components/components";
+import { Suspense, lazy, useEffect, useState } from "react";
+import { getBlogs } from "@/actions/otherActions";
 
 interface combineBlog {
-  description:String;
-  about:String;
-  usertype:String;
-  title:String;
-  date:String;
-  views:String;
-  goal:String;
-  _id:String;
+  description: String;
+  about: String;
+  usertype: String;
+  title: String;
+  date: String;
+  views: String;
+  goal: String;
+  _id: String;
 }
 
 const blogDetails = () => {
-  const Navbar = lazy(() => import('../../components/navBar'));
-  const [id, setId] = useState("")
-  const [blogs, setBlogs] = useState<combineBlog[]>([])
-  useEffect(()=>{
+  const Navbar = lazy(() => import("../../components/navBar"));
+  const [id, setId] = useState("");
+  const [blogs, setBlogs] = useState<combineBlog[]>([]);
+  useEffect(() => {
     const urlToken = window.location.search.split("=")[1];
     setId(urlToken);
-    getCourses().then((data) => {
+    getBlogs().then((data) => {
       if (data) {
         setBlogs(data);
       }
     });
-  },[])
+  }, []);
 
   return (
     <>
@@ -52,11 +52,11 @@ const blogDetails = () => {
       <link rel="stylesheet" href="assets/css/responsive.css" />
       <link rel="icon" type="image/png" href="assets/images/favicon.png" />
       <title>Jufa - Coach Online Courses HTML Template</title>
-     
+
       <Suspense fallback={<div>Loading...</div>}>
-        <Navbar active="blogdetails"/>
+        <Navbar active="blogdetails" />
       </Suspense>
-      <Pagetitle page="Blog Details"/>
+      <Pagetitle page="Blog Details" />
       <div className="blog-details-area ptb-100">
         <div className="container">
           <div className="row">
@@ -68,107 +68,111 @@ const blogDetails = () => {
                     alt="Image"
                   />
                 </div>
-                {blogs.map((blog, index) => (
-                       id==blog._id &&
-                       <div className="blog-top-content">
-                  <div className="news-content">
-                    <ul className="admin">
-                      <li>
-                        <a href="/blog">
-                          <i className="ri-user-line" />
-                          <span>{blog.usertype}</span>
-                        </a>
-                      </li>
-                      <li>
-                        <i className="ri-time-fill" />
-                        <span>{blog.date}</span>
-                      </li>
-                      <li>
-                        <i className="ri-eye-fill" />
-                        <span>{blog.views} Views</span>
-                      </li>
-                    </ul>
-                    <h3>
-                      {blog.title}
-                    </h3>
-                    <p>
-                      {blog.description}
-                    </p>
-                  </div>
-                  <blockquote>
-                    <p>
-                      ‘’{blog.goal}’’
-                    </p>
-                  </blockquote>
-                  <div className="news-content-2">
-                    <p>
-                      {blog.about}
-                    </p>
-                  </div>
-                  <div className="row">
-                    <div className="col-lg-6 col-md-6">
-                      <div className="single-blog-post-img">
-                        <a href="/blogdetails">
-                          <img
-                            src="assets/images/blog-details/blog-1.jpg"
-                            alt="Image"
-                          />
-                        </a>
+                {blogs.map(
+                  (blog, index) =>
+                    id == blog._id && (
+                      <div className="blog-top-content">
+                        <div className="news-content">
+                          <ul className="admin">
+                            <li>
+                              <a href="/blog">
+                                <i className="ri-user-line" />
+                                <span>{blog.usertype}</span>
+                              </a>
+                            </li>
+                            <li>
+                              <i className="ri-time-fill" />
+                              <span>{blog.date}</span>
+                            </li>
+                            <li>
+                              <i className="ri-eye-fill" />
+                              <span>{blog.views} Views</span>
+                            </li>
+                          </ul>
+                          <h3>{blog.title}</h3>
+                          <p>{blog.description}</p>
+                        </div>
+                        <blockquote>
+                          <p>‘’{blog.goal}’’</p>
+                        </blockquote>
+                        <div className="news-content-2">
+                          <p>{blog.about}</p>
+                        </div>
+                        <div className="row">
+                          <div className="col-lg-6 col-md-6">
+                            <div className="single-blog-post-img">
+                              <a href="/blogdetails">
+                                <img
+                                  src="assets/images/blog-details/blog-1.jpg"
+                                  alt="Image"
+                                />
+                              </a>
+                            </div>
+                          </div>
+                          <div className="col-lg-6 col-md-6">
+                            <div className="single-blog-post-img">
+                              <a href="/blogdetails">
+                                <img
+                                  src="assets/images/blog-details/blog-2.jpg"
+                                  alt="Image"
+                                />
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="tag-bar d-flex justify-content-between">
+                          <ul className="tag-list">
+                            <li>
+                              <span>Tag:</span>
+                            </li>
+                            <li>
+                              <a href="/blog">Strategy</a>
+                            </li>
+                            <li>
+                              <a href="/blog">Workshop</a>
+                            </li>
+                            <li>
+                              <a href="/blog">Teaching</a>
+                            </li>
+                          </ul>
+                          <ul className="socila-link">
+                            <li>
+                              <span>Share:</span>
+                            </li>
+                            <li>
+                              <a
+                                href="https://www.facebook.com/"
+                                target="_blank"
+                              >
+                                <i className="ri-facebook-fill" />
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                href="https://www.twitter.com/"
+                                target="_blank"
+                              >
+                                <i className="ri-twitter-line" />
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                href="https://www.instagram.com/"
+                                target="_blank"
+                              >
+                                <i className="ri-instagram-line" />
+                              </a>
+                            </li>
+                            <li>
+                              <a href="https://www.google.com/" target="_blank">
+                                <i className="ri-google-fill" />
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
-                    </div>
-                    <div className="col-lg-6 col-md-6">
-                      <div className="single-blog-post-img">
-                        <a href="/blogdetails">
-                          <img
-                            src="assets/images/blog-details/blog-2.jpg"
-                            alt="Image"
-                          />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="tag-bar d-flex justify-content-between">
-                    <ul className="tag-list">
-                      <li>
-                        <span>Tag:</span>
-                      </li>
-                      <li>
-                        <a href="/blog">Strategy</a>
-                      </li>
-                      <li>
-                        <a href="/blog">Workshop</a>
-                      </li>
-                      <li>
-                        <a href="/blog">Teaching</a>
-                      </li>
-                    </ul>
-                    <ul className="socila-link">
-                      <li>
-                        <span>Share:</span>
-                      </li>
-                      <li>
-                        <a href="https://www.facebook.com/" target="_blank">
-                          <i className="ri-facebook-fill" />
-                        </a>
-                      </li>
-                      <li>
-                        <a href="https://www.twitter.com/" target="_blank">
-                          <i className="ri-twitter-line" />
-                        </a>
-                      </li>
-                      <li>
-                        <a href="https://www.instagram.com/" target="_blank">
-                          <i className="ri-instagram-line" />
-                        </a>
-                      </li>
-                      <li>
-                        <a href="https://www.google.com/" target="_blank">
-                          <i className="ri-google-fill" />
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>))}
+                    )
+                )}
                 <div className="comments">
                   <h3>Comments (2)</h3>
                   <ul>
@@ -373,32 +377,32 @@ const blogDetails = () => {
                   <ul>
                     <li>
                       <a href="#">
-                        August <span>2020</span>
+                        August <span>2022</span>
                       </a>
                     </li>
                     <li>
                       <a href="#">
-                        June <span>2020</span>
+                        June <span>2022</span>
                       </a>
                     </li>
                     <li>
                       <a href="#">
-                        April <span>2020</span>
+                        April <span>2022</span>
                       </a>
                     </li>
                     <li>
                       <a href="#">
-                        January <span>2020</span>
+                        January <span>2022</span>
                       </a>
                     </li>
                     <li>
                       <a href="#">
-                        December <span>2020</span>
+                        December <span>2023</span>
                       </a>
                     </li>
                     <li>
                       <a href="#">
-                        November <span>2020</span>
+                        November <span>2023</span>
                       </a>
                     </li>
                   </ul>

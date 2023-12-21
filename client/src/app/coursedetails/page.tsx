@@ -1,59 +1,61 @@
-'use client'
+"use client";
 
 import Script from "next/script";
-import {Footer,Pagetitle} from "../../components/components";
+import { Footer, Pagetitle } from "../../components/components";
 import { Suspense, lazy, useEffect, useState } from "react";
 import { addWish, getCourses } from "@/actions/otherActions";
 import { Toaster, toast } from "sonner";
 
 interface combineCourse {
-  description:String;
-  requirements:String;
-  title:String;
-  contents:String;
-  lectures:String;
-  price:String;
-  enrolled:String;
-  language:String;
-  duration:String;
-  instructor:String;
-  deadline:String;
-  _id:String;
+  description: String;
+  requirements: String;
+  title: String;
+  contents: String;
+  lectures: String;
+  price: String;
+  enrolled: String;
+  language: String;
+  duration: String;
+  instructor: String;
+  deadline: String;
+  _id: String;
 }
 
 const courseDetails = () => {
-  const Navbar = lazy(() => import('../../components/navBar'));
+  const Navbar = lazy(() => import("../../components/navBar"));
   const [courses, setCourses] = useState<combineCourse[]>([]);
   const [id, setId] = useState("");
-  const token = localStorage.getItem('token');
- 
-  const notifyError = (data:any) =>{
-    toast.error(data.message)
-  }
-  
-  const addWishList = () => {
-    const data = {
-      "token":token,
-      "courseId":id,
-      "status":true
-    }
-  addWish(data).then((data)=>{
-    if(data.status == true){
-     toast.success(data.message);
-    }
 
-  }).catch((error)=>{
-    console.log(error);
-    if (error.response) {
-      const message = error.response.data;
-      console.log(message);
-      console.log("Response data:", error.response.data);
-      console.log("Response status:", error.response.status);
-      notifyError(message);
-  }
-  })
-}
-  useEffect(()=>{
+
+  const notifyError = (data: any) => {
+    toast.error(data.message);
+  };
+
+  const addWishList = () => {
+    const token = localStorage.getItem("token");
+    const data = {
+      token: token,
+      courseId: id,
+      status: true,
+    };
+    addWish(data)
+      .then((data) => {
+        if (data.status == true) {
+          toast.success(data.message);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error.response) {
+          const message = error.response.data;
+          console.log(message);
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
+          notifyError(message);
+        }
+      });
+  };
+  useEffect(() => {
     const urlToken = window.location.search.split("=")[1];
     setId(urlToken);
     getCourses().then((data) => {
@@ -61,7 +63,7 @@ const courseDetails = () => {
         setCourses(data);
       }
     });
-  },[])
+  }, []);
   return (
     <>
       <meta charSet="utf-8" />
@@ -84,11 +86,11 @@ const courseDetails = () => {
       <link rel="stylesheet" href="assets/css/responsive.css" />
       <link rel="icon" type="image/png" href="assets/images/favicon.png" />
       <title>Jufa - Coach Online Courses HTML Template</title>
-      
+
       <Suspense fallback={<div>Loading...</div>}>
-        <Navbar active="coursedetails"/>
+        <Navbar active="coursedetails" />
       </Suspense>
-      <Pagetitle page="Course Details"/>
+      <Pagetitle page="Course Details" />
       <div className="courses-details-area ptb-100">
         <div className="container">
           <div className="row">
@@ -97,7 +99,7 @@ const courseDetails = () => {
                 <div className="tab">
                   <ul className="nav nav-tabs" id="myTab" role="tablist">
                     <li className="nav-item" role="presentation">
-                    <Toaster position="top-right" expand={true} richColors />
+                      <Toaster position="top-right" expand={true} richColors />
                       <button
                         className="nav-link active"
                         id="overview-tab"
@@ -161,25 +163,22 @@ const courseDetails = () => {
                       role="tabpanel"
                       aria-labelledby="overview-tab"
                     >
-                      {courses.map((course, index) => (
-                       id==course._id &&
-                      <div className="overview-content" key={index}>
-                        <h3>{course.title}</h3>
-                        <h3>Description</h3>
-                        <p>
-                          {course.description}
-                        </p>
-                        <div className="gap-mb-35" />
-                        <h3>Requirements</h3>
-                        <p>
-                          {course.requirements}
-                        </p>
-                        <div className="gap-mb-35" />
-                        <h3>What you'll learn</h3>
-                        <p>
-                          {course.contents}
-                        </p>
-                      </div>))}
+                      {courses.map(
+                        (course, index) =>
+                          id == course._id && (
+                            <div className="overview-content" key={index}>
+                              <h3>{course.title}</h3>
+                              <h3>Description</h3>
+                              <p>{course.description}</p>
+                              <div className="gap-mb-35" />
+                              <h3>Requirements</h3>
+                              <p>{course.requirements}</p>
+                              <div className="gap-mb-35" />
+                              <h3>What you'll learn</h3>
+                              <p>{course.contents}</p>
+                            </div>
+                          )
+                      )}
                     </div>
                     <div
                       className="tab-pane fade"
@@ -764,31 +763,34 @@ const courseDetails = () => {
                     </div>
                   </div>
                   <div className="price-status">
-                  {courses.map((course, index) => (
-                    id==course._id &&
-                  <ul className="in-price-list" key={index}>
-                      <li>
-                        Price <span>{course.price}</span>
-                      </li>
-                      <li>
-                        Instructor: <span>{course.instructor}</span>
-                      </li>
-                      <li>
-                        Duration: <span>{course.duration}</span>
-                      </li>
-                      <li>
-                        Lectures: <span>{course.lectures}</span>
-                      </li>
-                      <li>
-                        Enrolled: <span>{course.enrolled} students</span>
-                      </li>
-                      <li>
-                        Language: <span>{course.language}</span>
-                      </li>
-                      <li>
-                        Deadline: <span>{course.deadline}</span>
-                      </li>
-                    </ul>))}
+                    {courses.map(
+                      (course, index) =>
+                        id == course._id && (
+                          <ul className="in-price-list" key={index}>
+                            <li>
+                              Price <span>{course.price}</span>
+                            </li>
+                            <li>
+                              Instructor: <span>{course.instructor}</span>
+                            </li>
+                            <li>
+                              Duration: <span>{course.duration}</span>
+                            </li>
+                            <li>
+                              Lectures: <span>{course.lectures}</span>
+                            </li>
+                            <li>
+                              Enrolled: <span>{course.enrolled} students</span>
+                            </li>
+                            <li>
+                              Language: <span>{course.language}</span>
+                            </li>
+                            <li>
+                              Deadline: <span>{course.deadline}</span>
+                            </li>
+                          </ul>
+                        )
+                    )}
                     <ul className="cart-wish-btn">
                       <li>
                         <a href="/cart" className="default-btn">
@@ -796,7 +798,10 @@ const courseDetails = () => {
                         </a>
                       </li>
                       <li>
-                        <button onClick={addWishList} className="default-btn active">
+                        <button
+                          onClick={addWishList}
+                          className="default-btn active"
+                        >
                           Add To Wishlist
                         </button>
                       </li>

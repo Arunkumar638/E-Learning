@@ -13,18 +13,18 @@ interface combineCourse {
   lectures: String;
   type: String;
   price: String;
-  _id:String;
+  _id: String;
 }
 
 const ourCourses = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
   const [courses, setCourses] = useState<combineCourse[]>([]);
   const [isCourseCard, setIsCourseCard] = useState(false);
-  const [isLogin, setIsLogin] = useState(false)
+  const [isLogin, setIsLogin] = useState(false);
 
   const notifyError = () => {
-    const data = `Please Login first`
-      toast.error(data);
+    const data = `Please Login first`;
+    toast.error(data);
   };
 
   useEffect(() => {
@@ -34,8 +34,8 @@ const ourCourses = () => {
         setIsCourseCard(true);
       }
     });
-    const data = localStorage.getItem('token')
-    if(data){
+    const data = localStorage.getItem("token");
+    if (data) {
       setIsLogin(true);
     }
   }, []);
@@ -131,17 +131,21 @@ const ourCourses = () => {
                   <div className="col-xl-4 col-md-6">
                     <div className="single-courses-item" key={index}>
                       <div className="courses-img">
-                        {isLogin?<a href={`/coursedetails/?=${course._id}`}>
-                          <img
-                            src="assets/images/courses/courses-1.jpg"
-                            alt="Image"
-                          />
-                        </a>:<a href="#" onClick={notifyError}>
-                          <img
-                            src="assets/images/courses/courses-1.jpg"
-                            alt="Image"
-                          />
-                        </a>}  
+                        {isLogin ? (
+                          <a href={`/coursedetails/?=${course._id}`}>
+                            <img
+                              src="assets/images/courses/courses-1.jpg"
+                              alt="Image"
+                            />
+                          </a>
+                        ) : (
+                          <a href="#" onClick={notifyError}>
+                            <img
+                              src="assets/images/courses/courses-1.jpg"
+                              alt="Image"
+                            />
+                          </a>
+                        )}
                       </div>
                       <div className="courses-content">
                         <ul className="courses-view">
@@ -159,11 +163,15 @@ const ourCourses = () => {
                           </li>
                         </ul>
                         <h3>
-                         { isLogin ? <a href={`/coursedetails/?=${course._id}`}>
-                            {course.title}
-                          </a>:<a onClick={notifyError} href="#">
-                            {course.title}
-                          </a>}
+                          {isLogin ? (
+                            <a href={`/coursedetails/?=${course._id}`}>
+                              {course.title}
+                            </a>
+                          ) : (
+                            <a onClick={notifyError} href="#">
+                              {course.title}
+                            </a>
+                          )}
                         </h3>
                         <ul className="courses-time d-flex justify-content-between">
                           <li>

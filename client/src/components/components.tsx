@@ -457,7 +457,7 @@ export const Pagetitle = ({ page }: any) => {
                 <h2>{page}</h2>
                 <ul>
                   <li>
-                    <a href="index.html">Home</a>
+                    <a href="/">Home</a>
                   </li>
                   <li className="active">{page}</li>
                 </ul>
@@ -563,12 +563,11 @@ export const Tesimonials = () =>{
                   alt="Image"
                 />
                 <h3>Georia Laila</h3>
-                <span>Student at Porter Library</span>
+                <span>Student at Porter University</span>
               </div>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adising elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis
-                ipsum supendisse ultrices gravida. Risus commodo
+                Hi, I am a student and I learning about basics of web development also 
+                I doing some projects using my knowledge and it's very interesting to explore new concepts.
               </p>
               <img
                 src="assets/images/testimonials/quate.png"
@@ -583,12 +582,11 @@ export const Tesimonials = () =>{
                   alt="Image"
                 />
                 <h3>Ricky johnson</h3>
-                <span>Instructor at Porter Library</span>
+                <span>Instructor at Porter University</span>
               </div>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adising elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis
-                ipsum supendisse ultrices gravida. Risus commodo
+                Hi, I am instructor and I teaching about fundamentals of networking in this 
+                I am covering some basic concepts like OSI models, basics of routing, etc.
               </p>
               <img
                 src="assets/images/testimonials/quate.png"
@@ -603,12 +601,11 @@ export const Tesimonials = () =>{
                   alt="Image"
                 />
                 <h3>Charry Porter</h3>
-                <span>Student at Porter Library</span>
+                <span>Student at Porter University</span>
               </div>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adising elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis
-                ipsum supendisse ultrices gravida. Risus commodo
+                Hi, I am a student also I learning about fundamentals of networking and 
+                I learned some concepts like IP configuration and setting an IP to a system
               </p>
               <img
                 src="assets/images/testimonials/quate.png"
@@ -619,16 +616,16 @@ export const Tesimonials = () =>{
             <div className="single-testimonials-item">
               <div className="testimonials-mane">
                 <img
-                  src="assets/images/testimonials/testimonials-2.jpg"
+                  src="assets/images/courses/teacher-1.png"
                   alt="Image"
                 />
-                <h3>Ricky johnson</h3>
-                <span>Instructor at Porter Library</span>
+                <h3>Emma olivia</h3>
+                <span>Instructor at Porter University</span>
               </div>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adising elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis
-                ipsum supendisse ultrices gravida. Risus commodo
+                Hi, I am instructor and I teaching about basics of big data in this 
+                I am covering some basic concepts like managing data, 
+                maintaing persistent storage etc.
               </p>
               <img
                 src="assets/images/testimonials/quate.png"

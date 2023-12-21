@@ -13,10 +13,6 @@ import { getCourses } from "@/actions/otherActions";
     const [isAbout, setIsAbout] = useState(false);
     const [isHome, setIsHome] = useState(false);
     const [isOurCourses, setIsOurCourses] = useState(false);
-    const [isProduct, setIsProduct] = useState(false);
-    const [isCart, setIsCart] = useState(false);
-    const [isCheckOut, setIsCheckOut] = useState(false);
-    const [isProductDetails, setIsProductDetails] = useState(false);
     const [isBlog, setIsBlog] = useState(false);
     const [isBlogDetails, setIsBlogDetails] = useState(false);
     const [isContactUs, setIsContactUs] = useState(false);
@@ -24,7 +20,7 @@ import { getCourses } from "@/actions/otherActions";
     const [token, setToken] = useState("");
     const [course, setCourse] = useState({
       _id:"",
-    })
+    });
     const router = useRouter();
 
     const notifyError = (data: any) => {
@@ -87,18 +83,6 @@ import { getCourses } from "@/actions/otherActions";
     if(active =='ourcourses'){
       setIsOurCourses(true);
     }
-    if(active =='product'){
-      setIsProduct(true);
-    }
-    if(active =='cart'){
-      setIsCart(true);
-    }
-    if(active =='checkout'){
-      setIsCheckOut(true);
-    }
-    if(active =='productdetails'){
-      setIsProductDetails(true);
-    }
     if(active =='blog'){
       setIsBlog(true);
     }
@@ -115,9 +99,10 @@ import { getCourses } from "@/actions/otherActions";
         <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
         <link rel="stylesheet" href="assets/css/magnific-popup.min.css" />
         <link rel="stylesheet" href="assets/css/dark.css" />
+        <link rel="stylesheet" href="assets/css/before-after.min.css" />
         <link rel="stylesheet" href="assets/css/responsive.css" />
         <link rel="stylesheet" href="assets/css/style.css" />
-
+        <link rel="icon" type="image/png" href="assets/images/favicon.png" />
         <div className="navbar-area">
         <div className="mobile-responsive-nav">
           <div className="container">
@@ -185,33 +170,6 @@ import { getCourses } from "@/actions/otherActions";
                           className={`nav-link ${isCourseDetails?`active`:``}`}
                         >
                           Course Details
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                  <li className={`nav-item ${isCart?`active`:``} ${isCheckOut?`active`:``}`}>
-                    <a href="#" className={`nav-link dropdown-toggle ${isProduct?`active`:``} ${isProductDetails?`active`:``}`}>
-                      Shop
-                    </a>
-                    <ul className="dropdown-menu">
-                      <li className="nav-item">
-                        <a href="/product" className={`nav-link ${isProduct?`active`:``}`}>
-                          Product
-                        </a>
-                      </li>
-                      <li className="nav-item">
-                        <a href="/cart" className={`nav-link ${isCart?`active`:``}`}>
-                          Cart
-                        </a>
-                      </li>
-                      <li className="nav-item">
-                        <a href="/checkout" className={`nav-link ${isCheckOut?`active`:``}`}>
-                          Checkout
-                        </a>
-                      </li>
-                      <li className="nav-item">
-                        <a href="/productdetails" className={`nav-link ${isProductDetails?`active`:``}`}>
-                          Product Details
                         </a>
                       </li>
                     </ul>

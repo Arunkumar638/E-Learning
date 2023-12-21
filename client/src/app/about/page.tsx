@@ -87,10 +87,10 @@ const About = () => {
                   Smart Tutoring Program for Success <span>People</span>
                 </h2>
                 <p>
-                  Lorem ipsum dolor sit amet consectetur adipiscing elit sed do
-                  eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Quis ipsum suspendisse ultrices gravida. Risus commodo viverra
-                  maecenas.
+                We provide a growth mindset toward student learning and teaching practice. 
+                Facilitates problem-solving with a curious mind and critical thinking skills. 
+                Serves as a role-model for students. 
+                Collaborates effectively with parents and the organization to increase student performance.
                 </p>
                 <div className="row">
                   <div className="col-lg-6 col-sm-6">
@@ -119,10 +119,9 @@ const About = () => {
                   </div>
                 </div>
                 <p className="mb-0 mt-20">
-                  Lorem ipsum dolor sit amet consectetur adipiscing elit sed do
-                  eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Quis ipsum suspendisse ultrices gravida. Risus commodo viverra
-                  maecenas.
+                We meet with students to clarify and review concepts taught in class, explain processes and help students solve specific problems. 
+                Tutoring supports classroom-centered activities, and as such, the emphasis and 
+                content of the tutoring sessions is determined by the student's needs.
                 </p>
                 <a href="#" className="default-btn">
                   Join For Free
@@ -148,10 +147,8 @@ const About = () => {
                   Transform Your Life Best Through <span>Motivation</span>
                 </h2>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempdunt ut labore et dolore magna aliqua. Quis
-                  ipsum suspendisse ultrices gravida. Ricdoy viverra maecenas
-                  accumsan lacus vel facilisis.
+                We assist students in understanding and learning subject material from the course. 
+                Also help students achieve their personal academic goals by preparing them for upcoming class material.
                 </p>
                 <a
                   href="https://www.youtube.com/watch?v=zv5bpfxJ2xE"

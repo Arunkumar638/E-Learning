@@ -4,20 +4,27 @@ import { Footer, Pagetitle } from "../../components/components";
 import { Suspense, lazy } from "react";
 import { Checkbox, Form, Input } from "antd";
 import { useRouter } from "next/navigation";
-import swal from "sweetalert";
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import { useMemo } from "react";
 import { Toaster, toast } from "sonner";
 import { contact } from "@/actions/otherActions";
+
 const { TextArea } = Input;
 const contactUs = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
   const [form] = Form.useForm();
   const router = useRouter();
 
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: "AIzaSyD_8C7p0Ws2gUu7wo0b6pK9Qu7LuzX2iWY",
+  });
+  const center = useMemo(() => ({ lat: 9.923234, lng: 78.09941 }), []);
+  const Lat = 9.923234;
+  const Lang = 78.09941;
   const notifyError = (data: any) => {
-    if(data.message){
-    toast.error(data.message);
-    }
-    else{
+    if (data.message) {
+      toast.error(data.message);
+    } else {
       toast.error(data);
     }
   };
@@ -41,8 +48,10 @@ const contactUs = () => {
   };
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
+    console.log(process.env.REACT_APP_GOOGLE_API_KEY);
+    console.log(process.env.CURRENT_LONGITUDE);
+    console.log(process.env.CURRENT_LATITUDE);
     notifyError("Form submission failed");
-
   };
 
   const validateMessages = {
@@ -101,7 +110,7 @@ const contactUs = () => {
                   <div className="row">
                     <div className="col-lg-6 col-sm-6">
                       <div className="form-group">
-                      <Form.Item name="name" rules={[{ required: true }]}>
+                        <Form.Item name="name" rules={[{ required: true }]}>
                           <Input
                             type="text"
                             name="name"
@@ -115,65 +124,65 @@ const contactUs = () => {
                     </div>
                     <div className="col-lg-6 col-sm-6">
                       <div className="form-group">
-                      <Form.Item
-                      name="email"
-                      rules={[{ type: "email", required: true }]}
-                    >
-                        <Input
-                          type="email"
-                          className="form-control"
-                          placeholder="Email"
-                        />
+                        <Form.Item
+                          name="email"
+                          rules={[{ type: "email", required: true }]}
+                        >
+                          <Input
+                            type="email"
+                            className="form-control"
+                            placeholder="Email"
+                          />
                         </Form.Item>
                       </div>
                     </div>
                     <div className="col-lg-6 col-sm-6">
                       <div className="form-group">
-                      <Form.Item name="phoneNo" rules={[{ required: true }]}>
-                        <Input
-                          type="text"
-                          id="phone_number"
-                          className="form-control"
-                          placeholder="Phone No"
-                        />
+                        <Form.Item name="phoneNo" rules={[{ required: true }]}>
+                          <Input
+                            type="text"
+                            id="phone_number"
+                            className="form-control"
+                            placeholder="Phone No"
+                          />
                         </Form.Item>
                       </div>
                     </div>
                     <div className="col-lg-6 col-sm-6">
                       <div className="form-group">
-                      <Form.Item name="subject" rules={[{ required: true }]}>
-                        <Input
-                          type="text"
-                          id="msg_subject"
-                          className="form-control"
-                          data-error="Please enter your subject"
-                          placeholder="Subject"
-                        />
+                        <Form.Item name="subject" rules={[{ required: true }]}>
+                          <Input
+                            type="text"
+                            id="msg_subject"
+                            className="form-control"
+                            data-error="Please enter your subject"
+                            placeholder="Subject"
+                          />
                         </Form.Item>
                       </div>
                     </div>
                     <div className="col-lg-12">
                       <div className="form-group">
-                      <Form.Item name="message" rules={[{ required: true }]}>
-                        <TextArea
-                          name="message"
-                          className="form-control"
-                          id="message"
-                          cols={30}
-                          rows={6}
-                          data-error="Write your message"
-                          placeholder="Your Message"
-                        />
+                        <Form.Item name="message" rules={[{ required: true }]}>
+                          <TextArea
+                            name="message"
+                            className="form-control"
+                            id="message"
+                            cols={30}
+                            rows={6}
+                            data-error="Write your message"
+                            placeholder="Your Message"
+                          />
                         </Form.Item>
                         <div className="help-block with-errors" />
                       </div>
                     </div>
                     <Form.Item
-                        name="checkbox"
-                        valuePropName="checked"
-                        rules={[{ required: true }]}
-                        className="form-check"
-                      >
+                      name="checkbox"
+                      valuePropName="checked"
+                      rules={[{ required: true }]}
+                      className="form-check"
+                    >
                       <Checkbox
                         className="form-check-Input"
                         id="flexCheckDefault"
@@ -182,9 +191,9 @@ const contactUs = () => {
                         I agree to the{" "}
                         <a href="/conditions">Terms &amp; conditions</a>
                       </Checkbox>
-                      </Form.Item>
+                    </Form.Item>
                     <div className="col-lg-12 text-center">
-                    <Toaster position="top-right" expand={true} richColors />
+                      <Toaster position="top-right" expand={true} richColors />
                       <button type="submit" className="default-btn">
                         Send Your Message
                       </button>
@@ -202,7 +211,24 @@ const contactUs = () => {
         </div>
       </section>
       <div className="map-area">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d18876468.2003077!2d-113.72221585646197!3d54.7227051740391!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4b0d03d337cc6ad9%3A0x9968b72aa2438fa5!2sCanada!5e0!3m2!1sen!2sbd!4v1639561984704!5m2!1sen!2sbd" />
+        {/* {!isLoaded ? (
+          <h1>Loading...</h1>
+        ) : (
+          <GoogleMap
+            mapContainerClassName="map-container"
+            center={center}
+            zoom={10}
+          >
+            <Marker position={{ lat: Lat, lng: Lang }} />
+          </GoogleMap>
+        )} */}
+
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3930.2204077419588!2d78.09292537422891!3d9.915592890185533!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b00c5e47379f055%3A0xc37f21729e816ccc!2sSpiegel%20Technologies-%20Blockchain%20Development%26%20company%20l%20Crypto%20Tokenization%20Services%20l%20Custom%20Software%20Development!5e0!3m2!1sen!2sin!4v1703147569345!5m2!1sen!2sin"
+          loading="lazy"
+        ></iframe>
+
+        <div id="map"></div>
       </div>
       <Footer />
       <div className="go-top">
@@ -210,8 +236,15 @@ const contactUs = () => {
         <i className="ri-arrow-up-s-fill" />
       </div>
 
+
       <Script data-cfasync="false" src="assets/js/email-decode.min.js"></Script>
       <Script src="assets/js/jquery.min.js"></Script>
+
+      {/* <Script src="assets/js/mapapi.js"></Script> */}
+      {/* <Script src="assets/js/mapfunction.js"></Script>
+      <Script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_8C7p0Ws2gUu7wo0b6pK9Qu7LuzX2iWY&amp;libraries=places&amp;callback=initAutocomplete"></Script>
+      <Script src='http://maps.google.com/maps/api/js?sensor=false'></Script> */}
+      
       <Script src="assets/js/bootstrap.bundle.min.js"></Script>
       <Script src="assets/js/meanmenu.min.js"></Script>
       <Script src="assets/js/owl.carousel.min.js"></Script>
