@@ -1,6 +1,62 @@
+'use client'
+
+import { login } from "@/actions/userActions";
+import { Form } from "antd";
+import { useRouter } from "next/navigation";
 import Script from "next/script";
+import { toast } from "sonner";
+import swal from "sweetalert";
 
 const Login = () => {
+  const [form] = Form.useForm();
+  const router = useRouter();
+  const onFinishFailed = (errorInfo: any) => {
+    console.log("Failed:", errorInfo);
+    console.error("Form submission failed");
+  };
+
+  const validateMessages = {
+    required: "${label} is required!",
+    types: {
+      email: "${label} is Invalid!",
+      password: "${label} is Invalid!",
+      name: "${label} is too long!",
+    },
+  };
+  const userRoute = () => {
+    router.push("/");
+  };
+  const notifyError = (data: any) => {
+    toast.error(data.message);
+  };
+
+  const onFinish = (values: any) => {
+    console.log(values);
+    login(values)
+      .then((data) => {
+        if (data.status == true) {
+          swal({
+            title: "Success!",
+            text: data.message,
+            icon: "success",
+          });
+          localStorage.setItem("token", data.token);
+          form.resetFields();
+        }
+        userRoute();
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error.response) {
+          const message = error.response.data;
+          console.log(message);
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
+          notifyError(message);
+        }
+      });
+  };
+
   return (
     <>
       <meta charSet="utf-8" />
@@ -14,19 +70,12 @@ const Login = () => {
       {/* Bootstrap CSS */}
       <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
       {/* Fontawesome CSS */}
-      <link
-        rel="stylesheet"
-        href="assets/plugins/css/fontawesome.min.css"
-      />
-      <link
-        rel="stylesheet"
-        href="assets/plugins/css/all.min.css"
-      />
+      <link rel="stylesheet" href="assets/css/fontawesome.min.css" />
+      <link rel="stylesheet" href="assets/css/all.min.css" />
       {/* Owl Carousel CSS */}
       <link rel="stylesheet" href="assets/css/owl.carousel.min.css" />
       <link rel="stylesheet" href="assets/css/owl.theme.default.min.css" />
-      {/* Feathericon CSS */}
-      <link rel="stylesheet" href="assets/feather.css" />
+  
       {/* Main CSS */}
       <link rel="stylesheet" href="assets/css/style.css" />
       {/* Main Wrapper */}
@@ -48,34 +97,12 @@ const Login = () => {
                     Welcome to <br />
                     Steex Courses.
                   </h2>
-
                 </div>
               </div>
-              {/* <div className="welcome-login">
-                <div className="login-banner">
-                  <img
-                    src="assets/images/login-img.png"
-                    className="img-fluid"
-                    alt="Logo"
-                  />
-                </div>
-                <div className="mentor-course text-center">
-                  <h2>
-                    Welcome to <br />
-                    DreamsLMS Courses.
-                  </h2>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam.
-                  </p>
-                </div>
-              </div> */}
             </div>
           </div>
-   
-          <div className="col-md-6 login-wrap-bg">
 
+          <div className="col-md-6 login-wrap-bg">
             <div className="login-wrapper">
               <div className="loginbox">
                 <div className="w-100">
@@ -90,24 +117,37 @@ const Login = () => {
                     </div>
                   </div>
                   <h1>Sign In</h1>
-                  <form action="instructor-dashboard.html">
+                  <Form
+                    name="register-form"
+                    form={form}
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                    validateMessages={validateMessages}
+                    initialValues={{ checkbox: true }}
+                  >
                     <div className="input-block">
                       <label className="form-control-label">Email</label>
+                      <Form.Item
+                      name="email"
+                      rules={[{ type: "email", required: true }]}
+                    >
                       <input
                         type="email"
                         className="form-control"
                         placeholder="Enter your email address"
                       />
+                      </Form.Item>
                     </div>
                     <div className="input-block">
                       <label className="form-control-label">Password</label>
                       <div className="pass-group">
+                      <Form.Item name="password" rules={[{ required: true }]}>
                         <input
                           type="password"
                           className="form-control pass-input"
                           placeholder="Enter your password"
                         />
-                        <span className="feather-eye toggle-password" />
+                        </Form.Item>
                       </div>
                     </div>
                     <div className="forgot">
@@ -117,14 +157,6 @@ const Login = () => {
                         </a>
                       </span>
                     </div>
-                    <div className="remember-me">
-                      <label className="custom_check mr-2 mb-0 d-inline-flex remember-me">
-                        {" "}
-                        Remember me
-                        <input type="checkbox" name="radio" />
-                        <span className="checkmark" />
-                      </label>
-                    </div>
                     <div className="d-grid">
                       <button
                         className="btn btn-primary btn-start"
@@ -133,23 +165,20 @@ const Login = () => {
                         Sign In
                       </button>
                     </div>
-                  </form>
+                  </Form>
                 </div>
                 <div className="text-center">
-                <p className="mt-4">
-                  New User ? <a href="register.html">Create an Account</a>
-                </p>
+                  <p className="mt-4">
+                    New User ? <a href="/register">Create an Account</a>
+                  </p>
                 </div>
               </div>
             </div>
-            {/* /Login */}
           </div>
         </div>
       </div>
       <Script src="assets/js/jquery.min.js"></Script>
-
       <Script src="assets/js/bootstrap.bundle.min.js"></Script>
-
       <Script src="assets/js/owl.carousel.min.js"></Script>
       <Script src="assets/js/script.js"></Script>
     </>

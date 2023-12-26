@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const userRoutes = require('./routes/userRoute');
+const adminRoutes = require('./routes/adminRoute');
+const appRoutes = require('./routes/appRoute');
 const bodyParser = require('body-parser');
 require("dotenv").config();
 
@@ -25,5 +27,7 @@ app.use((err, req, res, next) => {
   next();
 });
 
-app.use("/", userRoutes);
+app.use("/user", userRoutes);
+app.use("/admin", adminRoutes);
+app.use("/app", appRoutes);
 app.listen(port, () => console.log(`Server up and running on port ${port}`));

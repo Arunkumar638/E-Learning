@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseUrl = "http://localhost:8000";
+const baseUrl = "http://localhost:8000/app";
 
 export const contact = async (data: any) => {
   return axios({

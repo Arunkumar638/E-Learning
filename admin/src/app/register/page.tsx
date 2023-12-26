@@ -24,7 +24,7 @@ const Register = () => {
     },
   };
   const userRoute = () => {
-    router.push("/");
+    router.push("/login");
   };
   const notifyError = (data: any) => {
     toast.error(data.message);
@@ -122,8 +122,7 @@ const Register = () => {
                 </div>
                 <h1>Sign up</h1>
                 <Form
-                  action="login.html"
-                  name="login-form"
+                  name="register-form"
                   form={form}
                   onFinish={onFinish}
                   onFinishFailed={onFinishFailed}
