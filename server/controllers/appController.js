@@ -1,8 +1,10 @@
 const sendEmail = require("../services/resetEmail");
+const subscriptionEmail = require("../services/subscribeMail");
 const Contact = require("../models/contactModel");
 const Courses = require("../models/courseModel");
 const Blogs = require("../models/blogModel");
 const Wishlist = require("../models/wishlistModel");
+const Comment = require("../models/commentReplyModel")
 const jwt = require("jsonwebtoken");
 
 const secretKey = `V5LzRs_Pw9OYSt5cMOSc3b8aK1V6n2wiBWaeAcJ48kY`;
@@ -35,6 +37,53 @@ exports.contactDetails = async (req, res) => {
     } catch (error) {
       res.status(500).json({
         message: "Failed to send email",
+        status: false,
+        error: error.message,
+      });
+    }
+  };
+
+  exports.Subscribe = async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      const mailDetails = {
+        email:email,
+        subject: "Subscription Confirmation",
+        name : "Learner",
+      }
+      subscriptionEmail(mailDetails);
+      res.status(201).json({
+        status: true,
+        message: "You're now subscribed successfully",
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Failed to send Mail",
+        status: false,
+        error: error.message,
+      });
+    }
+  };
+  
+  exports.Comment = async (req, res) => {
+    try {
+      const { name, email, website, comment } = req.body;
+      const newComment = new Comment({
+        name,
+        email,
+        website,
+        comment,
+      });
+
+      await newComment.save();
+      res.status(201).json({
+        status: true,
+        message: "Comment posted successfully",
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Failed to save Comment",
         status: false,
         error: error.message,
       });

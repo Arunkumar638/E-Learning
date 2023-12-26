@@ -1,5 +1,5 @@
 import axios from "axios";
-import  jwt from "jsonwebtoken";
+
 const baseUrl = 'http://localhost:8000';
 const secretKey = `V5LzRs_Pw9OYSt5cMOSc3b8aK1V6n2wiBWaeAcJ48kY`;
 

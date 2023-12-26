@@ -3,7 +3,14 @@
 import Script from "next/script";
 import { Footer, Pagetitle } from "../../components/components";
 import { Suspense, lazy, useEffect, useState } from "react";
-import { getBlogs } from "@/actions/otherActions";
+import { comment, getBlogs } from "@/actions/otherActions";
+import { Checkbox, Form, Input } from "antd";
+import swal from "sweetalert";
+import { useRouter } from "next/navigation";
+// import ReCAPTCHA from 'react-google-recaptcha';
+import { toast } from "sonner";
+
+const { TextArea } = Input;
 
 interface combineBlog {
   description: String;
@@ -20,6 +27,60 @@ const blogDetails = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
   const [id, setId] = useState("");
   const [blogs, setBlogs] = useState<combineBlog[]>([]);
+  const [captchaValue, setCaptchaValue] = useState('');
+
+  const [form] = Form.useForm();
+  const router = useRouter();
+
+  const onFinishFailed = (errorInfo: any) => {
+    console.log("Failed:", errorInfo);
+    console.error("Form submission failed");
+    swal({
+      title: "Error",
+      text: `Form submission failed`,
+      icon: "error",
+    });
+  };
+
+  const validateMessages = {
+    required: "${label} is required!",
+    types: {
+      email: "${label} is Invalid!",
+      password: "${label} is Invalid!",
+      name: "${label} is too long!",
+    },
+  };
+
+  const notifyError = (data: any) => {
+    toast.error(data.message);
+  };
+  
+  // const handleCaptchaChange = (value) => {
+  //   console.log("CAPTCHA value:", value);
+  //   setCaptchaValue(value);
+  // };
+
+  const onFinish = (values: any) => {
+    comment(values)
+      .then((data) => {
+        if (data.status == true) {
+          swal({
+            title: "Success!",
+            text: data.message,
+            icon: "success",
+          });
+          form.resetFields();
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          const message = error.response.data;
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
+          notifyError(message);
+        }
+      });
+  };
   useEffect(() => {
     const urlToken = window.location.search.split("=")[1];
     setId(urlToken);
@@ -173,58 +234,31 @@ const blogDetails = () => {
                       </div>
                     )
                 )}
-                <div className="comments">
-                  <h3>Comments (2)</h3>
-                  <ul>
-                    <li>
-                      <img
-                        src="assets/images/blog-details/comments-1.jpg"
-                        alt="Image"
-                      />
-                      <h3>Juanita Jones</h3>
-                      <span>Monday, Dec 20, 2021</span>
-                      <p>
-                        Lorem ipsum dolora sit amet, consectetur adipiscing elit
-                        sed do eiusmod tempor incdidunt labore et dolore magna
-                        aliqua. Veniam quis nostrud exercitation ullaco
-                      </p>
-                      <a href="#">Reply</a>
-                    </li>
-                    <li>
-                      <img
-                        src="assets/images/blog-details/comments-2.jpg"
-                        alt="Image"
-                      />
-                      <h3>Ward F. Nelson</h3>
-                      <span>Monday, Dec 21, 2021</span>
-                      <p>
-                        Lorem ipsum dolora sit amet, consectetur adipiscing elit
-                        sed do eiusmod tempor incdidunt labore et dolore magna
-                        aliqua. Veniam quis nostrud exercitation ullaco
-                      </p>
-                      <a href="#">Reply</a>
-                    </li>
-                  </ul>
-                </div>
+
                 <div className="leave-reply">
                   <h3>Leave A Reply</h3>
                   <p>
                     Your email address will not be published. Required fields
                     are marked<span className="star">*</span>
                   </p>
-                  <form>
+                  <Form form={form} name="blog-form"
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                    validateMessages={validateMessages}>
                     <div className="row">
                       <div className="col-lg-6 col-sm-6">
                         <div className="form-group">
                           <label>
                             Name<span className="star">*</span>
                           </label>
-                          <input
+                          <Form.Item name="name" rules={[{ required: true }]}>
+                          <Input
                             type="text"
                             name="name"
                             id="name"
                             className="form-control"
                           />
+                          </Form.Item>
                         </div>
                       </div>
                       <div className="col-lg-6 col-sm-6">
@@ -232,44 +266,61 @@ const blogDetails = () => {
                           <label>
                             Email address<span className="star">*</span>
                           </label>
-                          <input
+                          <Form.Item
+                          name="email"
+                          rules={[{ type: "email", required: true }]}
+                        >
+                          <Input
                             type="email"
                             name="email"
                             id="email"
                             className="form-control"
                           />
+                          </Form.Item>
                         </div>
                       </div>
                       <div className="col-lg-12">
                         <div className="form-group">
                           <label>Your website</label>
-                          <input
+                          <Form.Item name="website">
+                          <Input
                             type="text"
                             name="your-website-link"
                             id="your-website-link"
                             className="form-control"
                           />
+                          </Form.Item>
                         </div>
                       </div>
                       <div className="col-lg-12 col-md-12">
                         <div className="form-group">
                           <label>Comment</label>
-                          <textarea
+                          <Form.Item name="comment" rules={[{ required: true }]}>
+                          <TextArea
                             name="message"
                             className="form-control"
                             id="message"
                             rows={8}
                             defaultValue={""}
                           />
+                          </Form.Item>
                         </div>
                       </div>
                       <div className="col-12">
                         <div className="form-group">
-                          <input type="checkbox" id="chb2" />
-                          <span>
+                        {/* <Form.Item
+                        name="checkbox"
+                        valuePropName="checked"
+                        rules={[{ required: true }]}>
+                          <Checkbox
+                          id="chb2" style={{marginTop:"1rem"}}><br/>
+          
+                          <span style={{marginTop:"1rem"}}>
                             Save my name, email, and website in this browser for
                             the next time I comment.
                           </span>
+                          </Checkbox>
+                          </Form.Item> */}
                         </div>
                       </div>
                       <div className="col-lg-12 col-md-12">
@@ -278,7 +329,7 @@ const blogDetails = () => {
                         </button>
                       </div>
                     </div>
-                  </form>
+                  </Form>
                 </div>
               </div>
             </div>

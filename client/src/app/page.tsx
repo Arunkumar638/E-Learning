@@ -2,12 +2,53 @@
 
 import Script from 'next/script';
 import {Footer, Subscribe, Instructors, Tesimonials} from "../components/components";
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
+import { getBlogs, getCourses } from '@/actions/otherActions';
+import Carousel from 'react-bootstrap/Carousel';
+import Container  from 'react-bootstrap/Container';
+import { CourseItems } from '@/components/items';
+interface combineCourse {
+  courseid: string;
+  title: string;
+  duration: String;
+  lectures: String;
+  imagepath:String;
+  type: String;
+  price: String;
+  _id: String;
+}
 
-
-
+interface combineBlog {
+  title: string;
+  usertype: String;
+  imagepath:String;
+  date: String;
+  views: String;
+  blogId:String;
+  _id: String;
+}
 export default function Home() {
   const Navbar = lazy(() => import('../components/navBar'));
+  const [blogs, setBlogs] = useState<combineBlog[]>([]);
+  const [isBlogCard, setIsBlogCard] = useState(false);
+  const [courses, setCourses] = useState<combineCourse[]>([]);
+  const [isCourseCard, setIsCourseCard] = useState(false);
+  
+  
+  useEffect(() => {
+    getCourses().then((data) => {
+      if (data) {
+        setCourses(data);
+        setIsCourseCard(true);
+      }
+    });
+    getBlogs().then((data) => {
+      if (data) {
+        setBlogs(data);
+        setIsBlogCard(true);
+      }
+    });
+  }, []);
   return (
     <>
       <div>
@@ -45,9 +86,10 @@ export default function Home() {
                     The Best Place For The Best <span>Career.</span>
                   </h1>
                   <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Quis placerat arcu nibh sed placerat elementum. Urna eu et
-                    purus et mi sit rhoncus. Id nisl quis arcu nulla.
+                    We're aiming to create an engaging and informative online course that 
+                    helps learners achieve the desired learning outcomes and create a path for 
+                    learning easily.
+                    
                   </p>
                   <div className="banner-btn">
                     <a href="/ourcourses" className="default-btn">
@@ -243,36 +285,6 @@ export default function Home() {
               <div className="col-lg-5">
                 <div className="about-img">
                   <img src="assets/images/about-img.png" alt="Image" />
-                  <div className="carlos">
-                    <div className="carlos-review">
-                      <img src="assets/images/about-sub-img.png" alt="Image" />
-                      <div>
-                        <h4>Carlos Pearson</h4>
-                        <span>
-                          <i className="ri-star-fill" />
-                          <i className="ri-star-fill" />
-                          <i className="ri-star-fill" />
-                          <i className="ri-star-fill" />
-                          <i className="ri-star-fill" />
-                        </span>
-                      </div>
-                    </div>
-                    <ul>
-                      <li className="ps-0">More Information</li>
-                      <li>
-                        <i className="ri-briefcase-line" />
-                        Professional Life coach
-                      </li>
-                      <li>
-                        <i className="ri-calendar-2-line" />
-                        29 June 1987
-                      </li>
-                      <li>
-                        <i className="ri-user-line" />
-                        27 Client
-                      </li>
-                    </ul>
-                  </div>
                 </div>
               </div>
               <div className="col-lg-7">
@@ -282,10 +294,9 @@ export default function Home() {
                     Smart Tutoring Program for Success <span>People</span>
                   </h2>
                   <p>
-                    Lorem ipsum dolor sit amet consectetur adipiscing elit sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Quis ipsum suspendisse ultrices gravida. Risus
-                    commodo viverra maecenas.
+                  We offering so many courses for 
+                    those people who wants to start carrer at any field at affordable cost. 
+                    Our motive is to cover basic topics in all courses and make easy to learn.
                   </p>
                   <div className="row">
                     <div className="col-lg-6 col-sm-6">
@@ -398,211 +409,10 @@ export default function Home() {
                   </li>
                 </ul>
               </div>
-              <div className="single-courses-item">
-                <div className="courses-img">
-                  <a href="courses.html">
-                    <img
-                      src="assets/images/courses/courses-2.jpg"
-                      alt="Image"
-                    />
-                  </a>
-                  <ul>
-                    <li>
-                      <a href="courses.html">Featured</a>
-                    </li>
-                    <li className="bg-5696fa">
-                      <span>Free</span>
-                    </li>
-                  </ul>
-                  <img
-                    src="assets/images/courses/teacher-2.png"
-                    alt="Image"
-                    className="teacher"
-                  />
-                </div>
-                <div className="courses-content">
-                  <ul className="courses-view">
-                    <li>
-                      <i className="ri-user-line" />
-                      5.6k
-                    </li>
-                    <li>
-                      <i className="ri-eye-line" />
-                      256.5k
-                    </li>
-                    <li>
-                      <i className="ri-star-fill" />
-                      5.0
-                    </li>
-                  </ul>
-                  <h3>
-                    <a href="/coursedetails">
-                      Mastering on Data Modeling For Fundamentals Courses
-                    </a>
-                  </h3>
-                  <ul className="courses-time d-flex justify-content-between">
-                    <li>
-                      <i className="ri-time-fill" />
-                      03 hr 30 min
-                    </li>
-                    <li>
-                      <i className="ri-vidicon-fill" />
-                      25 Lectures
-                    </li>
-                    <li>
-                      <i className="ri-list-check" />
-                      Beginer
-                    </li>
-                  </ul>
-                </div>
-                <ul className="courses-fee d-flex justify-content-between">
-                  <li>$199</li>
-                  <li>
-                    <a href="/coursedetails" className="read-more">
-                      More Details
-                      <i className="ri-arrow-right-line" />
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div className="single-courses-item">
-                <div className="courses-img">
-                  <a href="courses.html">
-                    <img
-                      src="assets/images/courses/courses-3.jpg"
-                      alt="Image"
-                    />
-                  </a>
-                  <ul>
-                    <li>
-                      <a href="courses.html">Featured</a>
-                    </li>
-                    <li className="bg-fd9519">
-                      <a href="courses.html">Development</a>
-                    </li>
-                  </ul>
-                  <img
-                    src="assets/images/courses/teacher-3.png"
-                    alt="Image"
-                    className="teacher"
-                  />
-                </div>
-                <div className="courses-content">
-                  <ul className="courses-view">
-                    <li>
-                      <i className="ri-user-line" />
-                      8.5k
-                    </li>
-                    <li>
-                      <i className="ri-eye-line" />
-                      754.5k
-                    </li>
-                    <li>
-                      <i className="ri-star-fill" />
-                      4.8
-                    </li>
-                  </ul>
-                  <h3>
-                    <a href="/coursedetails">
-                      UI/UX Design Pattern For Successfully Software
-                    </a>
-                  </h3>
-                  <ul className="courses-time d-flex justify-content-between">
-                    <li>
-                      <i className="ri-time-fill" />
-                      01 hr 20 min
-                    </li>
-                    <li>
-                      <i className="ri-vidicon-fill" />
-                      18 Lectures
-                    </li>
-                    <li>
-                      <i className="ri-list-check" />
-                      Beginer
-                    </li>
-                  </ul>
-                </div>
-                <ul className="courses-fee d-flex justify-content-between">
-                  <li>$140</li>
-                  <li>
-                    <a href="/coursedetails" className="read-more">
-                      More Details
-                      <i className="ri-arrow-right-line" />
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div className="single-courses-item">
-                <div className="courses-img">
-                  <a href="courses.html">
-                    <img
-                      src="assets/images/courses/courses-4.jpg"
-                      alt="Image"
-                    />
-                  </a>
-                  <ul>
-                    <li>
-                      <a href="courses.html">Featured</a>
-                    </li>
-                    <li className="bg-5696fa">
-                      <span>Free</span>
-                    </li>
-                  </ul>
-                  <img
-                    src="assets/images/courses/teacher-2.png"
-                    alt="Image"
-                    className="teacher"
-                  />
-                </div>
-                <div className="courses-content">
-                  <ul className="courses-view">
-                    <li>
-                      <i className="ri-user-line" />
-                      3.6k
-                    </li>
-                    <li>
-                      <i className="ri-eye-line" />
-                      256.5k
-                    </li>
-                    <li>
-                      <i className="ri-star-fill" />
-                      5.0
-                    </li>
-                  </ul>
-                  <h3>
-                    <a href="/coursedetails">
-                      Mastering on Data Modeling For Fundamentals Courses
-                    </a>
-                  </h3>
-                  <ul className="courses-time d-flex justify-content-between">
-                    <li>
-                      <i className="ri-time-fill" />
-                      02 hr 30 min
-                    </li>
-                    <li>
-                      <i className="ri-vidicon-fill" />
-                      35 Lectures
-                    </li>
-                    <li>
-                      <i className="ri-list-check" />
-                      Beginer
-                    </li>
-                  </ul>
-                </div>
-                <ul className="courses-fee d-flex justify-content-between">
-                  <li>$200</li>
-                  <li>
-                    <a href="/coursedetails" className="read-more">
-                      More Details
-                      <i className="ri-arrow-right-line" />
-                    </a>
-                  </li>
-                </ul>
-              </div>
             </div>
           </div>
         </div>
-        <Instructors />
+
         <div className="motivation-area ptb-100">
           <div className="container">
             <div className="row align-items-center">
@@ -614,20 +424,18 @@ export default function Home() {
               <div className="col-lg-7">
                 <div className="motivation-content">
                   <h2>
-                    Transform Your Life Best Through <span>Motivation</span>
+                    Transform Your Life Through Best <span>Motivation</span>
                   </h2>
                   <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempdunt ut labore et dolore magna aliqua. Quis
-                    ipsum suspendisse ultrices gravida. Ricdoy viverra maecenas
-                    accumsan lacus vel facilisis.
+                    We motivate learners those who are struggling in topics which they feel hard to learn.
+                    Our tutors handle easiest way of all to teach any topics in the particular course.
                   </p>
                   <a
                     href="https://www.youtube.com/watch?v=zv5bpfxJ2xE"
                     className="video-btn popup-youtube"
                   >
                     <i className="ri-play-fill" />
-                    <span>Warch Video</span>
+                    <span>Watch Video</span>
                   </a>
                 </div>
               </div>
@@ -644,10 +452,8 @@ export default function Home() {
                       Become a Best Teacher and Enjoy <span>Your Life</span>
                     </h2>
                     <p>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod tempdunt ut labore et dolore magna aliqua.
-                      Quis ipsum suspendisse ultrices gravida. Ricdoy viverra
-                      maecenas accumsan lacus vel facilisis.
+                      We create a path for those people who wants to become tutor, 
+                      we welcome those peoples and we assign the course which is very familiar to the tutor. 
                     </p>
                     <a href="our-instructors.html" className="default-btn">
                       Start Teaching Today
@@ -673,41 +479,49 @@ export default function Home() {
                 Check Out Our Latest <span>Blog</span>
               </h2>
             </div>
+
             <div className="blog-slide owl-carousel owl-theme">
-              <div className="single-blog-item">
-                <a href="/blogdetails">
-                  <img src="assets/images/blog/blog-1.jpg" alt="Image" />
-                </a>
-                <div className="blog-content">
-                  <ul className="d-flex justify-content-between">
-                    <li>
-                      <a href="/blog">
-                        <i className="ri-user-line" />
-                        <span>Admin</span>
-                      </a>
-                    </li>
-                    <li>
-                      <i className="ri-time-fill" />
-                      <span>Sep 8,2021</span>
-                    </li>
-                    <li>
-                      <i className="ri-eye-fill" />
-                      <span>32.2k Views</span>
-                    </li>
-                  </ul>
-                  <h3>
-                    <a href="/blogdetails">
-                      Education for Foreign Students &amp; Institution’s
-                      Teachers
-                    </a>
-                  </h3>
-                  <a href="/blogdetails" className="read-more">
-                    More Details
-                    <i className="ri-arrow-right-line" />
+
+            <div className='carousel-container'>
+              {isBlogCard && blogs.map((blog,index) => {
+                return(
+                <div className='single-blog-item' key={index}>
+                  <a href="/blogdetails">
+                    <img src="assets/images/blog/blog-1.jpg" alt="Image" />
                   </a>
+                  <div className="blog-content">
+                    <ul className="d-flex justify-content-between">
+                      <li>
+                        <a href="/blog">
+                          <i className="ri-user-line" />
+                          <span>{blog.usertype}</span>
+                        </a>
+                      </li>
+                      <li>
+                        <i className="ri-time-fill" />
+                        <span>{blog.date}</span>
+                      </li>
+                      <li>
+                        <i className="ri-eye-fill" />
+                        <span>{blog.views} Views</span>
+                      </li>
+                    </ul>
+                    <h3>
+                      <a href="/blogdetails">
+                        {blog.title} {/* Replace blog.title with your blog title */}
+                      </a>
+                    </h3>
+                    <a href="/blogdetails" className="read-more">
+                      More Details
+                      <i className="ri-arrow-right-line" />
+                    </a>
+                  </div>
                 </div>
-              </div>
-              <div className="single-blog-item">
+                )}
+              )}
+            </div>
+
+              {/* <div className="single-blog-item">
                 <a href="/blogdetails">
                   <img src="assets/images/blog/blog-2.jpg" alt="Image" />
                 </a>
@@ -716,7 +530,7 @@ export default function Home() {
                     <li>
                       <a href="/blog">
                         <i className="ri-user-line" />
-                        <span>Admin</span>
+                        <span>Admin</span> 
                       </a>
                     </li>
                     <li>
@@ -802,7 +616,7 @@ export default function Home() {
                     <i className="ri-arrow-right-line" />
                   </a>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

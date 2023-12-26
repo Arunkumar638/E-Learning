@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
-const adminMail = `<support@spiegeltechnologies.com>`;
+const adminMail = `support@spiegeltechnologies.com`;
 const link = `localhost:3000/reset`;
 const sendEmail = async (option) => {
   const transporter = nodemailer.createTransport({
@@ -28,8 +28,8 @@ const sendEmail = async (option) => {
       subject: option.subject,
       text: option.message,
     };
+    await transporter.sendMail(emailOptions);
   }
-  await transporter.sendMail(emailOptions);
 };
 
 module.exports = sendEmail;

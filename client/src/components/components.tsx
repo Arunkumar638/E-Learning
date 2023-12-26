@@ -1,6 +1,10 @@
 "use client";
+import { Form, Input } from "antd";
 import Script from "next/script";
 import { useState, useEffect } from "react";
+import swal from "sweetalert";
+import { toast } from "sonner";
+import { subscribe } from "../actions/otherActions";
 export const Footer = () => {
     return (
       <>
@@ -487,7 +491,48 @@ export const Pagetitle = ({ page }: any) => {
 
 export const Subscribe = ({page}:any) => {
   
-    const [isAbout, setIsAbout] = useState(false)
+  const [form] = Form.useForm();
+    const [isAbout, setIsAbout] = useState(false);
+
+
+    const notifyError = (data:any) =>{
+      toast.error(data.message)
+    }
+    
+    const onFinish = (values: any) => {
+      console.log(values);
+      subscribe(values).then((data)=>{
+        if(data.status == true){
+          swal({
+            title: "Success!",
+            text: data.message,
+            icon: "success",
+          });
+          form.resetFields();
+        }
+      }).catch((error)=>{
+        console.log(error);
+        if (error.response) {
+          const message = error.response.data;
+          console.log(message);
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
+          notifyError(message);
+      }
+      })
+    };
+    const validateMessages = {
+      required: "${label} is required!",
+      types: {
+        email: "${label} is Invalid!",
+      },
+    };
+
+    const onFinishFailed = (errorInfo: any) => {
+      console.log("Failed:", errorInfo);
+      console.error("Form submission failed");
+    };
+
     useEffect(()=>{
       if(page=='about'){
         setIsAbout(true);
@@ -509,33 +554,42 @@ export const Subscribe = ({page}:any) => {
                     Subscribe <span>Newsletters</span>
                   </h2>
                   <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusm tempor incididunt ut labore et dolore magna aliqua.
+                    If you enjoying our services please subscribe and share your experience 
+                    this helps us to know that whether learners has any incovinience or not.
                   </p>
                 </div>
               </div>
               <div className="col-lg-6">
-                <form className="newsletter-form" data-toggle="validator">
-                  <input
+                <Form className="newsletter-form" data-toggle="validator"
+                name="login-form"
+                form={form}
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
+                validateMessages={validateMessages}>
+                  <Form.Item
+                      name="email"
+                      rules={[{ type: "email", required: true }]}
+                    >
+                  <Input
                     type="email"
                     className="form-control"
                     placeholder="Your email address"
-                    name="EMAIL"
-                    required
-                    autoComplete="off"
                   />
+                  </Form.Item>
                   <button className="default-btn" type="submit">
                     Subscribe
                     <i className="ri-send-plane-fill" />
                   </button>
-                  <div id="validator-newsletter" className="form-result" />
-                </form>
+                  {/* <div id="validator-newsletter" className="form-result" /> */}
+                </Form>
               </div>
             </div>
           </div>
         </div>
         <Script src="/assets/js/jquery.min.js"></Script>
         <Script src="assets/js/bootstrap.bundle.min.js"></Script>
+        <Script src="assets/js/form-validator.min.js"></Script>
+        <Script src="assets/js/contact-form-script.js"></Script>
       </>
     );
   };

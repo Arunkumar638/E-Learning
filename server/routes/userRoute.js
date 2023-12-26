@@ -10,6 +10,9 @@ router.post("/forgot", userController.forgotPassword);
 router.post("/verify", userController.verifyToken);
 router.post("/contact", appController.contactDetails);
 router.post("/wishlist", appController.addWishlist);
+router.post("/subscribe", appController.Subscribe)
+router.post("/comment",appController.Comment)
+
 router.get("/getalluser", userController.getAllUser);
 router.get("/getcourses", appController.getAllCourses);
 router.get("/getblogs", appController.getAllBlogs);

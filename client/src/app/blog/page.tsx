@@ -8,6 +8,7 @@ import { getBlogs } from "@/actions/otherActions";
 interface combineBlog {
   title: string;
   usertype: String;
+  imagepath:String;
   date: String;
   views: String;
   _id: String;
@@ -66,7 +67,7 @@ const Blog = () => {
                 <div className="col-xl-4 col-md-6">
                   <div className="single-blog-item" key={index}>
                     <a href={`/blogdetails/?=${blog._id}`}>
-                      <img src="assets/images/blog/blog-5.jpg" alt="Image" />
+                      <img src={`${blog.imagepath}`} alt="Image" />
                     </a>
                     <div className="blog-content">
                       <ul className="d-flex justify-content-between">

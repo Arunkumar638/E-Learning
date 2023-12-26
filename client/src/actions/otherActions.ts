@@ -78,3 +78,43 @@ export const addWish = async (data: any) => {
       throw error;
     });
 };
+
+export const subscribe = async (data: any) => {
+  return axios({
+    method: "post",
+    url: `${baseUrl}/subscribe`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    data: data,
+    timeout: 5000,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const comment = async (data: any) => {
+  return axios({
+    method: "post",
+    url: `${baseUrl}/comment`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    data: data,
+    timeout: 5000,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};

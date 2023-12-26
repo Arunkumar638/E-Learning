@@ -11,6 +11,7 @@ interface combineCourse {
   title: string;
   duration: String;
   lectures: String;
+  imagepath:String;
   type: String;
   price: String;
   _id: String;
@@ -134,14 +135,14 @@ const ourCourses = () => {
                         {isLogin ? (
                           <a href={`/coursedetails/?=${course._id}`}>
                             <img
-                              src="assets/images/courses/courses-1.jpg"
+                              src={`${course.imagepath}`}
                               alt="Image"
                             />
                           </a>
                         ) : (
                           <a href="#" onClick={notifyError}>
                             <img
-                              src="assets/images/courses/courses-1.jpg"
+                              src={`${course.imagepath}`}
                               alt="Image"
                             />
                           </a>

@@ -18,9 +18,8 @@ const contactUs = () => {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyD_8C7p0Ws2gUu7wo0b6pK9Qu7LuzX2iWY",
   });
-  const center = useMemo(() => ({ lat: 9.923234, lng: 78.09941 }), []);
-  const Lat = 9.923234;
-  const Lang = 78.09941;
+  const center = useMemo(() => ({ lat: process.env.CURRENT_LATITUDE, lng: process.env.CURRENT_LONGITUDE }), []);
+
   const notifyError = (data: any) => {
     if (data.message) {
       toast.error(data.message);
@@ -48,9 +47,7 @@ const contactUs = () => {
   };
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
-    console.log(process.env.REACT_APP_GOOGLE_API_KEY);
-    console.log(process.env.CURRENT_LONGITUDE);
-    console.log(process.env.CURRENT_LATITUDE);
+
     notifyError("Form submission failed");
   };
 
@@ -219,7 +216,7 @@ const contactUs = () => {
             center={center}
             zoom={10}
           >
-            <Marker position={{ lat: Lat, lng: Lang }} />
+            <Marker position={{ lat: process.env.CURRENT_LATITUDE, lng: process.env.CURRENT_LONGITUDE }} />
           </GoogleMap>
         )} */}
 

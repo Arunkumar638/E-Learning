@@ -236,7 +236,8 @@ import { getCourses } from "@/actions/otherActions";
                 <div className="circle circle-three" />
               </div>
             </div>
-            {isLogin ? <div className="container">
+            {isLogin ? 
+            <div className="container">
               <div className="option-inner">
                 <div className="others-options justify-content-center d-flex align-items-center">
                   <ul>
@@ -274,6 +275,7 @@ import { getCourses } from "@/actions/otherActions";
           </div>
         </div>
       </div>
+
       <Script src="/assets/js/jquery.min.js"></Script>
       <Script src="assets/js/bootstrap.bundle.min.js"></Script>
       <Script src="assets/js/meanmenu.min.js"></Script>

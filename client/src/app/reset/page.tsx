@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { reset, verifyToken } from "@/actions/userActions";
 import { Toaster, toast } from "sonner";
 import axios from "axios";
-import { verify } from "crypto";
 
 const Reset = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
