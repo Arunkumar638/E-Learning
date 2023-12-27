@@ -1,7 +1,6 @@
 import React from 'react'
 
-
-export default function loginLayout({
+export default function addBlogLayout({
   children,
 }: {
   children: React.ReactNode

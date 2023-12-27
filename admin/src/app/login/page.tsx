@@ -4,7 +4,7 @@ import { login } from "@/actions/userActions";
 import { Form } from "antd";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import { toast } from "sonner";
+import { Toaster, toast } from "sonner";
 import swal from "sweetalert";
 
 const Login = () => {
@@ -158,6 +158,7 @@ const Login = () => {
                       </span>
                     </div>
                     <div className="d-grid">
+                    <Toaster position="top-right" expand={true} richColors />
                       <button
                         className="btn btn-primary btn-start"
                         type="submit"

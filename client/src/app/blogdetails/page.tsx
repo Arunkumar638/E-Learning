@@ -8,7 +8,7 @@ import { Checkbox, Form, Input } from "antd";
 import swal from "sweetalert";
 import { useRouter } from "next/navigation";
 // import ReCAPTCHA from 'react-google-recaptcha';
-import { toast } from "sonner";
+import { Toaster, toast } from "sonner";
 
 const { TextArea } = Input;
 
@@ -324,6 +324,7 @@ const blogDetails = () => {
                         </div>
                       </div>
                       <div className="col-lg-12 col-md-12">
+                      <Toaster position="top-right" expand={true} richColors />
                         <button type="submit" className="default-btn page-btn">
                           <span>Post A Comment</span>
                         </button>

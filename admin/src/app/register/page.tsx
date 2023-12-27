@@ -3,7 +3,7 @@
 import Script from "next/script";
 import { Checkbox, Form, Input } from "antd";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { Toaster, toast } from "sonner";
 import swal from "sweetalert";
 import { save } from "@/actions/userActions";
 
@@ -204,6 +204,7 @@ const Register = () => {
                     </label>
                   </div>
                   <div className="d-grid">
+                  <Toaster position="top-right" expand={true} richColors />
                     <button className="btn btn-primary btn-start" type="submit">
                       Create Account
                     </button>

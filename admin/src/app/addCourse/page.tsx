@@ -1,27 +1,97 @@
-'use client'
+"use client";
 
 import Script from "next/script";
-import withAuth from "@/hoc/authMiddleware";
+import { Form, Input } from "antd";
+import { useRouter } from "next/navigation";
+import { Toaster, toast } from "sonner";
+import { useState } from "react";
+import swal from "sweetalert";
+import { addCourse } from "@/actions/otherActions";
 
- const Home = () =>{
+const { TextArea } = Input;
+const Addcourse = () => {
+
+    const [form] = Form.useForm();
+    const router = useRouter();
+    const [type, setType] = useState("");
+    const [language, setLanguage] = useState("");
+    const onFinishFailed = (errorInfo: any) => {
+      console.log("Failed:", errorInfo);
+      console.error("Form submission failed");
+    };
+  
+    const validateMessages = {
+      required: "${label} is required!",
+      types: {
+        email: "${label} is Invalid!",
+        password: "${label} is Invalid!",
+        name: "${label} is too long!",
+      },
+    };
+
+    const formatDate = (value:Date) =>{
+        const date = new Date(value);
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const day = ('0' + date.getDate()).slice(-2);
+        const month = months[date.getMonth()]; 
+        const year = date.getFullYear();
+        
+        const formattedDate = `${day} ${month} ${year}`;
+        return formattedDate;
+    }
+    const notifyError = (data: any) => {
+      toast.error(data.message);
+    };
+    const handleTypeChange = (event:any) => {
+        setType(event.target.value);
+      };
+      const handleLangChange = (event:any) => {
+        setLanguage(event.target.value);
+      };
+    const onFinish = (values: any) => {
+        values.type = type;
+        values.language = language;
+        values.deadline = formatDate(values.deadline);
+        console.log(values);
+      addCourse(values)
+        .then((data) => {
+          if (data.status == true) {
+            swal({
+              title: "Success!",
+              text: data.message,
+              icon: "success",
+            });
+            localStorage.setItem("token", data.token);
+            form.resetFields();
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          if (error.response) {
+            const message = error.response.data;
+            console.log(message);
+            console.log("Response data:", error.response.data);
+            console.log("Response status:", error.response.status);
+            notifyError(message);
+          }
+        });
+    };
   return (
     <>
       <meta charSet="utf-8" />
-      <title>Learning | Steex - Admin &amp; Dashboard Template</title>
+      <title>Create Course | Steex - Admin &amp; Dashboard Template</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta content="Minimal Admin & Dashboard Template" name="deScription" />
+      <meta content="Minimal Admin & Dashboard Template" name="description" />
       <meta content="Themesbrand" name="author" />
       {/* App favicon */}
       <link rel="shortcut icon" href="assets/images/favicon.ico" />
       {/* Fonts css load */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-      <link
-        id="fontsLink"
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet"
-      />
-      {/* Layout config Js */}
+      <link id="fontsLink" href="assets/css/font.min.css" rel="stylesheet" />
+      {/* dropzone css */}
+      <link rel="stylesheet" href="assets/css/dropzone.css" type="text/css" />
+
       {/* Bootstrap Css */}
       <link
         href="assets/css/bootstrap.min.css"
@@ -30,12 +100,12 @@ import withAuth from "@/hoc/authMiddleware";
       />
       {/* Icons Css */}
       <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+      <link href="assets/css/fontawesome.min.css" rel="stylesheet" type="text/css" />
       {/* App Css*/}
       <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
       {/* custom Css*/}
       <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
 
-      
       <div id="layout-wrapper">
         <header id="page-topbar">
           <div className="layout-width">
@@ -128,7 +198,7 @@ import withAuth from "@/hoc/authMiddleware";
                       </div>
                       {/* item*/}
                       <a
-                        href="javaScript:void(0);"
+                        href="javascript:void(0);"
                         className="dropdown-item notify-item"
                       >
                         <i className="ri-bubble-chart-line align-middle fs-18 text-muted me-2" />
@@ -136,7 +206,7 @@ import withAuth from "@/hoc/authMiddleware";
                       </a>
                       {/* item*/}
                       <a
-                        href="javaScript:void(0);"
+                        href="javascript:void(0);"
                         className="dropdown-item notify-item"
                       >
                         <i className="ri-lifebuoy-line align-middle fs-18 text-muted me-2" />
@@ -144,7 +214,7 @@ import withAuth from "@/hoc/authMiddleware";
                       </a>
                       {/* item*/}
                       <a
-                        href="javaScript:void(0);"
+                        href="javascript:void(0);"
                         className="dropdown-item notify-item"
                       >
                         <i className="ri-user-settings-line align-middle fs-18 text-muted me-2" />
@@ -159,7 +229,7 @@ import withAuth from "@/hoc/authMiddleware";
                       <div className="notification-list">
                         {/* item */}
                         <a
-                          href="javaScript:void(0);"
+                          href="javascript:void(0);"
                           className="dropdown-item notify-item py-2"
                         >
                           <div className="d-flex">
@@ -178,7 +248,7 @@ import withAuth from "@/hoc/authMiddleware";
                         </a>
                         {/* item */}
                         <a
-                          href="javaScript:void(0);"
+                          href="javascript:void(0);"
                           className="dropdown-item notify-item py-2"
                         >
                           <div className="d-flex">
@@ -197,7 +267,7 @@ import withAuth from "@/hoc/authMiddleware";
                         </a>
                         {/* item */}
                         <a
-                          href="javaScript:void(0);"
+                          href="javascript:void(0);"
                           className="dropdown-item notify-item py-2"
                         >
                           <div className="d-flex">
@@ -226,8 +296,8 @@ import withAuth from "@/hoc/authMiddleware";
                 </form>
               </div>
               <div className="d-flex align-items-center">
-                <div className="dropdown ms-sm-3 header-item topbar-user gap-3">
-                <button
+                <div className="dropdown ms-sm-3 header-item topbar-user">
+                  <button
                     type="button"
                     className="btn shadow-none"
                     id="page-header-user-dropdown"
@@ -299,7 +369,61 @@ import withAuth from "@/hoc/authMiddleware";
               </div>
             </div>
           </div>
-        </header> 
+        </header>
+        {/* /.modal */}
+        {/* removeCartModal */}
+        <div
+          id="removeCartModal"
+          className="modal fade zoomIn"
+          tabIndex={-1}
+          aria-hidden="true"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                  id="close-cartmodal"
+                />
+              </div>
+              <div className="modal-body p-md-5">
+                <div className="text-center">
+                  <div className="text-danger">
+                    <i className="bi bi-trash display-5" />
+                  </div>
+                  <div className="mt-4">
+                    <h4>Are you sure ?</h4>
+                    <p className="text-muted mx-4 mb-0">
+                      Are you sure you want to remove this product ?
+                    </p>
+                  </div>
+                </div>
+                <div className="d-flex gap-2 justify-content-center mt-4 mb-2">
+                  <button
+                    type="button"
+                    className="btn w-sm btn-light"
+                    data-bs-dismiss="modal"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    className="btn w-sm btn-danger"
+                    id="remove-cartproduct"
+                  >
+                    Yes, Delete It!
+                  </button>
+                </div>
+              </div>
+            </div>
+            {/* /.modal-content */}
+          </div>
+          {/* /.modal-dialog */}
+        </div>
+        {/* /.modal */}
         {/* ========== App Menu ========== */}
         <div className="app-menu navbar-menu">
           {/* LOGO */}
@@ -337,7 +461,7 @@ import withAuth from "@/hoc/authMiddleware";
                 </li>
                 <li className="nav-item">
                   <a
-                    className="nav-link menu-link active"
+                    className="nav-link menu-link"
                     href="/"
                     role="button"
                     aria-expanded="false"
@@ -350,24 +474,24 @@ import withAuth from "@/hoc/authMiddleware";
                 <li className="nav-item">
                   <a
                     href="#sidebarLearning"
-                    className="nav-link menu-link  collapsed"
+                    className="nav-link menu-link active collapsed"
                     data-bs-toggle="collapse"
                     role="button"
-                    aria-expanded="false"
+                    aria-expanded="true"
                     aria-controls="sidebarLearning"
                   >
                     <i className="ph-graduation-cap" />{" "}
                     <span data-key="t-learning">Learning</span>
                   </a>
-                  <div className="collapse menu-dropdown" id="sidebarLearning">
+                  <div className="collapse menu-dropdown show" id="sidebarLearning">
                     <ul className="nav nav-sm flex-column">
                       <li className="nav-item">
                         <a
                           href="#sidebarCourses"
-                          className="nav-link"
+                          className="nav-link active"
                           data-bs-toggle="collapse"
                           role="button"
-                          aria-expanded="false"
+                          aria-expanded="true"
                           aria-controls="sidebarCourses"
                           data-key="t-courses"
                         >
@@ -375,7 +499,7 @@ import withAuth from "@/hoc/authMiddleware";
                           Courses{" "}
                         </a>
                         <div
-                          className="collapse menu-dropdown"
+                          className="collapse menu-dropdown show"
                           id="sidebarCourses"
                         >
                           <ul className="nav nav-sm flex-column">
@@ -397,10 +521,10 @@ import withAuth from "@/hoc/authMiddleware";
                                 Overview
                               </a>
                             </li>
-                            <li className="nav-item">
+                            <li className="nav-item active">
                               <a
                                 href="/addCourse"
-                                className="nav-link"
+                                className="nav-link active"
                                 data-key="t-create-course"
                               >
                                 Create Course
@@ -1754,11 +1878,14 @@ import withAuth from "@/hoc/authMiddleware";
               <div className="row">
                 <div className="col-12">
                   <div className="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 className="mb-sm-0">Home</h4>
+                    <h4 className="mb-sm-0">Create Course</h4>
                     <div className="page-title-right">
                       <ol className="breadcrumb m-0">
                         <li className="breadcrumb-item">
-                          <a href="javaScript: void(0);">Home</a>
+                          <a href="javascript: void(0);">Courses</a>
+                        </li>
+                        <li className="breadcrumb-item active">
+                          Create Course
                         </li>
                       </ol>
                     </div>
@@ -1767,1175 +1894,392 @@ import withAuth from "@/hoc/authMiddleware";
               </div>
               {/* end page title */}
               <div className="row">
-                <div className="col-xxl-9">
-                  <div className="row">
-                    <div className="col-xxl-9">
-                      <div className="row">
-                        <div className="col-lg-6">
-                          <div className="card">
-                            <div className="card-body">
-                              <span className="badge bg-success-subtle text-success float-end">
-                                <i className="bi bi-arrow-up" /> 4.65%
-                              </span>
-                              <p className="fs-md text-muted mb-4">
-                                Total Students
-                              </p>
-                              <h3 className="mb-n3">
-                                <span
-                                  className="counter-value"
-                                  data-target={4879}
-                                >
-                                  0
-                                </span>
-                                k{" "}
-                              </h3>
-                              <div
-                                id="total_students"
-                                data-colors='["--tb-light", "--tb-secondary", "--tb-light", "--tb-light", "--tb-light", "--tb-light","--tb-light"]'
-                                className="apex-charts"
-                                dir="ltr"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        {/*end row*/}
-                        <div className="col-lg-6">
-                          <div className="card">
-                            <div className="card-body">
-                              <span className="badge bg-danger-subtle text-danger float-end">
-                                <i className="bi bi-arrow-down" /> 1.27%
-                              </span>
-                              <p className="fs-md text-muted mb-4">
-                                Total Courses
-                              </p>
-                              <h3 className="mb-n3">
-                                <span
-                                  className="counter-value"
-                                  data-target={754}
-                                >
-                                  0
-                                </span>{" "}
-                              </h3>
-                              <div
-                                id="total_courses"
-                                data-colors='["--tb-info", "--tb-secondary", "--tb-primary", "--tb-primary", "--tb-primary", "--tb-primary","--tb-primary"]'
-                                className="apex-charts"
-                                dir="ltr"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        {/*end col*/}
-                        <div className="col-xxl-12">
-                          <div className="card">
-                            <div className="card-header d-flex align-items-center">
-                              <h6 className="card-title mb-0 flex-grow-1">
-                                Features Course Categories
-                              </h6>
-                              <div className="flex-shrink-0">
-                                <a
-                                  href="apps-learning-category"
-                                  className="icon-link icon-link-hover"
-                                >
-                                  View All <i className="bi bi-arrow-right" />
-                                </a>
-                              </div>
-                            </div>
-                            <div className="card-body">
-                              <div className="row g-4">
-                                <div className="col-lg-3 col-sm-6">
-                                  <div className="text-center">
-                                    <div className="avatar-sm mx-auto">
-                                      <div className="avatar-title bg-success-subtle rounded">
-                                        <img
-                                          src="assets/images/learning/shopify.png"
-                                          alt=""
-                                          className="avatar-xs"
-                                        />
-                                      </div>
-                                    </div>
-                                    <h6 className="text-trucate mb-0 mt-3">
-                                      <a
-                                        href="apps-learning-grid"
-                                        className="text-reset"
-                                      >
-                                        Shopify Development
-                                      </a>
-                                    </h6>
-                                  </div>
-                                </div>
-                                {/*end col*/}
-                                <div className="col-lg-3 col-sm-6">
-                                  <div className="text-center">
-                                    <div className="avatar-sm mx-auto">
-                                      <div className="avatar-title bg-info-subtle rounded">
-                                        <img
-                                          src="assets/images/learning/webpack.png"
-                                          alt=""
-                                          className="avatar-xs"
-                                        />
-                                      </div>
-                                    </div>
-                                    <h6 className="text-trucate mb-0 mt-3">
-                                      <a
-                                        href="apps-learning-grid"
-                                        className="text-reset"
-                                      >
-                                        Marketing &amp; Management
-                                      </a>
-                                    </h6>
-                                  </div>
-                                </div>
-                                {/*end col*/}
-                                <div className="col-lg-3 col-sm-6">
-                                  <div className="text-center">
-                                    <div className="avatar-sm mx-auto">
-                                      <div className="avatar-title bg-danger-subtle rounded">
-                                        <img
-                                          src="assets/images/learning/laravel.png"
-                                          alt=""
-                                          className="avatar-xs"
-                                        />
-                                      </div>
-                                    </div>
-                                    <h6 className="text-trucate mb-0 mt-3">
-                                      <a
-                                        href="apps-learning-grid"
-                                        className="text-reset"
-                                      >
-                                        Laravel Development
-                                      </a>
-                                    </h6>
-                                  </div>
-                                </div>
-                                {/*end col*/}
-                                <div className="col-lg-3 col-sm-6">
-                                  <div className="text-center">
-                                    <div className="avatar-sm mx-auto">
-                                      <div className="avatar-title bg-info-subtle rounded">
-                                        <img
-                                          src="assets/images/learning/react.png"
-                                          alt=""
-                                          className="avatar-xs"
-                                        />
-                                      </div>
-                                    </div>
-                                    <h6 className="text-trucate mb-0 mt-3">
-                                      <a
-                                        href="apps-learning-grid"
-                                        className="text-reset"
-                                      >
-                                        React Development
-                                      </a>
-                                    </h6>
-                                  </div>
-                                </div>
-                                {/*end col*/}
-                              </div>
-                              {/*end row*/}
-                            </div>
-                          </div>
-                        </div>
-                        {/*end col*/}
-                      </div>
-                      {/*end row*/}
+                <div className="col-xl-12">
+                  <div className="card">
+                    <div className="card-header">
+                      <h5>Course Details</h5>
                     </div>
-                    {/*end col*/}
-                    <div className="col-xxl-3">
-                      <div className="card card-height-100">
-                        <div className="card-header d-flex">
-                          <h5 className="card-title mb-0 flex-grow-1">
-                            Daily Progress
-                          </h5>
-                          <div className="flex-shrink-0">
-                            <div className="dropdown card-header-dropdown sortble-dropdown">
-                              <a
-                                className="text-reset dropdown-btn"
-                                href="#"
-                                data-bs-toggle="dropdown"
-                                aria-haspopup="true"
-                                aria-expanded="false"
-                              >
-                                <span className="text-muted dropdown-title">
-                                  Today
-                                </span>{" "}
-                                <i className="mdi mdi-chevron-down ms-1" />
-                              </a>
-                              <div className="dropdown-menu dropdown-menu-end">
-                                <button className="dropdown-item">Today</button>
-                                <button className="dropdown-item">
-                                  This Week
-                                </button>
-                                <button className="dropdown-item">
-                                  This Month
-                                </button>
-                              </div>
-                            </div>
+                    <div className="card-body form-steps">
+                      <Form
+                        name="course-form"
+                        form={form}
+                        onFinish={onFinish}
+                        onFinishFailed={onFinishFailed}
+                        validateMessages={validateMessages}
+                      >
+                        {/* <div
+                          id="custom-progress-bar"
+                          className="progress-nav mb-4"
+                        >
+                          <div className="progress" style={{ height: 1 }}>
+                            <div
+                              className="progress-bar"
+                              role="progressbar"
+                              style={{ width: "0%" }}
+                              aria-valuenow={0}
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                            />
                           </div>
-                        </div>
-                        <div className="card-body text-center">
-                          <div
-                            id="stroked_radialbar"
-                            data-colors='["--tb-primary"]'
-                            className="apex-charts"
-                            dir="ltr"
-                          />
-                          <p className="text-muted mb-0">
-                            Very good, keep improving the quality of your
-                            learning
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    {/*end col*/}
-                  </div>
-                  {/*end row*/}
-                  <div className="row">
-                    <div className="col-lg-8">
-                      <div className="card card-height-100">
-                        <div className="card-header align-items-center d-flex">
-                          <h4 className="card-title mb-0 flex-grow-1">
-                            Learning Overview
-                          </h4>
-                          <div>
-                            <button
-                              type="button"
-                              className="btn btn-subtle-secondary btn-sm"
-                            >
-                              ALL
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-subtle-secondary btn-sm"
-                            >
-                              1M
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-subtle-secondary btn-sm"
-                            >
-                              6M
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-subtle-primary btn-sm"
-                            >
-                              1Y
-                            </button>
-                          </div>
-                        </div>
-                        <div className="card-body">
-                          <div
-                            id="area_chart_spline"
-                            data-colors='["--tb-primary", "--tb-secondary"]'
-                            className="apex-charts ms-n3"
-                            dir="ltr"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    {/*end col*/}
-                    <div className="col-lg-4">
-                      <div className="card card-height-100">
-                        <div className="card-header d-flex align-items-center">
-                          <h6 className="card-title mb-0 flex-grow-1">
-                            Best instructors
-                          </h6>
-                          <div className="flex-shrink-0">
-                            <a
-                              href="apps-instructors-list"
-                              className="icon-link icon-link-hover"
-                            >
-                              View All <i className="bi bi-arrow-right" />
-                            </a>
-                          </div>
-                        </div>
-                        <div className="card-body px-0">
-                          <div
-                            data-simplebar=""
-                            className="card-body py-0"
-                            style={{ maxHeight: 330 }}
+                          <ul
+                            className="nav nav-pills progress-bar-tab custom-nav"
+                            role="tablist"
                           >
-                            <div className="table-responsive table-card mt-0">
-                              <table className="table mb-0">
-                                <tbody>
-                                  <tr>
-                                    <td>
-                                      <div className="d-flex align-items-center gap-1">
-                                        <div className="flex-shrink-0">
-                                          <img
-                                            src="assets/images/users/48/avatar-2.jpg"
-                                            alt=""
-                                            className="avatar-sm rounded-circle p-1"
-                                          />
-                                        </div>
-                                        <div className="flex-grow-1">
-                                          <h6 className="fs-md mb-1">
-                                            <a
-                                              href="apps-instructors-overview"
-                                              className="text-reset"
-                                            >
-                                              Bethany Nienow
-                                            </a>
-                                          </h6>
-                                          <p className="text-muted mb-0">
-                                            236 Courses
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td className="text-end">
-                                      <span className="badge bg-warning-subtle text-warning">
-                                        <i className="bi bi-star-fill" /> 4.9
-                                      </span>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                      <div className="d-flex align-items-center gap-1">
-                                        <div className="flex-shrink-0">
-                                          <img
-                                            src="assets/images/users/48/avatar-7.jpg"
-                                            alt=""
-                                            className="avatar-sm rounded-circle p-1"
-                                          />
-                                        </div>
-                                        <div className="flex-grow-1">
-                                          <h6 className="fs-md mb-1">
-                                            <a
-                                              href="apps-instructors-overview"
-                                              className="text-reset"
-                                            >
-                                              Sonia Conn
-                                            </a>
-                                          </h6>
-                                          <p className="text-muted mb-0">
-                                            247 Courses
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td className="text-end">
-                                      <span className="badge bg-warning-subtle text-warning">
-                                        <i className="bi bi-star-fill" /> 4.8
-                                      </span>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                      <div className="d-flex align-items-center gap-1">
-                                        <div className="flex-shrink-0">
-                                          <img
-                                            src="assets/images/users/48/avatar-4.jpg"
-                                            alt=""
-                                            className="avatar-sm rounded-circle p-1"
-                                          />
-                                        </div>
-                                        <div className="flex-grow-1">
-                                          <h6 className="fs-md mb-1">
-                                            <a
-                                              href="apps-instructors-overview"
-                                              className="text-reset"
-                                            >
-                                              Talon Bradtke
-                                            </a>
-                                          </h6>
-                                          <p className="text-muted mb-0">
-                                            365 Courses
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td className="text-end">
-                                      <span className="badge bg-warning-subtle text-warning">
-                                        <i className="bi bi-star-fill" /> 4.9
-                                      </span>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                      <div className="d-flex align-items-center gap-1">
-                                        <div className="flex-shrink-0">
-                                          <img
-                                            src="assets/images/users/48/avatar-5.jpg"
-                                            alt=""
-                                            className="avatar-sm rounded-circle p-1"
-                                          />
-                                        </div>
-                                        <div className="flex-grow-1">
-                                          <h6 className="fs-md mb-1">
-                                            <a
-                                              href="apps-instructors-overview"
-                                              className="text-reset"
-                                            >
-                                              Tyrell Kerluke
-                                            </a>
-                                          </h6>
-                                          <p className="text-muted mb-0">
-                                            298 Courses
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td className="text-end">
-                                      <span className="badge bg-warning-subtle text-warning">
-                                        <i className="bi bi-star-fill" /> 4.7
-                                      </span>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                      <div className="d-flex align-items-center gap-1">
-                                        <div className="flex-shrink-0">
-                                          <img
-                                            src="assets/images/users/48/avatar-6.jpg"
-                                            alt=""
-                                            className="avatar-sm rounded-circle p-1"
-                                          />
-                                        </div>
-                                        <div className="flex-grow-1">
-                                          <h6 className="fs-md mb-1">
-                                            <a
-                                              href="apps-instructors-overview"
-                                              className="text-reset"
-                                            >
-                                              Ross Zieme
-                                            </a>
-                                          </h6>
-                                          <p className="text-muted mb-0">
-                                            196 Courses
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td className="text-end">
-                                      <span className="badge bg-warning-subtle text-warning">
-                                        <i className="bi bi-star-fill" /> 4.9
-                                      </span>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                      <div className="d-flex align-items-center gap-1">
-                                        <div className="flex-shrink-0">
-                                          <img
-                                            src="assets/images/users/48/avatar-1.jpg"
-                                            alt=""
-                                            className="avatar-sm rounded-circle p-1"
-                                          />
-                                        </div>
-                                        <div className="flex-grow-1">
-                                          <h6 className="fs-md mb-1">
-                                            <a
-                                              href="apps-instructors-overview"
-                                              className="text-reset"
-                                            >
-                                              Hollis Spencer
-                                            </a>
-                                          </h6>
-                                          <p className="text-muted mb-0">
-                                            321 Courses
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td className="text-end">
-                                      <span className="badge bg-warning-subtle text-warning">
-                                        <i className="bi bi-star-fill" /> 4.7
-                                      </span>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                      <div className="d-flex align-items-center gap-1">
-                                        <div className="flex-shrink-0">
-                                          <img
-                                            src="assets/images/users/48/avatar-8.jpg"
-                                            alt=""
-                                            className="avatar-sm rounded-circle p-1"
-                                          />
-                                        </div>
-                                        <div className="flex-grow-1">
-                                          <h6 className="fs-md mb-1">
-                                            Cordia Grady
-                                          </h6>
-                                          <p className="text-muted mb-0">
-                                            357 Courses
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td className="text-end">
-                                      <span className="badge bg-warning-subtle text-warning">
-                                        <i className="bi bi-star-fill" /> 4.8
-                                      </span>
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    {/*end col*/}
-                  </div>
-                  {/*end row*/}
-                  <div className="card" id="coursesList">
-                    <div className="card-header align-items-center d-flex">
-                      <h4 className="card-title mb-0 flex-grow-1">
-                        Recent Courses
-                      </h4>
-                      <div className="flex-shrink-0">
-                        <div className="dropdown card-header-dropdown sortble-dropdown">
-                          <a
-                            className="text-reset dropdown-btn"
-                            href="#"
-                            data-bs-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false"
-                          >
-                            <span className="fw-semibold text-uppercase fs-12">
-                              Sort by:
-                            </span>
-                            <span className="text-muted dropdown-title">
-                              Course Name
-                            </span>{" "}
-                            <i className="mdi mdi-chevron-down ms-1" />
-                          </a>
-                          <div className="dropdown-menu dropdown-menu-end">
-                            <button
-                              className="dropdown-item sort"
-                              data-sort="courses_Name"
+                            <li
+                              className="nav-item"
+                              role="presentation"
+                              data-bs-toggle="tooltip"
+                              data-bs-trigger="hover"
+                              data-bs-title="Courses Details"
                             >
-                              Course Name
-                            </button>
-                            <button
-                              className="dropdown-item sort"
-                              data-sort="instructor"
-                            >
-                              Instructor
-                            </button>
-                            <button
-                              className="dropdown-item sort"
-                              data-sort="fees"
-                            >
-                              Amount
-                            </button>
-                            <button
-                              className="dropdown-item sort"
-                              data-sort="status"
-                            >
-                              Status
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="card-body">
-                      <div className="table-responsive table-card mt-0">
-                        <table className="table table-borderless table-centered align-middle table-nowrap mb-0">
-                          <thead className="text-muted table-light">
-                            <tr>
-                              <th
-                                scope="col"
-                                className="sort cursor-pointer"
-                                data-sort="courses_Name"
+                              <button
+                                className="nav-link rounded-pill active"
+                                data-progressbar="custom-progress-bar"
+                                id="coursesDetails-tab"
+                                data-bs-toggle="pill"
+                                data-bs-target="#coursesDetails"
+                                type="button"
+                                role="tab"
+                                aria-controls="coursesDetails"
+                                aria-selected="true"
                               >
-                                Course Name
-                              </th>
-                              <th
-                                scope="col"
-                                className="sort cursor-pointer"
-                                data-sort="category"
-                              >
-                                Category
-                              </th>
-                              <th
-                                scope="col"
-                                className="sort cursor-pointer"
-                                data-sort="instructor"
-                              >
-                                Instructor
-                              </th>
-                              <th
-                                scope="col"
-                                className="sort cursor-pointer"
-                                data-sort="lessons"
-                              >
-                                Lessons
-                              </th>
-                              <th
-                                scope="col"
-                                className="sort cursor-pointer"
-                                data-sort="duration"
-                              >
-                                Duration
-                              </th>
-                              <th
-                                scope="col"
-                                className="sort cursor-pointer"
-                                data-sort="fees"
-                              >
-                                Fees
-                              </th>
-                              <th
-                                scope="col"
-                                className="sort cursor-pointer"
-                                data-sort="status"
-                              >
-                                Status
-                              </th>
-                              <th
-                                scope="col"
-                                className="sort cursor-pointer"
-                                data-sort="rating"
-                              >
-                                Rating
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="list">
-                            <tr>
-                              <td>
-                                <div className="d-flex align-items-center gap-2">
-                                  <img
-                                    src="assets/images/learning/react.png"
-                                    alt="react.png"
-                                    className="avatar-xxs rounded"
-                                  />{" "}
-                                  <a
-                                    href="apps-learning-overview"
-                                    className="text-reset courses_Name"
-                                  >
-                                    Advanced React and Redux
-                                  </a>
-                                </div>
-                              </td>
-                              <td className="category">React Development</td>
-                              <td className="instructor">Ayaan Bowen</td>
-                              <td className="lessons">15</td>
-                              <td className="duration">2 Years</td>
-                              <td>
-                                <span className="fw-medium fees">$278.12</span>
-                              </td>
-                              <td>
-                                <span className="badge bg-info-subtle text-info status">
-                                  Open
-                                </span>
-                              </td>
-                              <td>
-                                <h5 className="fs-md fw-medium mb-0 rating">
-                                  <i className="ph-star align-baseline text-warning" />{" "}
-                                  4.5
-                                </h5>
-                              </td>
-                            </tr>
-                            {/* end tr */}
-                            <tr>
-                              <td className="courses_Name">
-                                <div className="d-flex align-items-center gap-2">
-                                  <img
-                                    src="assets/images/learning/shopify.png"
-                                    alt="shopify.png"
-                                    className="avatar-xxs rounded"
-                                  />{" "}
-                                  <a
-                                    href="apps-learning-overview"
-                                    className="text-reset"
-                                  >
-                                    The Complete Shopify Dropship course
-                                  </a>
-                                </div>
-                              </td>
-                              <td className="category">Shopify Development</td>
-                              <td className="instructor">Jansh Brown</td>
-                              <td className="lessons">27</td>
-                              <td className="duration">6 Months</td>
-                              <td>
-                                <span className="fw-medium fees">$149.00</span>
-                              </td>
-                              <td>
-                                <span className="badge bg-info-subtle text-info status">
-                                  Open
-                                </span>
-                              </td>
-                              <td>
-                                <h5 className="fs-md fw-medium mb-0 rating">
-                                  <i className="ph-star align-baseline text-warning" />{" "}
-                                  4.5
-                                </h5>
-                              </td>
-                            </tr>
-                            {/* end tr */}
-                            <tr>
-                              <td>
-                                <div className="d-flex align-items-center gap-2">
-                                  <img
-                                    src="assets/images/learning/sketch.png"
-                                    alt="sketch.png"
-                                    className="avatar-xxs rounded"
-                                  />{" "}
-                                  <a
-                                    href="apps-learning-overview"
-                                    className="text-reset courses_Name"
-                                  >
-                                    UI/UX Style guide With Sketch
-                                  </a>
-                                </div>
-                              </td>
-                              <td className="category">Graphic Design</td>
-                              <td className="instructor">Ayaan Bowen</td>
-                              <td className="lessons">16</td>
-                              <td className="duration">3 Months</td>
-                              <td>
-                                <span className="fw-medium fees">$215.00</span>
-                              </td>
-                              <td>
-                                <span className="badge bg-danger-subtle text-danger status">
-                                  Close
-                                </span>
-                              </td>
-                              <td>
-                                <h5 className="fs-md fw-medium mb-0 rating">
-                                  <i className="ph-star align-baseline text-warning" />{" "}
-                                  4.9
-                                </h5>
-                              </td>
-                            </tr>
-                            {/* end tr */}
-                            <tr>
-                              <td>
-                                <div className="d-flex align-items-center gap-2">
-                                  <img
-                                    src="assets/images/learning/webpack.png"
-                                    alt="webpack.png"
-                                    className="avatar-xxs rounded"
-                                  />{" "}
-                                  <a
-                                    href="apps-learning-overview"
-                                    className="text-reset courses_Name"
-                                  >
-                                    Digital Marketing
-                                  </a>
-                                </div>
-                              </td>
-                              <td className="category">
-                                Marketing &amp; Management
-                              </td>
-                              <td className="instructor">Prezy Mark</td>
-                              <td className="lessons">65</td>
-                              <td className="duration">2 Years</td>
-                              <td>
-                                <span className="fw-medium fees">$199.00</span>
-                              </td>
-                              <td>
-                                <span className="badge bg-info-subtle text-info status">
-                                  Open
-                                </span>
-                              </td>
-                              <td>
-                                <h5 className="fs-md fw-medium mb-0 rating">
-                                  <i className="ph-star align-baseline text-warning" />{" "}
-                                  4.3
-                                </h5>
-                              </td>
-                            </tr>
-                            {/* end tr */}
-                            <tr>
-                              <td>
-                                <div className="d-flex align-items-center gap-2">
-                                  <img
-                                    src="assets/images/learning/laravel.png"
-                                    alt="laravel.png"
-                                    className="avatar-xxs rounded courses_Name"
-                                  />{" "}
-                                  <a
-                                    href="apps-learning-overview"
-                                    className="text-reset"
-                                  >
-                                    Master Laravel for Beginners &amp;
-                                    Intermediate
-                                  </a>
-                                </div>
-                              </td>
-                              <td className="category">Laravel Development</td>
-                              <td className="instructor">Nelson Schaden</td>
-                              <td className="lessons">21</td>
-                              <td className="duration">8 Months</td>
-                              <td>
-                                <span className="fw-medium fees">$379.99</span>
-                              </td>
-                              <td>
-                                <span className="badge bg-danger-subtle text-danger status">
-                                  Close
-                                </span>
-                              </td>
-                              <td>
-                                <h5 className="fs-md fw-medium mb-0 rating">
-                                  <i className="ph-star align-baseline text-warning" />{" "}
-                                  4.7
-                                </h5>
-                              </td>
-                            </tr>
-                            {/* end tr */}
-                            <tr>
-                              <td>
-                                <div className="d-flex align-items-center gap-2">
-                                  <img
-                                    src="assets/images/learning/tailwindcss.png"
-                                    alt=""
-                                    className="avatar-xxs rounded courses_Name"
-                                  />{" "}
-                                  <a
-                                    href="apps-learning-overview"
-                                    className="text-reset"
-                                  >
-                                    Tailwind CSS From Scratch
-                                  </a>
-                                </div>
-                              </td>
-                              <td className="category">Web Design</td>
-                              <td className="instructor">Domenic Dach</td>
-                              <td className="lessons">53</td>
-                              <td className="duration">1 Months</td>
-                              <td>
-                                <span className="fw-medium fees">$473.08</span>
-                              </td>
-                              <td>
-                                <span className="badge bg-info-subtle text-info status">
-                                  Open
-                                </span>
-                              </td>
-                              <td>
-                                <h5 className="fs-md fw-medium mb-0 rating">
-                                  <i className="ph-star align-baseline text-warning" />{" "}
-                                  4.8
-                                </h5>
-                              </td>
-                            </tr>
-                            {/* end tr */}
-                          </tbody>
-                          {/* end tbody */}
-                        </table>
-                        {/* end table */}
-                      </div>
-                      <div className="align-items-center mt-4 pt-2 row">
-                        <div className="col-sm">
-                          <div className="text-muted text-center text-sm-start">
-                            Showing <span className="fw-semibold">5</span> of{" "}
-                            <span className="fw-semibold">6</span> Results
-                          </div>
-                        </div>
-                        <div className="col-sm-auto mt-3 mt-sm-0">
-                          <div className="pagination-wrap hstack gap-2 justify-content-center">
-                            <a
-                              className="page-item pagination-prev disabled"
-                              href="javaScript:void(0)"
-                            >
-                              Previous
-                            </a>
-                            <ul className="pagination listjs-pagination mb-0" />
-                            <a
-                              className="page-item pagination-next"
-                              href="javaScript:void(0)"
-                            >
-                              Next
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/*end col*/}
-                <div className="col-xxl-3">
-                  <div className="card card-height-100">
-                    <div className="card-body">
-                      <div className="d-flex mb-3">
-                        <div className="flex-grow-1">
-                          <h6 className="card-title mb-0">Overview</h6>
-                        </div>
-                        <div className="dropdown flex-shrink-0">
-                          <button
-                            className="btn avatar-xs btn-subtle-secondary p-0"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            <i className="bi bi-share" />
-                          </button>
-                          <ul className="dropdown-menu dropdown-menu-end">
-                            <li>
-                              <a className="dropdown-item" href="#!">
-                                <i className="bi bi-facebook me-1 align-baseline" />{" "}
-                                Facebook
-                              </a>
+                                1
+                              </button>
                             </li>
-                            <li>
-                              <a className="dropdown-item" href="#!">
-                                <i className="bi bi-whatsapp me-1 align-baseline" />{" "}
-                                Whatsapp
-                              </a>
+                            <li
+                              className="nav-item"
+                              role="presentation"
+                              data-bs-toggle="tooltip"
+                              data-bs-trigger="hover"
+                              data-bs-title="Course media"
+                            >
+                              <button
+                                className="nav-link rounded-pill"
+                                data-progressbar="custom-progress-bar"
+                                id="pills-info-desc-tab"
+                                data-bs-toggle="pill"
+                                data-bs-target="#pills-info-desc"
+                                type="button"
+                                role="tab"
+                                aria-controls="pills-info-desc"
+                                aria-selected="false"
+                              >
+                                2
+                              </button>
                             </li>
-                            <li>
-                              <a className="dropdown-item" href="#!">
-                                <i className="bi bi-instagram me-1 align-baseline" />{" "}
-                                Instagram
-                              </a>
+                            <li
+                              className="nav-item"
+                              role="presentation"
+                              data-bs-toggle="tooltip"
+                              data-bs-trigger="hover"
+                              data-bs-title="Successfully"
+                            >
+                              <button
+                                className="nav-link rounded-pill"
+                                data-progressbar="custom-progress-bar"
+                                id="pills-success-tab"
+                                data-bs-toggle="pill"
+                                data-bs-target="#pills-success"
+                                type="button"
+                                role="tab"
+                                aria-controls="pills-success"
+                                aria-selected="false"
+                              >
+                                3
+                              </button>
                             </li>
                           </ul>
-                        </div>
-                      </div>
-                      <div className="text-center mb-4 pb-2">
-                        <img
-                          src="assets/images/users/avatar-3.jpg"
-                          alt=""
-                          className="avatar-md rounded-circle"
-                        />
-                        <h6 className="fs-md mt-3 mb-1">
-                          <a href="pages-profile" className="text-reset">
-                            Richard Marshall{" "}
-                            <i className="bi bi-patch-check-fill text-info" />
-                          </a>
-                        </h6>
-                        <p className="text-muted mb-4">Create Designer</p>
-                        <div className="row g-3">
-                          <div className="col-6 border-end border-dashed">
-                            <div>
-                              <h5>1549</h5>
-                              <p className="text-muted mb-0">Students</p>
-                            </div>
-                          </div>
-                          <div className="col-6">
-                            <div>
-                              <h5>137</h5>
-                              <p className="text-muted mb-0">Courses</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="p-3 bg-light rounded courses-calendar-dashboard">
-                        <div className="d-flex align-items-center gap-2 mb-4">
-                          <div className="flex-shrink-0">
-                            <button className="btn btn-sm btn-secondary">
-                              <i className="bi bi-chevron-left" />
-                            </button>
-                          </div>
-                          <h6 className="flex-grow-1 mb-0 text-center fs-md">
-                            December - 2023
-                          </h6>
-                          <div className="flex-shrink-0">
-                            <button className="btn btn-sm btn-secondary">
-                              <i className="bi bi-chevron-right" />
-                            </button>
-                          </div>
-                        </div>
-                        <div className="d-flex gap-2 justify-content-around date-calendar flex-wrap">
-                          <a href="#!" className="week flex-shrink-0 active">
-                            <h6 className="mb-3">S</h6>
-                            <div className="avatar-xs">
-                              <div className="avatar-title rounded-circle">
-                                21
-                              </div>
-                            </div>
-                          </a>
-                          <a href="#!" className="week flex-shrink-0">
-                            <h6 className="mb-3">M</h6>
-                            <div className="avatar-xs">
-                              <div className="avatar-title rounded-circle">
-                                22
-                              </div>
-                            </div>
-                          </a>
-                          <a href="#!" className="week flex-shrink-0">
-                            <h6 className="mb-3">T</h6>
-                            <div className="avatar-xs">
-                              <div className="avatar-title rounded-circle">
-                                23
-                              </div>
-                            </div>
-                          </a>
-                          <a href="#!" className="week flex-shrink-0">
-                            <h6 className="mb-3">W</h6>
-                            <div className="avatar-xs">
-                              <div className="avatar-title rounded-circle">
-                                24
-                              </div>
-                            </div>
-                          </a>
-                          <a href="#!" className="week flex-shrink-0">
-                            <h6 className="mb-3">T</h6>
-                            <div className="avatar-xs">
-                              <div className="avatar-title rounded-circle">
-                                25
-                              </div>
-                            </div>
-                          </a>
-                          <a href="#!" className="week flex-shrink-0">
-                            <h6 className="mb-3">F</h6>
-                            <div className="avatar-xs">
-                              <div className="avatar-title rounded-circle">
-                                26
-                              </div>
-                            </div>
-                          </a>
-                          <a href="#!" className="week flex-shrink-0">
-                            <h6 className="mb-3">S</h6>
-                            <div className="avatar-xs">
-                              <div className="avatar-title rounded-circle">
-                                27
-                              </div>
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <h6 className="card-title mb-3">Upcoming Schedule</h6>
-                        <div className="card border-start border-primary border-3">
-                          <div className="card-body">
-                            <a
-                              href="apps-learning-overview"
-                              className="btn btn-primary btn-icon btn-sm float-end"
-                            >
-                              <i className="bi bi-arrow-right" />
-                            </a>
-                            <h6 className="text-truncate">
-                              <a href="#!" className="text-reset">
-                                UI/UX style guide with sketch
-                              </a>
-                            </h6>
-                            <p className="text-muted mb-0">
-                              <i className="bi bi-calendar2 align-baseline me-1" />{" "}
-                              Today{" "}
-                              <i className="bi bi-clock align-baseline mx-1" />{" "}
-                              02:18 PM
-                            </p>
-                          </div>
-                        </div>
-                        <div className="card border-start border-primary border-3">
-                          <div className="card-body">
-                            <a
-                              href="apps-learning-overview"
-                              className="btn btn-primary btn-icon btn-sm float-end"
-                            >
-                              <i className="bi bi-arrow-right" />
-                            </a>
-                            <h6 className="text-truncate">
-                              <a href="#!" className="text-reset">
-                                Advanced React And Redux
-                              </a>
-                            </h6>
-                            <p className="text-muted mb-0">
-                              <i className="bi bi-calendar2 align-baseline me-1" />{" "}
-                              04 April, 2023{" "}
-                              <i className="bi bi-clock align-baseline mx-1" />{" "}
-                              03:00 to 04:00 PM
-                            </p>
-                          </div>
-                        </div>
-                        <div className="card border-start border-primary border-3">
-                          <div className="card-body">
-                            <a
-                              href="apps-learning-overview"
-                              className="btn btn-primary btn-icon btn-sm float-end"
-                            >
-                              <i className="bi bi-arrow-right" />
-                            </a>
-                            <h6 className="text-truncate">
-                              <a href="#!" className="text-reset">
-                                Tailwind CSS From Scratch
-                              </a>
-                            </h6>
-                            <p className="text-muted mb-0">
-                              <i className="bi bi-calendar2 align-baseline me-1" />{" "}
-                              08 April, 2023{" "}
-                              <i className="bi bi-clock align-baseline mx-1" />{" "}
-                              07:36 AM
-                            </p>
-                          </div>
-                        </div>
-                        <div className="card border-start border-primary border-3">
-                          <div className="card-body">
-                            <a
-                              href="apps-learning-overview"
-                              className="btn btn-primary btn-icon btn-sm float-end"
-                            >
-                              <i className="bi bi-arrow-right" />
-                            </a>
-                            <h6 className="text-truncate">
-                              <a href="#!" className="text-reset">
-                                REST APIs With Flask
-                              </a>
-                            </h6>
-                            <p className="text-muted mb-0">
-                              <i className="bi bi-calendar2 align-baseline me-1" />{" "}
-                              15 April, 2023{" "}
-                              <i className="bi bi-clock align-baseline mx-1" />{" "}
-                              10:11 PM
-                            </p>
-                          </div>
-                        </div>
-                        <div className="card border-start border-primary border-3">
-                          <div className="card-body">
-                            <a
-                              href="apps-learning-overview"
-                              className="btn btn-primary btn-icon btn-sm float-end"
-                            >
-                              <i className="bi bi-arrow-right" />
-                            </a>
-                            <h6 className="text-truncate">
-                              <a href="#!" className="text-reset">
-                                Asp.Net Core 7 True Ultimate Guide
-                              </a>
-                            </h6>
-                            <p className="text-muted mb-0">
-                              <i className="bi bi-calendar2 align-baseline me-1" />{" "}
-                              24 May, 2023{" "}
-                              <i className="bi bi-clock align-baseline mx-1" />{" "}
-                              07:00 to 10:00 AM
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="card bg-primary overflow-hidden mb-0">
-                        <div
-                          className="position-absolute bottom-0"
-                          style={{ opacity: "0.15" }}
-                        >
-                          <img
-                            src="assets/images/effect-pattern/pattern-2.svg"
-                            alt=""
-                            className="img-fluid"
-                          />
-                        </div>
-                        <div className="card-body position-relative">
-                          <img
-                            src="assets/images/logo-light.png"
-                            alt=""
-                            height={22}
-                          />
-                          <h6 className="text-white fs-md fw-medium mt-4">
-                            Go Premium
-                          </h6>
-                          <p className="text-white-75">
-                            Explore 500+ courses with lifetime membership by
-                            themesbrand
-                          </p>
-                          <a
-                            href="#!"
-                            className="icon-link icon-link-hover stretched-link text-white-75"
+                        </div> */}
+                        <div className="tab-content">
+                          <div
+                            className="tab-pane fade show active"
+                            id="coursesDetails"
+                            role="tabpanel"
+                            aria-labelledby="coursesDetails-tab"
                           >
-                            Premium Now <i className="bi bi-arrow-right" />
-                          </a>
+
+                            <div className="row g-3 align-items-center">
+                              <div className="col-lg-6">
+                                <div>
+                                  <label
+                                    htmlFor="course-title-input"
+                                    className="form-label"
+                                  >
+                                    Course title
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <Form.Item name="title" rules={[{ required: true }]}>
+                                  <Input
+                                    type="text"
+                                    id="course-title-input"
+                                    className="form-control"
+                                    placeholder="Enter course title"
+                                    required
+                                  />
+                                  </Form.Item>
+                                </div>
+                              </div>
+                              {/*end col*/}
+                              <div className="col-lg-3">
+                                <div>
+                                  <label
+                                    htmlFor="lavel-input"
+                                    className="form-label"
+                                  >
+                                    Courses Level
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <Form.Item name="type" rules={[{ required: true }]}>
+                                  <select
+                                    className="form-select"
+                                    id="lavel-input"
+                                    onChange={handleTypeChange}
+                                    // data-choices=""
+                                    // data-choices-search-false=""
+                                  >
+                                    <option value="">Select Level</option>
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Advanced">Advanced</option>
+                                    <option value="Intermediate">
+                                      Intermediate
+                                    </option>
+                                    <option value="Expert">Expert</option>
+                                  </select>
+                                  </Form.Item>
+                                </div>
+                              </div>
+                              {/*end col*/}
+                              <div className="col-lg-3">
+                                <div>
+                                  <label
+                                    htmlFor="lectures-input"
+                                    className="form-label"
+                                  >
+                                    Lectures
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <Form.Item name="lectures" rules={[{ required: true }]}>
+                                  <Input
+                                    type="number"
+                                    id="lectures-input"
+                                    className="form-control"
+                                    placeholder="0"
+                                    required
+                                  />
+                                  </Form.Item>
+                                </div>
+                              </div>
+                              {/*end col*/}
+                              <div className="col-lg-4">
+                                <div>
+                                  <label
+                                    htmlFor="instructor-input"
+                                    className="form-label">
+                                        Instructor
+                                        <span className="text-danger">*</span>
+                                  </label>
+                                  <Form.Item name="instructor" rules={[{ required: true }]}>
+                                  <Input
+                                    type="text"
+                                    id="insrcutor-input"
+                                    className="form-control"
+                                    placeholder="Instructor name"
+                                    required
+                                  />
+                                  </Form.Item>
+                                </div>
+                              </div>
+                              {/*end col*/}
+                              <div className="col-lg-4">
+                                <div>
+                                  <label
+                                    htmlFor="language-input"
+                                    className="form-label"
+                                  >
+                                    Language
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <Form.Item name="language" rules={[{ required: true }]}>
+                                  <select
+                                    className="form-select"
+                                    id="language-input"
+                                    onChange={handleLangChange}
+                                    // data-choices=""
+                                    // data-choices-search-false=""
+                                  >
+                                    <option value="">Select Language</option>
+                                    <option value="English">English</option>
+                                    <option value="Hindi">Hindi</option>
+                                    <option value="France">France</option>
+                                    <option value="Expert">Expert</option>
+                                  </select>
+                                  </Form.Item>
+                                </div>
+                              </div>
+                              {/*end col*/}
+                              <div className="col-lg-4">
+                                <div>
+                                  <label
+                                    htmlFor="duration-input"
+                                    className="form-label"
+                                  >
+                                    Duration
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <Form.Item name="duration" rules={[{ required: true }]}>
+                                  <Input
+                                    type="text"
+                                    id="duration-input"
+                                    className="form-control"
+                                    placeholder="00 hr 00 min"
+                                    required
+                                  />
+                                  </Form.Item>
+                                </div>
+                              </div>
+                              {/*end col*/}
+                              <div className="col-lg-4">
+                                <div>
+                                  <label
+                                    htmlFor="enrolled-input"
+                                    className="form-label"
+                                  >
+                                    Enrolled
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <Form.Item name="enrolled" rules={[{ required: true }]}>
+                                  <Input
+                                    type="number"
+                                    className="form-control"
+                                    id="enrolled-input"
+                                    placeholder="No.of.students enrolled"
+                                    required
+                                  />
+                                  </Form.Item>
+                                </div>
+                              </div>
+                              {/*end col*/}
+                              <div className="col-lg-4">
+                                <div>
+                                  <label
+                                    htmlFor="dead-input"
+                                    className="form-label"
+                                  >
+                                    Deadline
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <Form.Item name="deadline" rules={[{ required: true }]}>
+                                  <Input
+                                    type="date"
+                                    className="form-control"
+                                    id="dead-input"
+                                    required
+                                  />
+                                  </Form.Item>
+                                </div>
+                              </div>
+                              {/*end col*/}
+                              <div className="col-lg-4">
+                                <div>
+                                  <label
+                                    htmlFor="price-input"
+                                    className="form-label"
+                                  >
+                                    Course price
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <div className="input-group">
+                                    <Form.Item name="price" rules={[{ required: true }]}>
+                                    <Input
+                                      type="text"
+                                      className="form-control"
+                                      id="price-input"
+                                      placeholder={`$ 0.0`}
+                                      required
+                                    />
+                                    </Form.Item>
+                                  </div>
+                                </div>
+                              </div>
+                              {/*end col*/}
+                              <div className="col-lg-12">
+                                <div>
+                                  <label
+                                    htmlFor="shortDescription"
+                                    className="form-label"
+                                  >
+                                    Short Description
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <Form.Item name="description" rules={[{ required: true }]}>
+                                  <TextArea
+                                    className="form-control"
+                                    id="shortDescription"
+                                    rows={3}
+                                    placeholder="Enter description"
+                                    defaultValue={""}
+                                  />
+                                  </Form.Item>
+                                </div>
+                              </div>
+                               {/*end col*/}
+                               <div className="col-lg-12">
+                                <div>
+                                  <label
+                                    htmlFor="shortDescription"
+                                    className="form-label"
+                                  >
+                                    Requirements
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <Form.Item name="requirements" rules={[{ required: true }]}>
+                                  <TextArea
+                                    className="form-control"
+                                    id="shortDescription"
+                                    rows={6}
+                                    placeholder="Enter description"
+                                  />
+                                  </Form.Item>
+                                </div>
+                              </div>
+                              {/*end col*/}
+                              <div className="col-lg-12">
+                                <label className="form-label">
+                                  Contents
+                                  <span className="text-danger">*</span>
+                                </label>
+                                <Form.Item name="contents" rules={[{ required: true }]}>
+                                <TextArea
+                                    className="form-control"
+                                    id="Description"
+                                    rows={7}
+                                  />
+                                </Form.Item>
+                              </div>
+                            </div>
+                            {/*end row*/}
+                            <div className="d-flex align-items-start gap-3 mt-4">
+                            <Toaster position="top-right" expand={true} richColors />
+                              <button
+                                type="submit"
+                                className="btn btn-primary ms-auto"
+                                style={{fontSize:"0.9rem", width:"6rem"}}
+                              >
+                                Submit
+                              </button>
+                            </div>
+                          </div>
+                          {/* end tab pane */}
                         </div>
-                      </div>
+                        {/* end tab content */}
+                      </Form>
                     </div>
+                    {/* end card body */}
                   </div>
+                  {/* end card */}
                 </div>
-                {/*end col*/}
+                {/* end col */}
               </div>
-              {/*end row*/}
             </div>
             {/* container-fluid */}
           </div>
@@ -2969,18 +2313,24 @@ import withAuth from "@/hoc/authMiddleware";
           </div>
         </div>
       </div>
-      
 
       <Script src="assets/js/bootstrap.bundle.min.js"></Script>
       <Script src="assets/js/simplebar.min.js"></Script>
       <Script src="assets/js/plugins.js"></Script>
-      <Script src="assets/js/list.min.js"></Script>
-      <Script src="assets/js/list.pagination.min.js"></Script>
-      <Script src="assets/js/apexcharts.min.js"></Script>
-      <Script src="assets/js/dashboard-learning.init.js"></Script>
+      <Script src="assets/js/layout.js"></Script>
+      <Script src="assets/js/ckeditor.js"></Script>
+
+      <Script src="assets/js/dropzone-min.js"></Script>
+
+      <Script src="assets/js/form-editor.init.js"></Script>
+
+      <Script src="assets/js/form-wizard.init.js"></Script>
+
+      {/* <Script src="assets/js/learning-create.init.js"></Script> */}
+
       <Script src="assets/js/app.js"></Script>
     </>
   );
-}
+};
 
-export default withAuth(Home);
+export default Addcourse;
