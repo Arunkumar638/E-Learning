@@ -1,6 +1,7 @@
 const Admin = require("../models/adminModel");
 const Blog = require("../models/blogModel");
 const Course = require("../models/courseModel");
+const Contact = require("../models/contactModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
@@ -141,5 +142,19 @@ exports.addBlog = async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to add Blog", error: error.message });
+  }
+};
+
+exports.getCourses = async (req, res) => {
+
+  try {
+    const contacts = await Contact.find();
+    res.status(200).json({data:contacts, status:true});
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get all contacts",
+      status: false,
+      error: error.message,
+    });
   }
 };

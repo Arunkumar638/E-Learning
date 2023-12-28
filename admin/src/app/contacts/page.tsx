@@ -1,77 +1,184 @@
 "use client";
 
 import Script from "next/script";
-import { Form, Input } from "antd";
+import { Input, Table, Space, Button } from "antd";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "sonner";
-import { useState } from "react";
-import swal from "sweetalert";
-import { addBlog } from "@/actions/otherActions";
+import { SearchOutlined } from '@ant-design/icons';
+import { useEffect, useState, useRef } from "react";
+
+import { getContacts } from "@/actions/otherActions";
+
+import type {
+  ColumnsType,
+  TablePaginationConfig,
+  ColumnType,
+} from "antd/es/table";
+import Highlighter from "react-highlight-words";
+import type { InputRef } from 'antd';
+import type { SorterResult, FilterConfirmProps } from "antd/es/table/interface";
 import Sidebar from "@/components/sideBar";
 
-const { TextArea } = Input;
-const Addblog = () => {
-  const [form] = Form.useForm();
+const TextArea = { Input };
+type DataIndex = keyof DataType;
+interface DataType {
+  name: string;
+  key:string;
+  email: string;
+  phoneNo: string;
+  subject: string;
+}
+
+// interface TableParams {
+//   pagination?: TablePaginationConfig;
+//   sortField?: string;
+//   sortOrder?: string;
+// }
+
+const Contacts = () => {
   const router = useRouter();
-  const [type, setType] = useState("");
-  const onFinishFailed = (errorInfo: any) => {
-    console.log("Failed:", errorInfo);
-    console.error("Form submission failed");
+  const [contactData, setContactData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const searchInput = useRef<InputRef>(null);
+
+  const handleSearch = (
+    selectedKeys: string[],
+    confirm: (param?: FilterConfirmProps) => void,
+    dataIndex: DataIndex,
+  ) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
   };
 
-  const validateMessages = {
-    required: "${label} is required!",
-    types: {
-      email: "${label} is Invalid!",
-      password: "${label} is Invalid!",
-      name: "${label} is too long!",
+  const handleReset = (clearFilters: () => void) => {
+    clearFilters();
+    setSearchText('');
+  };
+
+  const getColumnSearchProps = (dataIndex: DataIndex): ColumnType<DataType> => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+          style={{ marginBottom: 8, display: 'block' }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 60 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText((selectedKeys as string[])[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              close();
+            }}
+          >
+            close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered: boolean) => (
+      <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex]
+        .toString()
+        .toLowerCase()
+        .includes((value as string).toLowerCase()),
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
     },
-  };
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ''}
+        />
+      ) : (
+        text
+      ),
+  });
 
-  const formatDate = (value: Date) => {
-    const date = new Date(value);
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const day = ("0" + date.getDate()).slice(-2);
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
+  const columns: ColumnsType<DataType> = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key:"name",
+      width: "20%",
+      ...getColumnSearchProps('name'),
+      sorter: (a, b) => a.name.length - b.name.length,
+      sortDirections: ['descend', 'ascend'],
+    },
+    {
+      title: "Email",
+      key:"email",
+      dataIndex: "email",
+      ...getColumnSearchProps('email'),
+    },
+    {
+      title: "Phone No",
+      key:"phoneNo",
+      dataIndex: "phoneNo",
+      width: "20%",
+      ...getColumnSearchProps('phoneNo'),
+    },
+    {
+      title: "Subject",
+      key:"subject",
+      dataIndex: "subject",
+      width: "20%",
+      ...getColumnSearchProps('subject'),
+    },
+  ];
 
-    const formattedDate = `${day} ${month} ${year}`;
-    return formattedDate;
-  };
+  const data: DataType[] = contactData;
   const notifyError = (data: any) => {
     toast.error(data.message);
   };
-  const handleTypeChange = (event: any) => {
-    setType(event.target.value);
-  };
 
-  const onFinish = (values: any) => {
-    values.type = type;
-    values.date = formatDate(values.date);
-    console.log(values);
-    addBlog(values)
+  useEffect(() => {
+    setLoading(true);
+    getContacts()
       .then((data) => {
         if (data.status == true) {
-          swal({
-            title: "Success!",
-            text: data.message,
-            icon: "success",
-          });
-          localStorage.setItem("token", data.token);
-          form.resetFields();
+          setContactData(data.data);
+          setLoading(false);
         }
       })
       .catch((error) => {
@@ -84,7 +191,7 @@ const Addblog = () => {
           notifyError(message);
         }
       });
-  };
+  }, []);
   return (
     <>
       <meta charSet="utf-8" />
@@ -367,7 +474,7 @@ const Addblog = () => {
         </div>
         {/* /.modal */}
         {/* ========== App Menu ========== */}
-          <Sidebar page="blog" />
+            <Sidebar page="contact"/>
         {/* Left Sidebar End */}
         {/* Vertical Overlay*/}
         <div className="vertical-overlay" />
@@ -378,13 +485,12 @@ const Addblog = () => {
               <div className="row">
                 <div className="col-12">
                   <div className="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 className="mb-sm-0">Create Blog</h4>
+                    <h4 className="mb-sm-0">Contacts</h4>
                     <div className="page-title-right">
                       <ol className="breadcrumb m-0">
                         <li className="breadcrumb-item">
-                          <a href="javascript: void(0);">Blog</a>
+                          <a href="">Contacts</a>
                         </li>
-                        <li className="breadcrumb-item active">Create Blog</li>
                       </ol>
                     </div>
                   </div>
@@ -395,206 +501,17 @@ const Addblog = () => {
                 <div className="col-xl-12">
                   <div className="card">
                     <div className="card-header">
-                      <h5>Blog Details</h5>
+                      <h5>Contact List</h5>
                     </div>
+                    <Toaster position="top-right" expand={true} richColors />
                     <div className="card-body form-steps">
-                      <Form
-                        name="course-form"
-                        form={form}
-                        onFinish={onFinish}
-                        onFinishFailed={onFinishFailed}
-                        validateMessages={validateMessages}
-                      >
-                        <div className="tab-content">
-                          <div
-                            className="tab-pane fade show active"
-                            id="coursesDetails"
-                            role="tabpanel"
-                            aria-labelledby="coursesDetails-tab"
-                          >
-                            <div className="row g-3 align-items-center">
-                              <div className="col-lg-6">
-                                <div>
-                                  <label
-                                    htmlFor="course-title-input"
-                                    className="form-label"
-                                  >
-                                    Blog title
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                  <Form.Item
-                                    name="title"
-                                    rules={[{ required: true }]}
-                                  >
-                                    <Input
-                                      type="text"
-                                      id="course-title-input"
-                                      className="form-control"
-                                      placeholder="Enter blog title"
-                                      required
-                                    />
-                                  </Form.Item>
-                                </div>
-                              </div>
-                              {/*end col*/}
-                              <div className="col-lg-4">
-                                <div>
-                                  <label
-                                    htmlFor="lavel-input"
-                                    className="form-label"
-                                  >
-                                    User type
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                  <Form.Item
-                                    name="usertype"
-                                    rules={[{ required: true }]}
-                                  >
-                                    <select
-                                      className="form-select"
-                                      id="lavel-input"
-                                      onChange={handleTypeChange}
-                                      // data-choices=""
-                                      // data-choices-search-false=""
-                                    >
-                                      <option value="">Select type</option>
-                                      <option value="Admin">Admin</option>
-                                      <option value="Student">Student</option>
-                                      <option value="Tutor">Tutor</option>
-                                    </select>
-                                  </Form.Item>
-                                </div>
-                              </div>
-                              {/*end col*/}
-                              <div className="col-lg-3">
-                                <div>
-                                  <label
-                                    htmlFor="lectures-input"
-                                    className="form-label"
-                                  >
-                                    Views
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                  <Form.Item
-                                    name="views"
-                                    rules={[{ required: true }]}
-                                  >
-                                    <Input
-                                      type="text"
-                                      id="lectures-input"
-                                      className="form-control"
-                                      placeholder="0 k"
-                                      required
-                                    />
-                                  </Form.Item>
-                                </div>
-                              </div>
-                              {/*end col*/}
-                              <div className="col-lg-3">
-                                <div>
-                                  <label
-                                    htmlFor="dead-input"
-                                    className="form-label"
-                                  >
-                                    Date
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                  <Form.Item
-                                    name="date"
-                                    rules={[{ required: true }]}
-                                  >
-                                    <Input
-                                      type="date"
-                                      className="form-control"
-                                      id="dead-input"
-                                      required
-                                    />
-                                  </Form.Item>
-                                </div>
-                              </div>
-                              {/*end col*/}
-                              <div className="col-lg-12">
-                                <label className="form-label" htmlFor="goal">
-                                  Goal
-                                  <span className="text-danger">*</span>
-                                </label>
-                                <Form.Item
-                                  name="goal"
-                                  rules={[{ required: true }]}
-                                >
-                                  <TextArea
-                                    className="form-control"
-                                    id="goal"
-                                    rows={3}
-                                    placeholder="Goal of the Blog"
-                                  />
-                                </Form.Item>
-                              </div>
-                            </div>
-                            {/*end col*/}
-                            <div className="col-lg-12">
-                              <div>
-                                <label htmlFor="about" className="form-label">
-                                  About
-                                  <span className="text-danger">*</span>
-                                </label>
-                                <Form.Item
-                                  name="about"
-                                  rules={[{ required: true }]}
-                                >
-                                  <TextArea
-                                    className="form-control"
-                                    id="about"
-                                    rows={3}
-                                    placeholder="About Blog"
-                                  />
-                                </Form.Item>
-                              </div>
-                            </div>
-                            {/*end col*/}
-                            <div className="col-lg-12">
-                              <div>
-                                <label
-                                  htmlFor="description"
-                                  className="form-label"
-                                >
-                                  Description
-                                  <span className="text-danger">*</span>
-                                </label>
-                                <Form.Item
-                                  name="description"
-                                  rules={[{ required: true }]}
-                                >
-                                  <TextArea
-                                    className="form-control"
-                                    id="description"
-                                    rows={5}
-                                    placeholder="Enter description"
-                                    defaultValue={""}
-                                  />
-                                </Form.Item>
-                              </div>
-                            </div>
-                            {/*end row*/}
-                            <div className="d-flex align-items-start gap-3 mt-4">
-                              <Toaster
-                                position="top-right"
-                                expand={true}
-                                richColors
-                              />
-                              <button
-                                type="submit"
-                                className="btn btn-primary ms-auto"
-                                style={{ fontSize: "0.9rem", width: "6rem" }}
-                              >
-                                Submit
-                              </button>
-                            </div>
-                          </div>
-                          {/* end tab pane */}
-                        </div>
-                        {/* end tab content */}
-                      </Form>
+                      <Table
+                        columns={columns}
+                        dataSource={data}
+                        loading={loading}
+                        pagination={{ pageSize: 10 }}
+                        scroll={{ y: 240 }}
+                      />
                     </div>
                     {/* end card body */}
                   </div>
@@ -655,4 +572,4 @@ const Addblog = () => {
   );
 };
 
-export default Addblog;
+export default Contacts;

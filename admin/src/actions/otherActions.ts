@@ -42,3 +42,23 @@ export const addCourse = async (data:any) => {
         throw error;
       });
   };
+
+  export const getContacts = async () => {
+  
+    return axios({
+      method: "get",
+      url: `${baseUrl}/getcontacts`,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      timeout: 5000, 
+    })
+      .then((response) => {
+        console.log(response.data);
+        return response.data;
+      })
+      .catch((error) => {
+        throw error;
+      });
+  };

@@ -6,4 +6,7 @@ router.post("/register", adminController.registerAdmin);
 router.post("/login", adminController.loginAdmin);
 router.post("/addcourse", adminController.addCourse);
 router.post("/addblog", adminController.addBlog);
+
+router.get("/getcontacts",adminController.getCourses);
+
 module.exports = router;
