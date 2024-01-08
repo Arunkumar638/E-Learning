@@ -1,24 +1,60 @@
 "use client";
 
 import Script from "next/script";
-import { Form, Input } from "antd";
+import { Form, Input, message, Modal, Upload } from "antd";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "sonner";
 import { useState } from "react";
+import {PlusOutlined} from "@ant-design/icons"
+import type { RcFile, UploadProps } from 'antd/es/upload';
+import type { UploadFile } from 'antd/es/upload/interface';
 import swal from "sweetalert";
 import { addBlog } from "@/actions/otherActions";
 import Sidebar from "@/components/sideBar";
 
 const { TextArea } = Input;
+const getBase64 = (file: RcFile): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
 const Addblog = () => {
   const [form] = Form.useForm();
   const router = useRouter();
   const [type, setType] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
+
+  const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
+
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
     console.error("Form submission failed");
   };
+    const handleCancel = () => setPreviewOpen(false);
 
+    const handlePreview = async (file: UploadFile) => {
+      if (!file.url && !file.preview) {
+        file.preview = await getBase64(file.originFileObj as RcFile);
+      }
+      setPreviewImage(file.url || (file.preview as string));
+      setPreviewOpen(true);
+      setPreviewTitle(file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1));
+    };
+   
+    const handleImageChange: UploadProps['onChange'] = ({ fileList: newFileList }) =>{
+      console.log(newFileList);
+      setFileList(newFileList);
+    }
+    const uploadButton = (
+      <div>
+        <PlusOutlined />
+        <div style={{ marginTop: 8 }}>Upload</div>
+      </div>
+    );
   const validateMessages = {
     required: "${label} is required!",
     types: {
@@ -61,14 +97,20 @@ const Addblog = () => {
   const onFinish = (values: any) => {
     values.type = type;
     values.date = formatDate(values.date);
+    const uploadedFile = fileList[0];
+    values.image = uploadedFile.originFileObj;
     console.log(values);
     addBlog(values)
       .then((data) => {
         if (data.status == true) {
-          swal({
-            title: "Success!",
-            text: data.message,
-            icon: "success",
+          // swal({
+          //   title: "Success!",
+          //   text: data.message,
+          //   icon: "success",
+          // });
+
+          Modal.success({
+            content: data.message,
           });
           localStorage.setItem("token", data.token);
           form.resetFields();
@@ -170,7 +212,6 @@ const Addblog = () => {
                       placeholder="Search..."
                       autoComplete="off"
                       id="search-options"
-                      defaultValue=""
                     />
                     <span className="mdi mdi-magnify search-widget-icon" />
                     <span
@@ -404,6 +445,7 @@ const Addblog = () => {
                         onFinish={onFinish}
                         onFinishFailed={onFinishFailed}
                         validateMessages={validateMessages}
+                        encType="multipart/form-data"
                       >
                         <div className="tab-content">
                           <div
@@ -570,8 +612,31 @@ const Addblog = () => {
                                     id="description"
                                     rows={5}
                                     placeholder="Enter description"
-                                    defaultValue={""}
                                   />
+                                </Form.Item>
+                              </div>
+                              <div className="col-lg-2">
+                                <label className="form-label">
+                                  Image
+                                  <span className="text-danger">*</span>
+                                </label>
+                                <Form.Item valuePropName="fileList">
+                                  <Upload                       
+                                    listType="picture-card"
+                                    action='https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188'
+                                    maxCount={1}                
+                                    name='uploadImage'
+                                    accept="image/*"
+                                    fileList={fileList || []}
+                                    onChange={handleImageChange}
+                                    onPreview={handlePreview}
+                                  >
+                                    {fileList.length == 1 ? null : uploadButton}
+                                  </Upload>
+                                  
+                                  <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+                                  <img alt="example" style={{ width: '100%' }} src={previewImage} />
+                                  </Modal>
                                 </Form.Item>
                               </div>
                             </div>

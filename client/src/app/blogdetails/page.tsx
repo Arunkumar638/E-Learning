@@ -23,7 +23,7 @@ interface combineBlog {
   _id: String;
 }
 
-const blogDetails = () => {
+const BlogDetails = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
   const [id, setId] = useState("");
   const [blogs, setBlogs] = useState<combineBlog[]>([]);
@@ -132,7 +132,7 @@ const blogDetails = () => {
                 {blogs.map(
                   (blog, index) =>
                     id == blog._id && (
-                      <div className="blog-top-content">
+                      <div className="blog-top-content" key={index}>
                         <div className="news-content">
                           <ul className="admin">
                             <li>
@@ -515,4 +515,4 @@ const blogDetails = () => {
   );
 };
 
-export default blogDetails;
+export default BlogDetails;

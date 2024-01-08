@@ -3,7 +3,9 @@
 import Script from "next/script";
 import {Footer,Pagetitle,Subscribe } from "../../components/components";
 import Navbar from "@/components/navBar";
-const ourInstructors = () => {
+
+
+const OurInstructors = () => {
   return (
     <>
       <meta charSet="utf-8" />
@@ -571,4 +573,4 @@ const ourInstructors = () => {
   );
 };
 
-export default ourInstructors;
+export default OurInstructors;

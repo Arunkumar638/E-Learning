@@ -5,15 +5,24 @@ import { useEffect, useState } from "react";
 
 const Sidebar = ({ page }: any) => {
   const [isContact, setIsContact] = useState(false);
+  const [isCreateCourse, setIsCreateCourse] = useState(false);
   const [isCourse, setIsCourse] = useState(false);
-  const [isBlog, setIsBlog] = useState(false)
+  const [isBlog, setIsBlog] = useState(false);
+  const [category, setCategory] = useState(false)
+  const [isAddCategory, setIsAddCategory] = useState(false)
   const [isHome, setIsHome] = useState(false);
+  const [iswishlist, setIsWishlist] = useState(false);
+  const [isUsers, setIsUsers] = useState(false);
 
-  
   useEffect(() => {
     if (page == "contact") {
       setIsContact(true);
       console.log(isContact);
+    }
+    if (page == "addcourse") {
+      setIsCreateCourse(true);
+      console.log(isCreateCourse);
+      console.log(page);
     }
     if (page == "course") {
       setIsCourse(true);
@@ -25,10 +34,22 @@ const Sidebar = ({ page }: any) => {
       console.log(isHome);
     }
     if (page == "blog") {
-        setIsBlog(true);
-        console.log(isBlog);
-      }
-  }, []);
+      setIsBlog(true);
+      console.log(isBlog);
+    }
+    if (page == "wishlist") {
+      setIsWishlist(true);
+    }
+    if (page == "users") {
+      setIsUsers(true);
+    }
+    if (page == "addcategory") {
+      setIsAddCategory(true);
+    }
+    if (page == "category") {
+      setCategory(true);
+    }
+  }, [page]);
   return (
     <>
       <link id="fontsLink" href="assets/css/font.min.css" rel="stylesheet" />
@@ -98,70 +119,63 @@ const Sidebar = ({ page }: any) => {
                   <span data-key="t-home">Home</span>
                 </a>
               </li>
-              {/* <li className="nav-item">
+              <li className="nav-item">
                 <a
-                  href="#sidebarLearning"
+                  href="#sidebarCourses"
                   className={`nav-link menu-link collapsed ${
-                    isCourse ? `active` : ``
+                    isCreateCourse || isCourse || isAddCategory ? `active` : ``
                   }`}
                   data-bs-toggle="collapse"
                   role="button"
                   aria-expanded="false"
-                  aria-controls="sidebarLearning"
+                  aria-controls="sidebarCourses"
                 >
                   <i className="ph-graduation-cap" />{" "}
-                  <span data-key="t-learning">Learning</span>
+                  <span data-key="t-courses">Courses</span>
                 </a>
                 <div
-                  className={`collapse menu-dropdown ${isCourse ? `show` : ``}`}
-                  id="sidebarLearning"
+                  className={`collapse menu-dropdown ${
+                    isCreateCourse || isCourse || isAddCategory|| category ? `show` : ``
+                  }`}
+                  id="sidebarCourses"
                 >
                   <ul className="nav nav-sm flex-column">
                     <li className="nav-item">
                       <a
-                        href="#sidebarCourses"
-                        className={`nav-link ${isCourse ? `active` : ``}`}
+                      href="#sidebarCategory"
+                        className={`nav-link menu-link collapsed ${
+                          isAddCategory || category ? `active` : ``
+                        }`}
                         data-bs-toggle="collapse"
                         role="button"
                         aria-expanded="false"
-                        aria-controls="sidebarCourses"
-                        data-key="t-courses"
+                        aria-controls="sidebarCategory"
                       >
-                        {" "}
-                        Courses{" "}
+                        Category
                       </a>
                       <div
                         className={`collapse menu-dropdown ${
-                          isCourse ? `show` : ``
+                         isAddCategory || category ? `show` : ``
                         }`}
-                        id="sidebarCourses"
+                        id="sidebarCategory"
                       >
                         <ul className="nav nav-sm flex-column">
                           <li className="nav-item">
                             <a
-                              href="apps-learning-category"
-                              className="nav-link"
-                              data-key="t-category"
+                              href="/category"
+                              className={`nav-link ${category ? `active`:``}`}
+                              data-key="t-categories"
                             >
                               Category
                             </a>
                           </li>
                           <li className="nav-item">
                             <a
-                              href="apps-learning-overview"
-                              className="nav-link"
-                              data-key="t-overview"
+                              href="/addCategory"
+                              className={`nav-link ${isAddCategory ? `active` : ``}`}
+                              data-key="t-addcategory"
                             >
-                              Overview
-                            </a>
-                          </li>
-                          <li className="nav-item">
-                            <a
-                              href="/addCourse"
-                              className={`nav-link ${isCourse ? `active` : ``}`}
-                              data-key="t-create-course"
-                            >
-                              Create Course
+                              Add Category
                             </a>
                           </li>
                         </ul>
@@ -169,89 +183,31 @@ const Sidebar = ({ page }: any) => {
                     </li>
                     <li className="nav-item">
                       <a
-                        href="#sidebarStudent"
-                        className="nav-link"
-                        data-bs-toggle="collapse"
-                        role="button"
-                        aria-expanded="false"
-                        aria-controls="sidebarStudent"
-                        data-key="t-students"
+                        href="/courses"
+                        className={`nav-link  ${isCourse ? `active` : ``}`}
+                        data-key="t-overview"
                       >
-                        {" "}
-                        Students{" "}
+                        Course Orders
                       </a>
-                      <div
-                        className="collapse menu-dropdown"
-                        id="sidebarStudent"
-                      >
-                        <ul className="nav nav-sm flex-column">
-                          <li className="nav-item">
-                            <a
-                              href="apps-student-subScriptions"
-                              className="nav-link"
-                              data-key="t-my-subScriptions"
-                            >
-                              My Subscriptions
-                            </a>
-                          </li>
-                          <li className="nav-item">
-                            <a
-                              href="apps-student-courses"
-                              className="nav-link"
-                              data-key="t-my-courses"
-                            >
-                              My Courses
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
                     </li>
                     <li className="nav-item">
                       <a
-                        href="#sidebarInstructors"
-                        className="nav-link"
-                        data-bs-toggle="collapse"
-                        role="button"
-                        aria-expanded="false"
-                        aria-controls="sidebarInstructors"
-                        data-key="t-instructors"
+                        href="/addCourse"
+                        className={`nav-link ${isCreateCourse ? `active` : ``}`}
+                        data-key="t-create-course"
                       >
-                        {" "}
-                        Instructors{" "}
+                        Create Course
                       </a>
-                      <div
-                        className="collapse menu-dropdown"
-                        id="sidebarInstructors"
-                      >
-                        <ul className="nav nav-sm flex-column">
-                          <li className="nav-item">
-                            <a
-                              href="apps-instructors-overview"
-                              className="nav-link"
-                              data-key="t-overview"
-                            >
-                              Overview
-                            </a>
-                          </li>
-                          <li className="nav-item">
-                            <a
-                              href="apps-instructors-create"
-                              className="nav-link"
-                              data-key="t-create-instructors"
-                            >
-                              Create Instructor
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
                     </li>
                   </ul>
                 </div>
-              </li> */}
+              </li>
               <li className="nav-item">
                 <a
                   href="#sidebarBlog"
-                  className={`nav-link menu-link collapsed ${isBlog ? `active` : ``}`}
+                  className={`nav-link menu-link collapsed ${
+                    isBlog ? `active` : ``
+                  }`}
                   data-bs-toggle="collapse"
                   role="button"
                   aria-expanded="true"
@@ -260,7 +216,10 @@ const Sidebar = ({ page }: any) => {
                   <i className="ph-broadcast" />{" "}
                   <span data-key="t-learning">Blog</span>
                 </a>
-                <div className={`collapse menu-dropdown ${isBlog ? `show` : ``}`} id="sidebarBlog">
+                <div
+                  className={`collapse menu-dropdown ${isBlog ? `show` : ``}`}
+                  id="sidebarBlog"
+                >
                   <ul className="nav nav-sm flex-column">
                     <li className="nav-item">
                       <a
@@ -278,14 +237,26 @@ const Sidebar = ({ page }: any) => {
               </li>
               <li className="nav-item">
                 <a
-                  className={`nav-link menu-link ${isCourse ? `active` : ``}`}
-                  href="/addCourse"
+                  className={`nav-link menu-link ${iswishlist ? `active` : ``}`}
+                  href="/wishlist"
                   role="button"
                   aria-expanded="false"
-                  aria-controls="sidebarCourses"
+                  aria-controls="sidebarWishlist"
                 >
-                  <i className="ph-address-book" />{" "}
-                  <span data-key="t-create-course">Create Course</span>
+                  <i className="ri-file-list-3-line" />{" "}
+                  <span data-key="t-wishlist">Wishlist</span>
+                </a>
+              </li>
+              <li className="nav-item">
+                <a
+                  className={`nav-link menu-link ${isUsers ? `active` : ``}`}
+                  href="/users"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="sidebarUsers"
+                >
+                  <i className="ph-user-circle" />{" "}
+                  <span data-key="t-wishlist">Users</span>
                 </a>
               </li>
               <li className="nav-item">

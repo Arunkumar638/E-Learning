@@ -1,82 +1,170 @@
 "use client";
 
 import Script from "next/script";
-import { Form, Input } from "antd";
+import { Button, Form, Input, Modal, Upload } from "antd";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import swal from "sweetalert";
-import { addCourse } from "@/actions/otherActions";
+import { PlusOutlined } from "@ant-design/icons";
+import type { RcFile, UploadProps } from "antd/es/upload";
+import type { UploadFile } from "antd/es/upload/interface";
+import { addCourse, getCategory } from "@/actions/otherActions";
 import Sidebar from "@/components/sideBar";
 
 const { TextArea } = Input;
+
+const getBase64 = (file: RcFile): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+
+interface combineCategory {
+  categorytitle: string;
+  image: string;
+}
 const Addcourse = () => {
+  const [form] = Form.useForm();
+  const router = useRouter();
+  const [type, setType] = useState("");
+  const [language, setLanguage] = useState("");
+  const [category, setCategory] = useState<combineCategory[]>([]);
+  const [selectCategory, setSelectCategory] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
 
-    const [form] = Form.useForm();
-    const router = useRouter();
-    const [type, setType] = useState("");
-    const [language, setLanguage] = useState("");
-    const onFinishFailed = (errorInfo: any) => {
-      console.log("Failed:", errorInfo);
-      console.error("Form submission failed");
-    };
-  
-    const validateMessages = {
-      required: "${label} is required!",
-      types: {
-        email: "${label} is Invalid!",
-        password: "${label} is Invalid!",
-        name: "${label} is too long!",
-      },
-    };
+  const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
+  const [image, setImage] = useState(null);
+  const onFinishFailed = (errorInfo: any) => {
+    console.log("Failed:", errorInfo);
+    console.error("Form submission failed");
+  };
 
-    const formatDate = (value:Date) =>{
-        const date = new Date(value);
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const day = ('0' + date.getDate()).slice(-2);
-        const month = months[date.getMonth()]; 
-        const year = date.getFullYear();
-        
-        const formattedDate = `${day} ${month} ${year}`;
-        return formattedDate;
+  const validateMessages = {
+    required: "${label} is required!",
+    types: {
+      email: "${label} is Invalid!",
+      password: "${label} is Invalid!",
+      name: "${label} is too long!",
+    },
+  };
+  const handleCancel = () => setPreviewOpen(false);
+
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as RcFile);
     }
-    const notifyError = (data: any) => {
-      toast.error(data.message);
-    };
-    const handleTypeChange = (event:any) => {
-        setType(event.target.value);
-      };
-      const handleLangChange = (event:any) => {
-        setLanguage(event.target.value);
-      };
-    const onFinish = (values: any) => {
-        values.type = type;
-        values.language = language;
-        values.deadline = formatDate(values.deadline);
-        console.log(values);
-      addCourse(values)
-        .then((data) => {
-          if (data.status == true) {
-            swal({
-              title: "Success!",
-              text: data.message,
-              icon: "success",
-            });
-            localStorage.setItem("token", data.token);
-            form.resetFields();
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          if (error.response) {
-            const message = error.response.data;
-            console.log(message);
-            console.log("Response data:", error.response.data);
-            console.log("Response status:", error.response.status);
-            notifyError(message);
-          }
-        });
-    };
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+    setPreviewTitle(
+      file.name || file.url!.substring(file.url!.lastIndexOf("/") + 1)
+    );
+  };
+
+  const handleImageChange: UploadProps["onChange"] = ({
+    fileList: newFileList,
+  }) => {
+    console.log(newFileList);
+    setFileList(newFileList);
+  };
+
+  const formatDate = (value: Date) => {
+    const date = new Date(value);
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const day = ("0" + date.getDate()).slice(-2);
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    const formattedDate = `${day} ${month} ${year}`;
+    return formattedDate;
+  };
+  const notifyError = (data: any) => {
+    toast.error(data.message);
+  };
+  const handleTypeChange = (event: any) => {
+    setType(event.target.value);
+  };
+  const handleLangChange = (event: any) => {
+    setLanguage(event.target.value);
+  };
+  const handleCategoryChange = (event: any) => {
+    setSelectCategory(event.target.value);
+  };
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+  const onFinish = (values: any) => {
+    values.type = type;
+    values.language = language;
+    values.category = category;
+    values.deadline = formatDate(values.deadline);
+    const uploadedFile = fileList[0];
+    values.image = uploadedFile.originFileObj;
+    console.log(values);
+
+    addCourse(values)
+      .then((data) => {
+        if (data.status == true) {
+          swal({
+            title: "Success!",
+            text: data.message,
+            icon: "success",
+          });
+          localStorage.setItem("token", data.token);
+          form.resetFields();
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error.response) {
+          const message = error.response.data;
+          console.log(message);
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
+          notifyError(message);
+        }
+      });
+  };
+
+  useEffect(() => {
+    getCategory()
+      .then((data) => {
+        if (data.status == true) {
+          console.log(data.data);
+          setCategory(data.data);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error.response) {
+          const message = error.response.data;
+          console.log(message);
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
+          notifyError(message);
+        }
+      });
+  }, []);
   return (
     <>
       <meta charSet="utf-8" />
@@ -101,7 +189,11 @@ const Addcourse = () => {
       />
       {/* Icons Css */}
       <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-      <link href="assets/css/fontawesome.min.css" rel="stylesheet" type="text/css" />
+      <link
+        href="assets/css/fontawesome.min.css"
+        rel="stylesheet"
+        type="text/css"
+      />
       {/* App Css*/}
       <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
       {/* custom Css*/}
@@ -198,26 +290,17 @@ const Addcourse = () => {
                         </h6>
                       </div>
                       {/* item*/}
-                      <a
-                        href=""
-                        className="dropdown-item notify-item"
-                      >
+                      <a href="" className="dropdown-item notify-item">
                         <i className="ri-bubble-chart-line align-middle fs-18 text-muted me-2" />
                         <span>Analytics Dashboard</span>
                       </a>
                       {/* item*/}
-                      <a
-                        href=""
-                        className="dropdown-item notify-item"
-                      >
+                      <a href="" className="dropdown-item notify-item">
                         <i className="ri-lifebuoy-line align-middle fs-18 text-muted me-2" />
                         <span>Help Center</span>
                       </a>
                       {/* item*/}
-                      <a
-                        href=""
-                        className="dropdown-item notify-item"
-                      >
+                      <a href="" className="dropdown-item notify-item">
                         <i className="ri-user-settings-line align-middle fs-18 text-muted me-2" />
                         <span>My account settings</span>
                       </a>
@@ -229,10 +312,7 @@ const Addcourse = () => {
                       </div>
                       <div className="notification-list">
                         {/* item */}
-                        <a
-                          href=""
-                          className="dropdown-item notify-item py-2"
-                        >
+                        <a href="" className="dropdown-item notify-item py-2">
                           <div className="d-flex">
                             <img
                               src="assets/images/users/avatar-2.jpg"
@@ -248,10 +328,7 @@ const Addcourse = () => {
                           </div>
                         </a>
                         {/* item */}
-                        <a
-                          href=""
-                          className="dropdown-item notify-item py-2"
-                        >
+                        <a href="" className="dropdown-item notify-item py-2">
                           <div className="d-flex">
                             <img
                               src="assets/images/users/avatar-3.jpg"
@@ -267,10 +344,7 @@ const Addcourse = () => {
                           </div>
                         </a>
                         {/* item */}
-                        <a
-                          href=""
-                          className="dropdown-item notify-item py-2"
-                        >
+                        <a href="" className="dropdown-item notify-item py-2">
                           <div className="d-flex">
                             <img
                               src="assets/images/users/avatar-5.jpg"
@@ -426,7 +500,7 @@ const Addcourse = () => {
         </div>
         {/* /.modal */}
         {/* ========== App Menu ========== */}
-         <Sidebar page="course" />
+        <Sidebar page="addcourse" />
         {/* Left Sidebar End */}
         {/* Vertical Overlay*/}
         <div className="vertical-overlay" />
@@ -465,6 +539,7 @@ const Addcourse = () => {
                         onFinish={onFinish}
                         onFinishFailed={onFinishFailed}
                         validateMessages={validateMessages}
+                        encType="multipart/form-data"
                       >
                         <div className="tab-content">
                           <div
@@ -473,7 +548,6 @@ const Addcourse = () => {
                             role="tabpanel"
                             aria-labelledby="coursesDetails-tab"
                           >
-
                             <div className="row g-3 align-items-center">
                               <div className="col-lg-6">
                                 <div>
@@ -484,14 +558,17 @@ const Addcourse = () => {
                                     Course title
                                     <span className="text-danger">*</span>
                                   </label>
-                                  <Form.Item name="title" rules={[{ required: true }]}>
-                                  <Input
-                                    type="text"
-                                    id="course-title-input"
-                                    className="form-control"
-                                    placeholder="Enter course title"
-                                    required
-                                  />
+                                  <Form.Item
+                                    name="title"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <Input
+                                      type="text"
+                                      id="course-title-input"
+                                      className="form-control"
+                                      placeholder="Enter course title"
+                                      required
+                                    />
                                   </Form.Item>
                                 </div>
                               </div>
@@ -505,20 +582,23 @@ const Addcourse = () => {
                                     Courses Level
                                     <span className="text-danger">*</span>
                                   </label>
-                                  <Form.Item name="type" rules={[{ required: true }]}>
-                                  <select
-                                    className="form-select"
-                                    id="lavel-input"
-                                    onChange={handleTypeChange}
+                                  <Form.Item
+                                    name="type"
+                                    rules={[{ required: true }]}
                                   >
-                                    <option value="">Select Level</option>
-                                    <option value="Beginner">Beginner</option>
-                                    <option value="Advanced">Advanced</option>
-                                    <option value="Intermediate">
-                                      Intermediate
-                                    </option>
-                                    <option value="Expert">Expert</option>
-                                  </select>
+                                    <select
+                                      className="form-select"
+                                      id="lavel-input"
+                                      onChange={handleTypeChange}
+                                    >
+                                      <option value="">Select Level</option>
+                                      <option value="Beginner">Beginner</option>
+                                      <option value="Advanced">Advanced</option>
+                                      <option value="Intermediate">
+                                        Intermediate
+                                      </option>
+                                      <option value="Expert">Expert</option>
+                                    </select>
                                   </Form.Item>
                                 </div>
                               </div>
@@ -532,14 +612,17 @@ const Addcourse = () => {
                                     Lectures
                                     <span className="text-danger">*</span>
                                   </label>
-                                  <Form.Item name="lectures" rules={[{ required: true }]}>
-                                  <Input
-                                    type="number"
-                                    id="lectures-input"
-                                    className="form-control"
-                                    placeholder="0"
-                                    required
-                                  />
+                                  <Form.Item
+                                    name="lectures"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <Input
+                                      type="number"
+                                      id="lectures-input"
+                                      className="form-control"
+                                      placeholder="0"
+                                      required
+                                    />
                                   </Form.Item>
                                 </div>
                               </div>
@@ -548,18 +631,22 @@ const Addcourse = () => {
                                 <div>
                                   <label
                                     htmlFor="instructor-input"
-                                    className="form-label">
-                                        Instructor
-                                        <span className="text-danger">*</span>
+                                    className="form-label"
+                                  >
+                                    Instructor
+                                    <span className="text-danger">*</span>
                                   </label>
-                                  <Form.Item name="instructor" rules={[{ required: true }]}>
-                                  <Input
-                                    type="text"
-                                    id="insrcutor-input"
-                                    className="form-control"
-                                    placeholder="Instructor name"
-                                    required
-                                  />
+                                  <Form.Item
+                                    name="instructor"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <Input
+                                      type="text"
+                                      id="insrcutor-input"
+                                      className="form-control"
+                                      placeholder="Instructor name"
+                                      required
+                                    />
                                   </Form.Item>
                                 </div>
                               </div>
@@ -573,20 +660,23 @@ const Addcourse = () => {
                                     Language
                                     <span className="text-danger">*</span>
                                   </label>
-                                  <Form.Item name="language" rules={[{ required: true }]}>
-                                  <select
-                                    className="form-select"
-                                    id="language-input"
-                                    onChange={handleLangChange}
-                                    // data-choices=""
-                                    // data-choices-search-false=""
+                                  <Form.Item
+                                    name="language"
+                                    rules={[{ required: true }]}
                                   >
-                                    <option value="">Select Language</option>
-                                    <option value="English">English</option>
-                                    <option value="Hindi">Hindi</option>
-                                    <option value="France">France</option>
-                                    <option value="Expert">Expert</option>
-                                  </select>
+                                    <select
+                                      className="form-select"
+                                      id="language-input"
+                                      onChange={handleLangChange}
+                                      // data-choices=""
+                                      // data-choices-search-false=""
+                                    >
+                                      <option value="">Select Language</option>
+                                      <option value="English">English</option>
+                                      <option value="Hindi">Hindi</option>
+                                      <option value="France">France</option>
+                                      <option value="Expert">Expert</option>
+                                    </select>
                                   </Form.Item>
                                 </div>
                               </div>
@@ -600,19 +690,22 @@ const Addcourse = () => {
                                     Duration
                                     <span className="text-danger">*</span>
                                   </label>
-                                  <Form.Item name="duration" rules={[{ required: true }]}>
-                                  <Input
-                                    type="text"
-                                    id="duration-input"
-                                    className="form-control"
-                                    placeholder="00 hr 00 min"
-                                    required
-                                  />
+                                  <Form.Item
+                                    name="duration"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <Input
+                                      type="text"
+                                      id="duration-input"
+                                      className="form-control"
+                                      placeholder="00 hr 00 min"
+                                      required
+                                    />
                                   </Form.Item>
                                 </div>
                               </div>
                               {/*end col*/}
-                              <div className="col-lg-4">
+                              <div className="col-lg-3">
                                 <div>
                                   <label
                                     htmlFor="enrolled-input"
@@ -621,19 +714,22 @@ const Addcourse = () => {
                                     Enrolled
                                     <span className="text-danger">*</span>
                                   </label>
-                                  <Form.Item name="enrolled" rules={[{ required: true }]}>
-                                  <Input
-                                    type="number"
-                                    className="form-control"
-                                    id="enrolled-input"
-                                    placeholder="No.of.students enrolled"
-                                    required
-                                  />
+                                  <Form.Item
+                                    name="enrolled"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <Input
+                                      type="number"
+                                      className="form-control"
+                                      id="enrolled-input"
+                                      placeholder="No.of.students enrolled"
+                                      required
+                                    />
                                   </Form.Item>
                                 </div>
                               </div>
                               {/*end col*/}
-                              <div className="col-lg-4">
+                              <div className="col-lg-3">
                                 <div>
                                   <label
                                     htmlFor="dead-input"
@@ -642,18 +738,21 @@ const Addcourse = () => {
                                     Deadline
                                     <span className="text-danger">*</span>
                                   </label>
-                                  <Form.Item name="deadline" rules={[{ required: true }]}>
-                                  <Input
-                                    type="date"
-                                    className="form-control"
-                                    id="dead-input"
-                                    required
-                                  />
+                                  <Form.Item
+                                    name="deadline"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <Input
+                                      type="date"
+                                      className="form-control"
+                                      id="dead-input"
+                                      required
+                                    />
                                   </Form.Item>
                                 </div>
                               </div>
                               {/*end col*/}
-                              <div className="col-lg-4">
+                              <div className="col-lg-3">
                                 <div>
                                   <label
                                     htmlFor="price-input"
@@ -663,16 +762,50 @@ const Addcourse = () => {
                                     <span className="text-danger">*</span>
                                   </label>
                                   <div className="input-group">
-                                    <Form.Item name="price" rules={[{ required: true }]}>
-                                    <Input
-                                      type="text"
-                                      className="form-control"
-                                      id="price-input"
-                                      placeholder={`$ 0.0`}
-                                      required
-                                    />
+                                    <Form.Item
+                                      name="price"
+                                      rules={[{ required: true }]}
+                                    >
+                                      <Input
+                                        type="number"
+                                        className="form-control"
+                                        id="price-input"
+                                        placeholder="$"
+                                      />
                                     </Form.Item>
                                   </div>
+                                </div>
+                              </div>
+                              {/*end col*/}
+                              <div className="col-lg-3">
+                                <div>
+                                  <label
+                                    htmlFor="category-input"
+                                    className="form-label"
+                                  >
+                                    Category
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <Form.Item
+                                    name="category"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <select
+                                      className="form-select"
+                                      id="category-input"
+                                      onChange={handleCategoryChange}
+                                    >
+                                      <option value="">Select Category</option>
+                                      {category.map((option) => (
+                                        <option
+                                          value={option.categorytitle}
+                                          key={option.categorytitle}
+                                        >
+                                          {option.categorytitle}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </Form.Item>
                                 </div>
                               </div>
                               {/*end col*/}
@@ -685,18 +818,21 @@ const Addcourse = () => {
                                     Short Description
                                     <span className="text-danger">*</span>
                                   </label>
-                                  <Form.Item name="description" rules={[{ required: true }]}>
-                                  <TextArea
-                                    className="form-control"
-                                    id="shortDescription"
-                                    rows={3}
-                                    placeholder="Enter description"
-                                  />
+                                  <Form.Item
+                                    name="description"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <TextArea
+                                      className="form-control"
+                                      id="shortDescription"
+                                      rows={3}
+                                      placeholder="Enter description"
+                                    />
                                   </Form.Item>
                                 </div>
                               </div>
-                               {/*end col*/}
-                               <div className="col-lg-12">
+                              {/*end col*/}
+                              <div className="col-lg-12">
                                 <div>
                                   <label
                                     htmlFor="shortDescription"
@@ -705,13 +841,16 @@ const Addcourse = () => {
                                     Requirements
                                     <span className="text-danger">*</span>
                                   </label>
-                                  <Form.Item name="requirements" rules={[{ required: true }]}>
-                                  <TextArea
-                                    className="form-control"
-                                    id="shortDescription"
-                                    rows={6}
-                                    placeholder="Enter description"
-                                  />
+                                  <Form.Item
+                                    name="requirements"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <TextArea
+                                      className="form-control"
+                                      id="shortDescription"
+                                      rows={6}
+                                      placeholder="Enter description"
+                                    />
                                   </Form.Item>
                                 </div>
                               </div>
@@ -721,22 +860,63 @@ const Addcourse = () => {
                                   Contents
                                   <span className="text-danger">*</span>
                                 </label>
-                                <Form.Item name="contents" rules={[{ required: true }]}>
-                                <TextArea
+                                <Form.Item
+                                  name="contents"
+                                  rules={[{ required: true }]}
+                                >
+                                  <TextArea
                                     className="form-control"
                                     id="Description"
                                     rows={7}
                                   />
                                 </Form.Item>
                               </div>
+                              <div className="col-lg-2">
+                                <label className="form-label">
+                                  Image
+                                  <span className="text-danger">*</span>
+                                </label>
+                                <Form.Item valuePropName="fileList">
+                                  <Upload
+                                    listType="picture-card"
+                                    action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                                    maxCount={1}
+                                    name="uploadImage"
+                                    accept="image/*"
+                                    fileList={fileList || []}
+                                    onChange={handleImageChange}
+                                    onPreview={handlePreview}
+                                  >
+                                    {fileList.length == 1 ? null : uploadButton}
+                                  </Upload>
+
+                                  <Modal
+                                    open={previewOpen}
+                                    title={previewTitle}
+                                    footer={null}
+                                    onCancel={handleCancel}
+                                  >
+                                    <img
+                                      alt="example"
+                                      style={{ width: "100%" }}
+                                      src={previewImage}
+                                    />
+                                  </Modal>
+                                </Form.Item>
+                              </div>
                             </div>
+
                             {/*end row*/}
                             <div className="d-flex align-items-start gap-3 mt-4">
-                            <Toaster position="top-right" expand={true} richColors />
+                              <Toaster
+                                position="top-right"
+                                expand={true}
+                                richColors
+                              />
                               <button
                                 type="submit"
                                 className="btn btn-primary ms-auto"
-                                style={{fontSize:"0.9rem", width:"6rem"}}
+                                style={{ fontSize: "0.9rem", width: "6rem" }}
                               >
                                 Submit
                               </button>

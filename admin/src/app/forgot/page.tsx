@@ -8,7 +8,7 @@ const Forgot = () =>{
     name="viewport"
     content="width=device-width, initial-scale=1.0, user-scalable=0"
   />
-  <title>Dreams LMS</title>
+  <title>Forgot | Steex - Admin &amp; Dashboard Template</title>
   {/* Favicon */}
   <link rel="shortcut icon" href="assets/images/favicon.ico" />
   {/* Bootstrap CSS */}

@@ -1,10 +1,44 @@
 'use client'
 
 import Script from "next/script";
+import { useEffect, useState } from "react"
 import withAuth from "@/hoc/authMiddleware";
 import Sidebar from "@/components/sideBar";
+import { getAdmin } from "@/actions/userActions";
+import { Toaster, toast } from "sonner";
 
  const Home = () =>{
+
+  const [admin, setAdmin] = useState({
+    name:"",
+    email:"",
+  });
+
+  const notifyError = (data: any) => {
+    toast.error(data.message);
+  };
+  useEffect(()=>{
+    const token = localStorage.getItem('token');
+    const data = {
+      "token":token
+    }
+    getAdmin(data)
+    .then((data) => {
+      if (data.status == true) {
+        setAdmin(data.data);
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      if (error.response) {
+        const message = error.response.data;
+        console.log(message);
+        console.log("Response data:", error.response.data);
+        console.log("Response status:", error.response.status);
+        notifyError(message);
+      }
+    });
+  },[])
   return (
     <>
       <meta charSet="utf-8" />
@@ -227,6 +261,7 @@ import Sidebar from "@/components/sideBar";
                 </form>
               </div>
               <div className="d-flex align-items-center">
+              <Toaster position="top-right" expand={true} richColors />
                 <div className="dropdown ms-sm-3 header-item topbar-user gap-3">
                 <button
                     type="button"
@@ -244,17 +279,17 @@ import Sidebar from "@/components/sideBar";
                       />
                       <span className="text-start ms-xl-2">
                         <span className="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
-                          Richard Marshall
+                          {admin.name}
                         </span>
                         <span className="d-none d-xl-block ms-1 fs-sm user-name-sub-text">
-                          Founder
+                          Admin
                         </span>
                       </span>
                     </span>
                   </button>
                   <div className="dropdown-menu dropdown-menu-end">
                     {/* item*/}
-                    <h6 className="dropdown-header">Welcome Richard!</h6>
+                    <h6 className="dropdown-header">Welcome {admin.name}!</h6>
                     <a className="dropdown-item" href="pages-profile">
                       <i className="mdi mdi-account-circle text-muted fs-lg align-middle me-1" />{" "}
                       <span className="align-middle">Profile</span>

@@ -13,6 +13,7 @@ const courseSchema = new Schema({
   deadline:{ type: String, required: true },
   description:{ type: String, required: true },
   requirements:{ type: String, required: true },
+  image: { type: String, required: true },
   contents:{ type: String, required: true }
 });
 

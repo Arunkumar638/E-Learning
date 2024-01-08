@@ -9,9 +9,8 @@ import { toast, Toaster } from "sonner";
 import { save } from "@/actions/userActions";
 import { useRouter } from "next/navigation";
 
-var errormsg;
 
-const register = () => {
+const Register = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
 
   const [form] = Form.useForm();
@@ -47,6 +46,7 @@ const register = () => {
   };
 
   const onFinish = (values: any) => {
+ 
     save(values)
       .then((data) => {
         if (data.status == true) {
@@ -55,7 +55,7 @@ const register = () => {
             text: data.message,
             icon: "success",
           });
-          // router.push("/login");
+          router.push("/login");
           form.resetFields();
         }
       })
@@ -107,13 +107,23 @@ const register = () => {
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}
               validateMessages={validateMessages}
-              initialValues={{ checkbox: true }}
-            >
+              initialValues={{ checkbox: true }}>
               <div className="row">
                 <div className="col-lg-12">
                   <div className="form-group">
                     <label>Username *</label>
                     <Form.Item name="username" rules={[{ required: true }]}>
+                      <Input className="form-control" type="text" />
+                    </Form.Item>
+                  </div>
+                </div>
+                <div className="col-lg-12">
+                  <div className="form-group">
+                    <label>Phone No *</label>
+                    <Form.Item
+                      name="phoneNo"
+                      rules={[{ required: true }]}
+                    >
                       <Input className="form-control" type="text" />
                     </Form.Item>
                   </div>
@@ -218,4 +228,4 @@ const errorMessage = (message: any) => {
 };
 // const object = {errorMessage,register}
 // export default object;
-export default register;
+export default Register;

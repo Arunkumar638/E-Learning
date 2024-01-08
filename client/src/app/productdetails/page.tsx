@@ -4,7 +4,7 @@ import Script from "next/script";
 import {Footer,Pagetitle} from "../../components/components";
 import { Suspense,lazy } from "react";
 
-const productDetails = () => {
+const ProductDetails = () => {
   const Navbar = lazy(() => import('../../components/navBar'));
   return (
     <>
@@ -368,4 +368,4 @@ const productDetails = () => {
   );
 };
 
-export default productDetails;
+export default ProductDetails;

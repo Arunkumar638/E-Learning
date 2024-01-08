@@ -17,7 +17,7 @@ interface combineCourse {
   _id: String;
 }
 
-const ourCourses = () => {
+const OurCourses = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
   const [courses, setCourses] = useState<combineCourse[]>([]);
   const [isCourseCard, setIsCourseCard] = useState(false);
@@ -129,8 +129,8 @@ const ourCourses = () => {
           <div className="row justify-content-center">
             {isCourseCard
               ? courses.map((course, index) => (
-                  <div className="col-xl-4 col-md-6">
-                    <div className="single-courses-item" key={index}>
+                  <div className="col-xl-4 col-md-6" key={index}>
+                    <div className="single-courses-item">
                       <div className="courses-img">
                         {isLogin ? (
                           <a href={`/coursedetails/?=${course._id}`}>
@@ -190,12 +190,19 @@ const ourCourses = () => {
                         </ul>
                       </div>
                       <ul className="courses-fee d-flex justify-content-between">
-                        <li>{course.price}</li>
+                        <li>${course.price}</li>
                         <li>
-                          <a href="/coursedetails" className="read-more">
-                            More Details
-                            <i className="ri-arrow-right-line" />
-                          </a>
+                          {isLogin ? (
+                            <a href={`/coursedetails/?=${course._id}`} className="read-more">
+                              More Details
+                              <i className="ri-arrow-right-line" />
+                            </a>
+                          ) : (
+                            <a onClick={notifyError} href="#"  className="read-more">
+                              More Details
+                              <i className="ri-arrow-right-line" />
+                            </a>
+                          )}
                         </li>
                       </ul>
                     </div>
@@ -231,4 +238,4 @@ const ourCourses = () => {
   );
 };
 
-export default ourCourses;
+export default OurCourses;

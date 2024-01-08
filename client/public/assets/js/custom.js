@@ -202,8 +202,8 @@
 		},
 	});
 
-	// Blog Slide JS
-	$('.blog-slide').owlCarousel({
+	// // Blog Slide JS
+	var blog_slide = $('.blog-slide').owlCarousel({
 		items: 1,
 		loop: true,
 		margin: 30,

@@ -1,7 +1,7 @@
 'use client'
 
 import Script from "next/script";
-import { Checkbox, Form, Input } from "antd";
+import { Checkbox, Form, Input, Modal } from "antd";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "sonner";
 import swal from "sweetalert";
@@ -39,11 +39,14 @@ const Register = () => {
     console.log(values);
       save(values).then((data)=>{
         if(data.status == true){
-          swal({
-            title: "Success!",
-            text: data.message,
-            icon: "success",
-          });
+          // swal({
+          //   title: "Success!",
+          //   text: data.message,
+          //   icon: "success",
+          // });
+          Modal.success({
+            content:data.message
+          })
           localStorage.setItem('token',data.token);
           form.resetFields();
         }

@@ -2,10 +2,89 @@
 
 import Script from "next/script";
 import {Footer, Pagetitle} from "../../components/components";
-import { Suspense,lazy } from "react";
+import { Suspense,lazy, useEffect, useState } from "react";
+import { deleteCartData, getCartData } from "@/actions/otherActions";
+import { ExclamationCircleFilled } from '@ant-design/icons';
+import { Modal } from "antd";
+import { Toaster, toast } from "sonner";
 
-const cart = () => {
+const { confirm } = Modal;
+interface combineCart {
+  courseId:string,
+  title:string;
+  imagepath:string;
+  price:string;
+  status:string;
+}
+const Cart = () => {
   const Navbar = lazy(() => import('../../components/navBar'));
+  const [cart, setCart] = useState<combineCart[]>([])
+  const [price, setPrice] = useState(0)
+
+  const notifyError = (data: any) => {
+    toast.error(data.message);
+  };
+
+  const calculatePrice = (cartData: combineCart[]) => {
+    let amount = 0;
+    console.log(cartData);
+    cartData.forEach((item) => {
+      const num = parseInt(item.price, 10); 
+      amount += num;
+    });
+    setPrice(amount);
+  };
+
+  const deleteCart = (data:any) =>{
+    const courseData = {
+      courseId:data
+    }
+    deleteCartData(courseData)
+    .then((data) => {
+      if (data.status == true) {
+        toast.success(data.message);
+      }
+      getCartData().then((data) => {
+        if (data) {
+          setCart(data);
+        }
+      });
+    })
+    .catch((error) => {
+      if (error.response) {
+        const message = error.response.data;
+        console.log("Response data:", error.response.data);
+        console.log("Response status:", error.response.status);
+        notifyError(message);
+      }
+    });
+
+  }
+
+  const showDeleteConfirm = (data:any) => {
+    confirm({
+      title: 'Are you sure?',
+      icon: <ExclamationCircleFilled />,
+      content: 'This will remove this course from cart',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk() {
+        deleteCart(data)
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  };
+  useEffect(()=>{
+    getCartData().then((data) => {
+      if (data) {
+        setCart(data);
+        calculatePrice(data);
+      }
+    });
+  },[])
   return (
     <>
       <meta charSet="utf-8" />
@@ -44,188 +123,34 @@ const cart = () => {
                       <tr>
                         <th scope="col">Trash</th>
                         <th scope="col">Image</th>
-                        <th scope="col">Product name</th>
+                        <th scope="col">Course Title</th>
                         <th scope="col">Price</th>
-                        <th scope="col">Quantity</th>
-                        <th scope="col">Total</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
+                    {cart.map(
+                        (cart, index) =>(
+                      <tr key={index}>
                         <td className="trash">
-                          <a href="#" className="remove">
+                          <a onClick={()=>showDeleteConfirm(cart.courseId)} className="remove">
                             <i className="ri-delete-bin-line" />
                           </a>
                         </td>
                         <td className="product-thumbnail">
                           <a href="/productdetails">
                             <img
-                              src="assets/images/products/product-1.jpg"
+                              src={cart.imagepath}
                               alt="Image"
                             />
                           </a>
                         </td>
                         <td className="product-name">
-                          <a href="/productdetails">Novel Bunch</a>
+                          <a href="/productdetails">{cart.title}</a>
                         </td>
                         <td className="product-price">
-                          <span className="unit-amount">$50.00</span>
+                          <span className="unit-amount">${cart.price}</span>
                         </td>
-                        <td className="product-quantity">
-                          <div className="input-counter">
-                            <span className="minus-btn">
-                              <i className="ri-subtract-line" />
-                            </span>
-                            <input type="text" defaultValue={1} />
-                            <span className="plus-btn">
-                              <i className="ri-add-line" />
-                            </span>
-                          </div>
-                        </td>
-                        <td className="product-subtotal">
-                          <span className="subtotal-amount">$50.00</span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="trash">
-                          <a href="#" className="remove">
-                            <i className="ri-delete-bin-line" />
-                          </a>
-                        </td>
-                        <td className="product-thumbnail">
-                          <a href="/productdetails">
-                            <img
-                              src="assets/images/products/product-2.jpg"
-                              alt="Image"
-                            />
-                          </a>
-                        </td>
-                        <td className="product-name">
-                          <a href="/productdetails">Book Chicks</a>
-                        </td>
-                        <td className="product-price">
-                          <span className="unit-amount">$40.00</span>
-                        </td>
-                        <td className="product-quantity">
-                          <div className="input-counter">
-                            <span className="minus-btn">
-                              <i className="ri-subtract-line" />
-                            </span>
-                            <input type="text" defaultValue={1} />
-                            <span className="plus-btn">
-                              <i className="ri-add-line" />
-                            </span>
-                          </div>
-                        </td>
-                        <td className="product-subtotal">
-                          <span className="subtotal-amount">$40.00</span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="trash">
-                          <a href="#" className="remove">
-                            <i className="ri-delete-bin-line" />
-                          </a>
-                        </td>
-                        <td className="product-thumbnail">
-                          <a href="/productdetails">
-                            <img
-                              src="assets/images/products/product-3.jpg"
-                              alt="Image"
-                            />
-                          </a>
-                        </td>
-                        <td className="product-name">
-                          <a href="/productdetails">Book Divas</a>
-                        </td>
-                        <td className="product-price">
-                          <span className="unit-amount">$80.00</span>
-                        </td>
-                        <td className="product-quantity">
-                          <div className="input-counter">
-                            <span className="minus-btn">
-                              <i className="ri-subtract-line" />
-                            </span>
-                            <input type="text" defaultValue={1} />
-                            <span className="plus-btn">
-                              <i className="ri-add-line" />
-                            </span>
-                          </div>
-                        </td>
-                        <td className="product-subtotal">
-                          <span className="subtotal-amount">$80.00</span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="trash">
-                          <a href="#" className="remove">
-                            <i className="ri-delete-bin-line" />
-                          </a>
-                        </td>
-                        <td className="product-thumbnail">
-                          <a href="/productdetails">
-                            <img
-                              src="assets/images/products/product-4.jpg"
-                              alt="Image"
-                            />
-                          </a>
-                        </td>
-                        <td className="product-name">
-                          <a href="/productdetails">Book Smart</a>
-                        </td>
-                        <td className="product-price">
-                          <span className="unit-amount">$50.00</span>
-                        </td>
-                        <td className="product-quantity">
-                          <div className="input-counter">
-                            <span className="minus-btn">
-                              <i className="ri-subtract-line" />
-                            </span>
-                            <input type="text" defaultValue={1} />
-                            <span className="plus-btn">
-                              <i className="ri-add-line" />
-                            </span>
-                          </div>
-                        </td>
-                        <td className="product-subtotal">
-                          <span className="subtotal-amount">$50.00</span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="trash">
-                          <a href="#" className="remove">
-                            <i className="ri-delete-bin-line" />
-                          </a>
-                        </td>
-                        <td className="product-thumbnail">
-                          <a href="/productdetails">
-                            <img
-                              src="assets/images/products/product-5.jpg"
-                              alt="Image"
-                            />
-                          </a>
-                        </td>
-                        <td className="product-name">
-                          <a href="/productdetails">Book Broads</a>
-                        </td>
-                        <td className="product-price">
-                          <span className="unit-amount">$50.00</span>
-                        </td>
-                        <td className="product-quantity">
-                          <div className="input-counter">
-                            <span className="minus-btn">
-                              <i className="ri-subtract-line" />
-                            </span>
-                            <input type="text" defaultValue={1} />
-                            <span className="plus-btn">
-                              <i className="ri-add-line" />
-                            </span>
-                          </div>
-                        </td>
-                        <td className="product-subtotal">
-                          <span className="subtotal-amount">$50.00</span>
-                        </td>
-                      </tr>
+                      </tr>))}
                     </tbody>
                   </table>
                 </div>
@@ -257,21 +182,22 @@ const cart = () => {
                 <h3 className="cart-checkout-title">Checkout Summary</h3>
                 <ul>
                   <li>
-                    Subtotal <span>$270.00</span>
+                    Subtotal <span>${price}.00</span>
                   </li>
                   <li>
                     Shipping <span>$00.00</span>
                   </li>
                   <li>
-                    Total <span>$270.00</span>
+                    Total <span>${price}.00</span>
                   </li>
                   <li>
                     <b>Payable Total</b>{" "}
                     <span>
-                      <b>$270.00</b>
+                      <b>${price}.00</b>
                     </span>
                   </li>
                 </ul>
+                <Toaster position="top-right" expand={true} richColors />
                 <a href="/checkout" className="default-btn">
                   Proceed To Checkout
                 </a>
@@ -305,4 +231,4 @@ const cart = () => {
   );
 };
 
-export default cart;
+export default Cart;

@@ -10,7 +10,7 @@ import { Toaster, toast } from "sonner";
 import { contact } from "@/actions/otherActions";
 
 const { TextArea } = Input;
-const contactUs = () => {
+const ContactUs = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
   const [form] = Form.useForm();
   const router = useRouter();
@@ -260,4 +260,4 @@ const contactUs = () => {
   );
 };
 
-export default contactUs;
+export default ContactUs;

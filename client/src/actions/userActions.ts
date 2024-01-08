@@ -7,7 +7,7 @@ const secretKey = `V5LzRs_Pw9OYSt5cMOSc3b8aK1V6n2wiBWaeAcJ48kY`;
   
   return axios({
     method: "post",
-    url: `${baseUrl}/adminregister`,
+    url: `${baseUrl}/register`,
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",

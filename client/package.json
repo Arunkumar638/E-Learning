@@ -13,19 +13,18 @@
     "antd": "^5.12.2",
     "axios": "^1.6.2",
     "dotenv": "^16.3.1",
-    "google-maps-react": "^2.0.6",
     "jquery": "^3.7.1",
     "jsonwebtoken": "^9.0.2",
     "next": "14.0.4",
-    "react": "^18",
+    "react": "^18.2.0",
     "react-bootstrap": "^2.9.2",
     "react-dom": "^18",
-    "react-google-recaptcha": "^3.1.0",
-    "react-helmet": "^6.1.0",
-    "react-hydration-provider": "^2.1.0",
+    "react-slick": "^0.29.0",
+    "slick-carousel": "^1.8.1",
     "sonner": "^1.2.4",
     "sweetalert": "^2.1.2",
-    "watch": "^1.0.2"
+    "watch": "^1.0.2",
+    "webpack": "^5.89.0"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.29",
@@ -34,6 +33,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-helmet": "^6.1.11",
+    "@types/react-slick": "^0.23.13",
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
     "typescript": "^5"

@@ -621,7 +621,7 @@ export const Tesimonials = () =>{
               </div>
               <p>
                 Hi, I am a student and I learning about basics of web development also 
-                I doing some projects using my knowledge and it's very interesting to explore new concepts.
+                I doing some projects using my knowledge and it&apos;s very interesting to explore new concepts.
               </p>
               <img
                 src="assets/images/testimonials/quate.png"

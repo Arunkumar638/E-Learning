@@ -121,7 +121,7 @@ const About = () => {
                 <p className="mb-0 mt-20">
                 We meet with students to clarify and review concepts taught in class, explain processes and help students solve specific problems. 
                 Tutoring supports classroom-centered activities, and as such, the emphasis and 
-                content of the tutoring sessions is determined by the student's needs.
+                content of the tutoring sessions is determined by the student&apos;s needs.
                 </p>
                 <a href="#" className="default-btn">
                   Join For Free

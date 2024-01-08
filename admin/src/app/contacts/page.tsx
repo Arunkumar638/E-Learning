@@ -19,7 +19,6 @@ import type { InputRef } from 'antd';
 import type { SorterResult, FilterConfirmProps } from "antd/es/table/interface";
 import Sidebar from "@/components/sideBar";
 
-const TextArea = { Input };
 type DataIndex = keyof DataType;
 interface DataType {
   name: string;

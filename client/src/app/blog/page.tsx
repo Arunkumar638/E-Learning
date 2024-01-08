@@ -64,8 +64,8 @@ const Blog = () => {
           <div className="row justify-content-center">
             {isBlogCard &&
               blogs.map((blog, index) => (
-                <div className="col-xl-4 col-md-6">
-                  <div className="single-blog-item" key={index}>
+                <div className="col-xl-4 col-md-6" key={index}>
+                  <div className="single-blog-item">
                     <a href={`/blogdetails/?=${blog._id}`}>
                       <img src={`${blog.imagepath}`} alt="Image" />
                     </a>

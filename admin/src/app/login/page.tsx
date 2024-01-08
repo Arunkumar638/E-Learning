@@ -1,7 +1,7 @@
 'use client'
 
 import { login } from "@/actions/userActions";
-import { Form } from "antd";
+import { Form, Modal } from "antd";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { Toaster, toast } from "sonner";
@@ -112,9 +112,6 @@ const Login = () => {
                       className="img-fluid"
                       alt="Logo"
                     />
-                    <div className="back-home">
-                      <a href="index.html">Back to Home</a>
-                    </div>
                   </div>
                   <h1>Sign In</h1>
                   <Form

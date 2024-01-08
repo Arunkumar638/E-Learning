@@ -3,7 +3,9 @@
 import Script from "next/script";
 import {Pagetitle, Footer} from "../../components/components";
 import Navbar from "@/components/navBar";
-const privacyPolicy = () => {
+
+
+const PrivacyPolicy = () => {
   return (
     <>
       <meta charSet="utf-8" />
@@ -172,4 +174,4 @@ const privacyPolicy = () => {
   );
 };
 
-export default privacyPolicy;
+export default PrivacyPolicy;
