@@ -1,11 +1,12 @@
-const Admin = require("../models/adminModel");
-const Blog = require("../models/blogModel");
-const Category = require("../models/categoryModel");
-const Course = require("../models/courseModel");
-const Purchase = require("../models/purchaseModel");
-const Contact = require("../models/contactModel");
-const Wishlist = require("../models/wishlistModel");
-const User = require("../models/registerModel");
+const Admin = require("../models/adminModels/adminModel");
+const Blog = require("../models/adminModels/blogModel");
+const Category = require("../models/adminModels/categoryModel");
+const SubCategory = require("../models/adminModels/subCategoryModel");
+const Course = require("../models/adminModels/courseModel");
+const Purchase = require("../models/userModels/purchaseModel");
+const Contact = require("../models/adminModels/contactModel");
+const Wishlist = require("../models/adminModels/wishlistModel");
+const User = require("../models/userModels/registerModel");
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -163,11 +164,16 @@ exports.addCourse = async (req, res) => {
 exports.addCategory = async (req, res) => {
   const {
     categorytitle,
+    status,
+    createdAt
   } = req.body;
   const image = req.file ? req.file.filename : null;
   try {
+
     const newCategory = new Category({
       categorytitle,
+      status,
+      createdAt,
       image
     });
     await newCategory.save();
@@ -179,6 +185,35 @@ exports.addCategory = async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to add category", error: error.message });
+  }
+};
+
+exports.addSubCategory = async (req, res) => {
+  const {
+    categorytitle,
+    subcategorytitle,
+    status,
+    createdAt
+  } = req.body;
+  const image = req.file ? req.file.filename : null;
+  try {
+
+    const newsubCategory = new SubCategory({
+      categorytitle,
+      subcategorytitle,
+      status,
+      createdAt,
+      image
+    });
+    await newsubCategory.save();
+
+    res
+      .status(201)
+      .json({ message: "SubCategory Added Successfully", status: true });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to add subcategory", error: error.message });
   }
 };
 
@@ -288,6 +323,80 @@ exports.getCategory = async (req, res) => {
   }
 };
 
+exports.getSubCategory = async (req, res) => {
+  try {
+    const subcategories = await SubCategory.find();
+    res.status(200).json({ data: subcategories, status: true });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get all contacts",
+      status: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.updateCategory = async (req, res) => {
+  const { id, categorytitle, status } = req.body;
+
+  try {
+    const categoryId = {"_id":id}
+    const updateCategoryDetails = await Category.findByIdAndUpdate(
+      categoryId,
+      {
+        categorytitle,
+        status,
+      },
+      {
+        new: true,
+      }
+    );
+    console.log(updateCategoryDetails);
+    if (!updateCategoryDetails) {
+      return res.status(409).json({
+        message: 'Failed to update'
+      });
+    }
+    const category = await Category.find();
+    res.status(201).json({ message: "Category updated Successfully",data:category, status: true });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to update Category", error: error.message });
+  }
+};
+
+exports.updateSubCategory = async (req, res) => {
+  const { id, categorytitle, subcategorytitle, status } = req.body;
+
+  try {
+    const subcategoryId = {"_id":id}
+    const updateCategoryDetails = await SubCategory.findByIdAndUpdate(
+      subcategoryId,
+      {
+        categorytitle,
+        subcategorytitle,
+        status,
+      },
+      {
+        new: true,
+      }
+    );
+    console.log(updateCategoryDetails);
+    if (!updateCategoryDetails) {
+      return res.status(409).json({
+        message: 'Failed to update'
+      });
+    }
+    const category = await SubCategory.find();
+    res.status(201).json({ message: "SubCategory updated Successfully",data:category, status: true });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to update Category", error: error.message });
+  }
+};
+
 exports.getWishlist = async (req, res) => {
   try {
     const wishlist = await Wishlist.find();
@@ -358,8 +467,26 @@ exports.deleteCategory = async (req, res) => {
   const { id } = req.body
   try {
     const category = await Category.findByIdAndDelete(id);
+    const categories = await Category.find();
     if(category){
-    res.status(200).json({ message: "Category Deleted Successfully", status: true });
+    res.status(200).json({ message: "Category Deleted Successfully", data:categories, status: true });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get all contacts",
+      status: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.deleteSubCategory = async (req, res) => {
+  const { id } = req.body
+  try {
+    const subcategory = await SubCategory.findByIdAndDelete(id);
+    const subcategories = await SubCategory.find();
+    if(subcategory){
+    res.status(200).json({ message: "SubCategory Deleted Successfully", data:subcategories, status: true });
     }
   } catch (error) {
     res.status(500).json({

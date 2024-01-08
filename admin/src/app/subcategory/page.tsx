@@ -11,21 +11,34 @@ import { Button, Table, Popconfirm, Modal } from "antd";
 import type { SorterResult, FilterConfirmProps } from "antd/es/table/interface";
 import Sidebar from "@/components/sideBar";
 import { useEffect, useRef, useState } from "react";
-import { deleteCategory, getCategory, updateCategory } from "@/actions/otherActions";
+import {
+  deleteSubCategory,
+  getSubCategory,
+  updateSubCategory,
+} from "@/actions/otherActions";
 
 type DataIndex = keyof DataType;
 interface DataType {
   categorytitle: string;
+  subcategorytitle: string;
   image: string;
   status: string;
 }
+interface combineCategory {
+  categorytitle: string;
+  subcategorytitle: string;
+  status: string;
+  image: string;
+}
+
 const Category = () => {
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [category, setCategory] = useState([]);
-  const [id, setId] = useState("");
-  const [categorydetails, setCategoryDetails] = useState({
+  const [subcategory, setSubCategory] = useState<combineCategory[]>([]);
+  const [selectCategory, setSelectCategory] = useState("");
+  const [subCategoryDetails, setSubCategoryDetails] = useState({
     categorytitle: "",
+    subcategorytitle: "",
     id: "",
   });
   const [visible, setVisible] = useState(false);
@@ -50,11 +63,11 @@ const Category = () => {
     x: "max-content",
     y: 400,
   };
-const updateStatus = (details:any) =>{
-  updateCategory(details)
+  const updateStatus = (details: any) => {
+    updateSubCategory(details)
       .then((data) => {
         if (data.status == true) {
-          setCategory(data.data);
+          setSubCategory(data.data);
           setLoading(false);
           setVisible(false);
         }
@@ -69,31 +82,32 @@ const updateStatus = (details:any) =>{
           notifyError(message);
         }
       });
-}
+  };
 
-  const activate = (data:any) =>{
+  const activate = (data: any) => {
     const id = data._id;
     const status = "Active";
     const details = {
-        "id":id,
-        "status":status
-    }
+      id: id,
+      status: status,
+    };
     updateStatus(details);
-  }
-  const deactivate = (data:any) =>{
+  };
+  const deactivate = (data: any) => {
     const id = data._id;
     const status = "Deactive";
     const details = {
-        "id":id,
-        "status":status
-    }
+      id: id,
+      status: status,
+    };
     updateStatus(details);
-  }
+  };
 
-  const handleOpenModal = (data:any) => {
+  const handleOpenModal = (data: any) => {
     setVisible(true);
-    categorydetails.categorytitle = data.categorytitle;
-    categorydetails.id = data._id;
+    subCategoryDetails.categorytitle = data.categorytitle;
+    subCategoryDetails.subcategorytitle = data.subcategorytitle;
+    subCategoryDetails.id = data._id;
   };
 
   const handleCancel = () => {
@@ -102,37 +116,30 @@ const updateStatus = (details:any) =>{
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
-    setCategoryDetails({
-      ...categorydetails,
+    setSubCategoryDetails({
+      ...subCategoryDetails,
       [name]: value,
     });
   };
 
-  const clear = () => {
-    setCategoryDetails({
-      id: "",
-      categorytitle: "",
-    });
-  };
-
   const handleSubmit = () => {
+    console.log(subCategoryDetails);
 
-    console.log(categorydetails);
-    updateStatus(categorydetails);
+    updateStatus(subCategoryDetails);
   };
 
-  const delCategory = (data: any) => {
+  const delSubCategory = (data: any) => {
     const id = data._id;
     const details = {
       id: id,
     };
 
-    deleteCategory(details)
+    deleteSubCategory(details)
       .then((data) => {
         if (data.status == true) {
           toast.success(data.message);
         }
-        setCategory(data.data);
+        setSubCategory(data.data);
       })
       .catch((error) => {
         console.log(error);
@@ -247,8 +254,18 @@ const updateStatus = (details:any) =>{
       title: "Category Title",
       dataIndex: "categorytitle",
       key: "categorytitle",
+      width:"20%",
       ...getColumnSearchProps("categorytitle"),
       sorter: (a, b) => a.categorytitle.length - b.categorytitle.length,
+      sortDirections: ["descend", "ascend"],
+    },
+    {
+      title: "Subcategory Title",
+      dataIndex: "subcategorytitle",
+      key: "subcategorytitle",
+      width:"20%",
+      ...getColumnSearchProps("subcategorytitle"),
+      sorter: (a, b) => a.subcategorytitle.length - b.subcategorytitle.length,
       sortDirections: ["descend", "ascend"],
     },
     {
@@ -265,7 +282,7 @@ const updateStatus = (details:any) =>{
             <Button
               type="primary"
               onClick={() => {
-                activate(record)
+                activate(record);
               }}
             >
               Activate
@@ -275,7 +292,7 @@ const updateStatus = (details:any) =>{
               type="primary"
               danger
               onClick={() => {
-                deactivate(record)
+                deactivate(record);
               }}
             >
               Deactivate
@@ -289,14 +306,14 @@ const updateStatus = (details:any) =>{
       key: "action",
       render: (details, record) => (
         <Space size="middle">
-          <Button type="primary" onClick={()=>handleOpenModal(record)}>
+          <Button type="primary" onClick={() => handleOpenModal(record)}>
             Edit
           </Button>
           <Popconfirm
             title="Delete the task"
             description="Are you sure to delete?"
             onConfirm={() => {
-              delCategory(record);
+              delSubCategory(record);
             }}
             onCancel={cancel}
             okText="Yes"
@@ -311,17 +328,17 @@ const updateStatus = (details:any) =>{
     },
   ];
 
-  const data: DataType[] = category;
+  const data: DataType[] = subcategory;
   const notifyError = (data: any) => {
     toast.error(data.message);
   };
 
   useEffect(() => {
     setLoading(true);
-    getCategory()
+    getSubCategory()
       .then((data) => {
         if (data.status == true) {
-          setCategory(data.data);
+          setSubCategory(data.data);
           setLoading(false);
         }
       })
@@ -609,7 +626,7 @@ const updateStatus = (details:any) =>{
         </div>
         {/* /.modal */}
         {/* ========== App Menu ========== */}
-        <Sidebar page="category" />
+        <Sidebar page="subcategory" />
         {/* Left Sidebar End */}
         {/* Vertical Overlay*/}
         <div className="vertical-overlay" />
@@ -620,7 +637,7 @@ const updateStatus = (details:any) =>{
               <div className="row">
                 <div className="col-12">
                   <div className="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 className="mb-sm-0">Category</h4>
+                    <h4 className="mb-sm-0">Subcategory</h4>
                     <div className="page-title-right">
                       <ol className="breadcrumb m-0">
                         <li className="breadcrumb-item">
@@ -630,7 +647,7 @@ const updateStatus = (details:any) =>{
                           <a href="/category">Category</a>
                         </li>
                         <li className="breadcrumb-item active">
-                          Category List
+                          Subcategory List
                         </li>
                       </ol>
                     </div>
@@ -642,7 +659,7 @@ const updateStatus = (details:any) =>{
                 <div className="col-xl-12">
                   <div className="card">
                     <div className="card-header">
-                      <h5>Category List</h5>
+                      <h5>Subcategory List</h5>
                     </div>
                     <Toaster position="top-right" expand={true} richColors />
                     <div className="card-body form-steps">
@@ -663,29 +680,40 @@ const updateStatus = (details:any) =>{
             {/* container-fluid */}
           </div>
           <Modal
-            title="Enter Category Details"
+            title="Enter SubCategory Details"
             open={visible}
             onCancel={handleCancel}
             footer={null}
           >
             <form>
-            <label
-              htmlFor="categorytitle"
-              className="form-label"
-            >
-              Category title
-              <span className="text-danger">*</span>
-            </label>
+              <label htmlFor="subcategorytitle" className="form-label">
+                Category title
+                <span className="text-danger">*</span>
+              </label>
+              <select
+                className="form-select"
+              >
+                <option
+                  value={subCategoryDetails.categorytitle}
+                  key={subCategoryDetails.categorytitle}
+                >
+                  {subCategoryDetails.categorytitle}
+                </option>
+              </select>
+              <br />
+              <label htmlFor="subcategorytitle" className="form-label">
+                Sub Category title
+                <span className="text-danger">*</span>
+              </label>
               <input
                 type="text"
                 onChange={handleChange}
-                name="categorytitle"
-                value={categorydetails.categorytitle}
+                name="subcategorytitle"
+                value={subCategoryDetails.subcategorytitle}
                 className="form-control"
-              /><br/>
-              <Button
-                type="primary"
-                onClick={handleSubmit}>
+              />
+              <br />
+              <Button type="primary" onClick={handleSubmit}>
                 Submit
               </Button>
             </form>

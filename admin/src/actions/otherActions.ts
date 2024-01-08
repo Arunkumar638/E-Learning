@@ -41,6 +41,26 @@ export const addCategory = async (data: any) => {
     });
 };
 
+export const addSubCategory = async (data: any) => {
+  return axios({
+    method: "post",
+    url: `${baseUrl}/addsubcategory`,
+    headers: {
+      "Content-Type": "multipart/form-data",
+      "Access-Control-Allow-Origin": "*",
+    },
+    data: data,
+    timeout: 5000,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
 export const addBlog = async (data: any) => {
   return axios({
     method: "post",
@@ -84,6 +104,25 @@ export const getCategory = async () => {
   return axios({
     method: "get",
     url: `${baseUrl}/getcategory`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const getSubCategory = async () => {
+  return axios({
+    method: "get",
+    url: `${baseUrl}/getsubcategory`,
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
@@ -158,11 +197,73 @@ export const updateCourseStatus = async (data:any) => {
     });
 };
 
+export const updateCategory = async (data:any) => {
+  
+  return axios({
+    method: "put",
+    url: `${baseUrl}/updatecategory`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    data: data,
+    timeout: 5000, 
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const updateSubCategory = async (data:any) => {
+  
+  return axios({
+    method: "put",
+    url: `${baseUrl}/updatesubcategory`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    data: data,
+    timeout: 5000, 
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
 export const deleteCategory = async (data:any) => {
   
   return axios({
     method: "delete",
     url: `${baseUrl}/deletecategory`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    data: data,
+    timeout: 5000, 
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const deleteSubCategory = async (data:any) => {
+  
+  return axios({
+    method: "delete",
+    url: `${baseUrl}/deletesubcategory`,
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",

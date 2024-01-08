@@ -103,6 +103,7 @@ const AddCategory = () => {
     values.createdAt = formatDate();
     const uploadedFile = fileList[0];
     values.image = uploadedFile.originFileObj;
+    values.status = "Active";
     console.log(values);
 
     addCategory(values)
@@ -113,7 +114,6 @@ const AddCategory = () => {
             text: data.message,
             icon: "success",
           });
-          localStorage.setItem("token", data.token);
           form.resetFields();
         }
       })
@@ -532,10 +532,9 @@ const AddCategory = () => {
                                       id="course-title-input"
                                       className="form-control"
                                       placeholder="Enter category title"
-                                      required
                                     />
                                   </Form.Item>
-                                  <span className="fw-light">Eg: Web development, Marketing, Design, Business</span>
+                                  <span className="fw-light">Eg: Development, Marketing, Design, Business</span>
                                 </div>
                               </div>
                               {/*end col*/}
@@ -544,7 +543,7 @@ const AddCategory = () => {
                                   Image
                                   <span className="text-danger">*</span>
                                 </label>
-                                <Form.Item valuePropName="fileList">
+                                <Form.Item valuePropName="fileList" rules={[{ required: true }]}>
                                   <Upload
                                     listType="picture-card"
                                     action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
@@ -573,77 +572,6 @@ const AddCategory = () => {
                                 </Form.Item>
                               </div>
                             </div>
-
-                            {/* <h5 className="mb-sm-0">
-                              Sub Category
-                              <span className="fw-normal p-2">(If any)</span>
-                            </h5>
-                            <div className="row g-3 align-items-center mt-3">
-                              <div className="col-lg-12">
-                                <div>
-                                  <label
-                                    htmlFor="sub-category-title-input"
-                                    className="form-label"
-                                  >
-                                    Sub Category title
-                                    <span className="fw-light p-2">
-                                      (Optional)
-                                    </span>
-                                  </label>
-                                  <Form.Item
-                                    name="subcategorytitle"
-                                    rules={[{ required: true }]}
-                                  >
-                                    <Input
-                                      type="text"
-                                      id="course-title-input"
-                                      className="form-control"
-                                      placeholder="Enter sub category title"
-                                      required
-                                    />
-                                  </Form.Item>
-                                </div>
-                              </div>
-                              <div className="col-lg-2">
-                                <label
-                                  className="form-label"
-                                  htmlFor="sub-category-image"
-                                >
-                                  Image
-                                  <span className="fw-light p-2">
-                                    (Optional)
-                                  </span>
-                                </label>
-                                <Form.Item valuePropName="fileList">
-                                  <Upload
-                                    listType="picture-card"
-                                    action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                                    maxCount={1}
-                                    name="uploadImage"
-                                    accept="image/*"
-                                    fileList={fileList || []}
-                                    onChange={handleImageChange}
-                                    onPreview={handlePreview}
-                                  >
-                                    {fileList.length == 1 ? null : uploadButton}
-                                  </Upload>
-
-                                  <Modal
-                                    open={previewOpen}
-                                    title={previewTitle}
-                                    footer={null}
-                                    onCancel={handleCancel}
-                                  >
-                                    <img
-                                      alt="example"
-                                      style={{ width: "100%" }}
-                                      src={previewImage}
-                                    />
-                                  </Modal>
-                                </Form.Item>
-                              </div>
-                            </div> */}
-
                             {/*end row*/}
                             <div className="d-flex align-items-start gap-3 mt-4">
                               <Toaster

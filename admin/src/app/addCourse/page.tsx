@@ -24,6 +24,7 @@ const getBase64 = (file: RcFile): Promise<string> =>
 
 interface combineCategory {
   categorytitle: string;
+  status:string;
   image: string;
 }
 const Addcourse = () => {
@@ -797,6 +798,7 @@ const Addcourse = () => {
                                     >
                                       <option value="">Select Category</option>
                                       {category.map((option) => (
+                                        option.status=="Active" &&
                                         <option
                                           value={option.categorytitle}
                                           key={option.categorytitle}
@@ -876,7 +878,7 @@ const Addcourse = () => {
                                   Image
                                   <span className="text-danger">*</span>
                                 </label>
-                                <Form.Item valuePropName="fileList">
+                                <Form.Item valuePropName="fileList" rules={[{ required: true }]}>
                                   <Upload
                                     listType="picture-card"
                                     action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"

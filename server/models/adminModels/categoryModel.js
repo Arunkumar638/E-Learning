@@ -3,7 +3,8 @@ const Schema = mongoose.Schema;
 
 const categorySchema = new Schema({
   categorytitle: { type: String, required: true },
-  subcategorytitle:{ type: String, required: false }
+  status:{ type: String, required: true },
+  createdAt:{ type: Date, required: true }
 });
 
 module.exports = mongoose.model('category', categorySchema);

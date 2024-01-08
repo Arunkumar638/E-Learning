@@ -1,328 +1,130 @@
 "use client";
 
 import Script from "next/script";
-import type { ColumnsType, ColumnType } from "antd/es/table";
+import { Form, Input, Modal, Upload } from "antd";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "sonner";
-import { SearchOutlined } from "@ant-design/icons";
-import Highlighter from "react-highlight-words";
-import { Input, Space, type InputRef, Form } from "antd";
-import { Button, Table, Popconfirm, Modal } from "antd";
-import type { SorterResult, FilterConfirmProps } from "antd/es/table/interface";
+import { useEffect, useState } from "react";
+import swal from "sweetalert";
+import { PlusOutlined } from "@ant-design/icons";
+import type { RcFile, UploadProps } from "antd/es/upload";
+import type { UploadFile } from "antd/es/upload/interface";
+import { addSubCategory, getCategory } from "@/actions/otherActions";
 import Sidebar from "@/components/sideBar";
-import { useEffect, useRef, useState } from "react";
-import { deleteCategory, getCategory, updateCategory } from "@/actions/otherActions";
 
-type DataIndex = keyof DataType;
-interface DataType {
-  categorytitle: string;
-  image: string;
-  status: string;
-}
-const Category = () => {
-  const [loading, setLoading] = useState(false);
-  const [searchText, setSearchText] = useState("");
-  const [category, setCategory] = useState([]);
-  const [id, setId] = useState("");
-  const [categorydetails, setCategoryDetails] = useState({
-    categorytitle: "",
-    id: "",
-  });
-  const [visible, setVisible] = useState(false);
-  const [searchedColumn, setSearchedColumn] = useState("");
-  const searchInput = useRef<InputRef>(null);
+const { TextArea } = Input;
 
-  const handleSearch = (
-    selectedKeys: string[],
-    confirm: (param?: FilterConfirmProps) => void,
-    dataIndex: DataIndex
-  ) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
-  };
-
-  const handleReset = (clearFilters: () => void) => {
-    clearFilters();
-    setSearchText("");
-  };
-  const scrollConfig = {
-    x: "max-content",
-    y: 400,
-  };
-const updateStatus = (details:any) =>{
-  updateCategory(details)
-      .then((data) => {
-        if (data.status == true) {
-          setCategory(data.data);
-          setLoading(false);
-          setVisible(false);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        if (error.response) {
-          const message = error.response.data;
-          console.log(message);
-          console.log("Response data:", error.response.data);
-          console.log("Response status:", error.response.status);
-          notifyError(message);
-        }
-      });
-}
-
-  const activate = (data:any) =>{
-    const id = data._id;
-    const status = "Active";
-    const details = {
-        "id":id,
-        "status":status
-    }
-    updateStatus(details);
-  }
-  const deactivate = (data:any) =>{
-    const id = data._id;
-    const status = "Deactive";
-    const details = {
-        "id":id,
-        "status":status
-    }
-    updateStatus(details);
+interface combineCategory {
+    categorytitle: string;
+    status:string;
+    image: string;
   }
 
-  const handleOpenModal = (data:any) => {
-    setVisible(true);
-    categorydetails.categorytitle = data.categorytitle;
-    categorydetails.id = data._id;
-  };
-
-  const handleCancel = () => {
-    setVisible(false);
-  };
-
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setCategoryDetails({
-      ...categorydetails,
-      [name]: value,
-    });
-  };
-
-  const clear = () => {
-    setCategoryDetails({
-      id: "",
-      categorytitle: "",
-    });
-  };
-
-  const handleSubmit = () => {
-
-    console.log(categorydetails);
-    updateStatus(categorydetails);
-  };
-
-  const delCategory = (data: any) => {
-    const id = data._id;
-    const details = {
-      id: id,
-    };
-
-    deleteCategory(details)
-      .then((data) => {
-        if (data.status == true) {
-          toast.success(data.message);
-        }
-        setCategory(data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        if (error.response) {
-          const message = error.response.data;
-          console.log(message);
-          console.log("Response data:", error.response.data);
-          console.log("Response status:", error.response.status);
-          notifyError(message);
-        }
-      });
-  };
-
-  const cancel = (e: React.MouseEvent<HTMLElement>) => {
-    console.log(e);
-    console.log("Cancel");
-    toast.error("Option Cancelled by user");
-  };
-  const getColumnSearchProps = (
-    dataIndex: DataIndex
-  ): ColumnType<DataType> => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
-      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-        <Input
-          ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() =>
-            handleSearch(selectedKeys as string[], confirm, dataIndex)
-          }
-          style={{ marginBottom: 8, display: "block" }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() =>
-              handleSearch(selectedKeys as string[], confirm, dataIndex)
-            }
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Search
-          </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 60 }}
-          >
-            Reset
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              confirm({ closeDropdown: false });
-              setSearchText((selectedKeys as string[])[0]);
-              setSearchedColumn(dataIndex);
-            }}
-          >
-            Filter
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              close();
-            }}
-          >
-            close
-          </Button>
-        </Space>
-      </div>
-    ),
-    filterIcon: (filtered: boolean) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-    ),
-    onFilter: (value, record) =>
-      record[dataIndex]
-        .toString()
-        .toLowerCase()
-        .includes((value as string).toLowerCase()),
-    onFilterDropdownOpenChange: (visible) => {
-      if (visible) {
-        setTimeout(() => searchInput.current?.select(), 100);
-      }
-    },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ""}
-        />
-      ) : (
-        text
-      ),
+const getBase64 = (file: RcFile): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
   });
 
-  const columns: ColumnsType<DataType> = [
-    {
-      title: "Category Title",
-      dataIndex: "categorytitle",
-      key: "categorytitle",
-      ...getColumnSearchProps("categorytitle"),
-      sorter: (a, b) => a.categorytitle.length - b.categorytitle.length,
-      sortDirections: ["descend", "ascend"],
-    },
-    {
-      title: "Status",
-      key: "status",
-      dataIndex: "status",
-    },
-    {
-      title: "Activation",
-      key: "activation",
-      render: (details, record) => (
-        <Space size="middle">
-          {details.status == "Deactive" ? (
-            <Button
-              type="primary"
-              onClick={() => {
-                activate(record)
-              }}
-            >
-              Activate
-            </Button>
-          ) : (
-            <Button
-              type="primary"
-              danger
-              onClick={() => {
-                deactivate(record)
-              }}
-            >
-              Deactivate
-            </Button>
-          )}
-        </Space>
-      ),
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (details, record) => (
-        <Space size="middle">
-          <Button type="primary" onClick={()=>handleOpenModal(record)}>
-            Edit
-          </Button>
-          <Popconfirm
-            title="Delete the task"
-            description="Are you sure to delete?"
-            onConfirm={() => {
-              delCategory(record);
-            }}
-            onCancel={cancel}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="primary" danger>
-              Delete
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
+const AddSubCategory = () => {
+  const [form] = Form.useForm();
+  const router = useRouter();
+  const [category, setCategory] = useState<combineCategory[]>([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
+  const [selectCategory, setSelectCategory] = useState("");
 
-  const data: DataType[] = category;
+  const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
+  const [image, setImage] = useState(null);
+
+  const onFinishFailed = (errorInfo: any) => {
+    console.log("Failed:", errorInfo);
+    console.error("Form submission failed");
+  };
+
+  const validateMessages = {
+    required: "${label} is required!",
+    types: {
+      email: "${label} is Invalid!",
+      password: "${label} is Invalid!",
+      name: "${label} is too long!",
+    },
+  };
+  const handleCancel = () => setPreviewOpen(false);
+
+  const handleCategoryChange = (event: any) => {
+    setSelectCategory(event.target.value);
+  };
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as RcFile);
+    }
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+    setPreviewTitle(
+      file.name || file.url!.substring(file.url!.lastIndexOf("/") + 1)
+    );
+  };
+
+  const handleImageChange: UploadProps["onChange"] = ({
+    fileList: newFileList,
+  }) => {
+    console.log(newFileList);
+    setFileList(newFileList);
+  };
+
+  const formatDate = () => {
+    const date = new Date();
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const day = ("0" + date.getDate()).slice(-2);
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    const formattedDate = `${day} ${month} ${year}`;
+    return formattedDate;
+  };
   const notifyError = (data: any) => {
     toast.error(data.message);
   };
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+  const onFinish = (values: any) => {
+    values.createdAt = formatDate();
+    const uploadedFile = fileList[0];
+    values.image = uploadedFile.originFileObj;
+    values.categorytitle = selectCategory;
+    values.status = "Active";
+    console.log(values);
 
-  useEffect(() => {
-    setLoading(true);
-    getCategory()
+    addSubCategory(values)
       .then((data) => {
         if (data.status == true) {
-          setCategory(data.data);
-          setLoading(false);
+          swal({
+            title: "Success!",
+            text: data.message,
+            icon: "success",
+          });
+          form.resetFields();
         }
       })
       .catch((error) => {
@@ -335,7 +137,26 @@ const updateStatus = (details:any) =>{
           notifyError(message);
         }
       });
-  }, []);
+  };
+useEffect(()=>{
+    getCategory()
+      .then((data) => {
+        if (data.status == true) {
+          console.log(data.data);
+          setCategory(data.data);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error.response) {
+          const message = error.response.data;
+          console.log(message);
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
+          notifyError(message);
+        }
+      });
+},[])
   return (
     <>
       <meta charSet="utf-8" />
@@ -475,6 +296,68 @@ const updateStatus = (details:any) =>{
                         <i className="ri-user-settings-line align-middle fs-18 text-muted me-2" />
                         <span>My account settings</span>
                       </a>
+                      {/* item*/}
+                      <div className="dropdown-header mt-2">
+                        <h6 className="text-overflow text-muted mb-2 text-uppercase">
+                          Members
+                        </h6>
+                      </div>
+                      <div className="notification-list">
+                        {/* item */}
+                        <a href="" className="dropdown-item notify-item py-2">
+                          <div className="d-flex">
+                            <img
+                              src="assets/images/users/avatar-2.jpg"
+                              className="me-3 rounded-circle avatar-xs"
+                              alt="user-pic"
+                            />
+                            <div className="flex-1">
+                              <h6 className="m-0">Angela Bernier</h6>
+                              <span className="fs-11 mb-0 text-muted">
+                                Manager
+                              </span>
+                            </div>
+                          </div>
+                        </a>
+                        {/* item */}
+                        <a href="" className="dropdown-item notify-item py-2">
+                          <div className="d-flex">
+                            <img
+                              src="assets/images/users/avatar-3.jpg"
+                              className="me-3 rounded-circle avatar-xs"
+                              alt="user-pic"
+                            />
+                            <div className="flex-1">
+                              <h6 className="m-0">David Grasso</h6>
+                              <span className="fs-11 mb-0 text-muted">
+                                Web Designer
+                              </span>
+                            </div>
+                          </div>
+                        </a>
+                        {/* item */}
+                        <a href="" className="dropdown-item notify-item py-2">
+                          <div className="d-flex">
+                            <img
+                              src="assets/images/users/avatar-5.jpg"
+                              className="me-3 rounded-circle avatar-xs"
+                              alt="user-pic"
+                            />
+                            <div className="flex-1">
+                              <h6 className="m-0">Mike Bunch</h6>
+                              <span className="fs-11 mb-0 text-muted">
+                                React Developer
+                              </span>
+                            </div>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                    <div className="text-center pt-3 pb-1">
+                      <a href="#" className="btn btn-primary btn-sm">
+                        View All Results{" "}
+                        <i className="ri-arrow-right-line ms-1" />
+                      </a>
                     </div>
                   </div>
                 </form>
@@ -609,7 +492,7 @@ const updateStatus = (details:any) =>{
         </div>
         {/* /.modal */}
         {/* ========== App Menu ========== */}
-        <Sidebar page="category" />
+        <Sidebar page="addsubcategory" />
         {/* Left Sidebar End */}
         {/* Vertical Overlay*/}
         <div className="vertical-overlay" />
@@ -620,7 +503,7 @@ const updateStatus = (details:any) =>{
               <div className="row">
                 <div className="col-12">
                   <div className="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 className="mb-sm-0">Category</h4>
+                    <h4 className="mb-sm-0">Add Sub Category</h4>
                     <div className="page-title-right">
                       <ol className="breadcrumb m-0">
                         <li className="breadcrumb-item">
@@ -629,9 +512,7 @@ const updateStatus = (details:any) =>{
                         <li className="breadcrumb-item">
                           <a href="/category">Category</a>
                         </li>
-                        <li className="breadcrumb-item active">
-                          Category List
-                        </li>
+                        <li className="breadcrumb-item active">Add Sub Category</li>
                       </ol>
                     </div>
                   </div>
@@ -642,16 +523,143 @@ const updateStatus = (details:any) =>{
                 <div className="col-xl-12">
                   <div className="card">
                     <div className="card-header">
-                      <h5>Category List</h5>
+                      <h5>Add Sub Category</h5>
                     </div>
-                    <Toaster position="top-right" expand={true} richColors />
                     <div className="card-body form-steps">
-                      <Table
-                        columns={columns}
-                        dataSource={data}
-                        loading={loading}
-                        scroll={scrollConfig}
-                      />
+                      <Form
+                        name="course-form"
+                        form={form}
+                        onFinish={onFinish}
+                        onFinishFailed={onFinishFailed}
+                        validateMessages={validateMessages}
+                        encType="multipart/form-data"
+                      >
+                        <div className="tab-content">
+                          <div
+                            className="tab-pane fade show active"
+                            id="coursesDetails"
+                            role="tabpanel"
+                            aria-labelledby="coursesDetails-tab"
+                          >
+                            <div className="row g-3 align-items-center">
+                              <div className="col-lg-12">
+                                <div>
+                                  <label
+                                    htmlFor="course-title-input"
+                                    className="form-label"
+                                  >
+                                    Category title
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <Form.Item
+                                    name="category"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <select
+                                      className="form-select"
+                                      id="category-input"
+                                      onChange={handleCategoryChange}
+                                    >
+                                      <option value="">Select Category</option>
+                                      {category.map((option) => (
+                                        option.status=="Active" &&
+                                        <option
+                                          value={option.categorytitle}
+                                          key={option.categorytitle}
+                                        >
+                                          {option.categorytitle}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </Form.Item>
+                                </div>
+                              </div>
+                              {/*end col*/}
+                              <div className="col-lg-12">
+                                <div>
+                                  <label
+                                    htmlFor="sub-category-title-input"
+                                    className="form-label"
+                                  >
+                                    Sub Category title
+                                    <span className="fw-light p-2">
+
+                                    </span>
+                                  </label>
+                                  <Form.Item
+                                    name="subcategorytitle"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <Input
+                                      type="text"
+                                      id="course-title-input"
+                                      className="form-control"
+                                      placeholder="Enter sub category title"
+                                    />
+                                  </Form.Item>
+                                </div>
+                                <span className="fw-light">Eg: Web development, Web Design, Hardware</span>
+                              </div>
+                              <div className="col-lg-2">
+                                <label
+                                  className="form-label"
+                                  htmlFor="sub-category-image"
+                                >
+                                  Image
+                                  <span className="fw-light p-2">
+                                  </span>
+                                </label>
+                                <Form.Item valuePropName="fileList" rules={[{ required: true }]}>
+                                  <Upload
+                                    listType="picture-card"
+                                    action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                                    maxCount={1}
+                                    name="uploadImage"
+                                    accept="image/*"
+                                    fileList={fileList || []}
+                                    onChange={handleImageChange}
+                                    onPreview={handlePreview}
+                                  >
+                                    {fileList.length == 1 ? null : uploadButton}
+                                  </Upload>
+
+                                  <Modal
+                                    open={previewOpen}
+                                    title={previewTitle}
+                                    footer={null}
+                                    onCancel={handleCancel}
+                                  >
+                                    <img
+                                      alt="example"
+                                      style={{ width: "100%" }}
+                                      src={previewImage}
+                                    />
+                                  </Modal>
+                                </Form.Item>
+                              </div>
+                            </div>
+
+
+                            {/*end row*/}
+                            <div className="d-flex align-items-start gap-3 mt-4">
+                              <Toaster
+                                position="top-right"
+                                expand={true}
+                                richColors
+                              />
+                              <button
+                                type="submit"
+                                className="btn btn-primary ms-auto"
+                                style={{ fontSize: "0.9rem", width: "6rem" }}
+                              >
+                                Submit
+                              </button>
+                            </div>
+                          </div>
+                          {/* end tab pane */}
+                        </div>
+                        {/* end tab content */}
+                      </Form>
                     </div>
                     {/* end card body */}
                   </div>
@@ -662,34 +670,6 @@ const updateStatus = (details:any) =>{
             </div>
             {/* container-fluid */}
           </div>
-          <Modal
-            title="Enter Category Details"
-            open={visible}
-            onCancel={handleCancel}
-            footer={null}
-          >
-            <form>
-            <label
-              htmlFor="categorytitle"
-              className="form-label"
-            >
-              Category title
-              <span className="text-danger">*</span>
-            </label>
-              <input
-                type="text"
-                onChange={handleChange}
-                name="categorytitle"
-                value={categorydetails.categorytitle}
-                className="form-control"
-              /><br/>
-              <Button
-                type="primary"
-                onClick={handleSubmit}>
-                Submit
-              </Button>
-            </form>
-          </Modal>
           {/* End Page-content */}
           <footer className="footer">
             <div className="container-fluid">
@@ -740,4 +720,6 @@ const updateStatus = (details:any) =>{
   );
 };
 
-export default Category;
+export default AddSubCategory;
+
+

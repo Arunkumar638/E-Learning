@@ -8,8 +8,10 @@ const Sidebar = ({ page }: any) => {
   const [isCreateCourse, setIsCreateCourse] = useState(false);
   const [isCourse, setIsCourse] = useState(false);
   const [isBlog, setIsBlog] = useState(false);
-  const [category, setCategory] = useState(false)
-  const [isAddCategory, setIsAddCategory] = useState(false)
+  const [category, setCategory] = useState(false);
+  const [subCategory, setSubCategory] = useState(false)
+  const [isAddCategory, setIsAddCategory] = useState(false);
+  const [isAddSubCategory, setIsAddSubCategory] = useState(false)
   const [isHome, setIsHome] = useState(false);
   const [iswishlist, setIsWishlist] = useState(false);
   const [isUsers, setIsUsers] = useState(false);
@@ -48,6 +50,12 @@ const Sidebar = ({ page }: any) => {
     }
     if (page == "category") {
       setCategory(true);
+    }
+    if (page == "addsubcategory") {
+      setIsAddSubCategory(true);
+    }
+    if (page == "subcategory") {
+      setSubCategory(true);
     }
   }, [page]);
   return (
@@ -135,7 +143,7 @@ const Sidebar = ({ page }: any) => {
                 </a>
                 <div
                   className={`collapse menu-dropdown ${
-                    isCreateCourse || isCourse || isAddCategory|| category ? `show` : ``
+                    isCreateCourse || isCourse || isAddCategory|| category || isAddSubCategory || subCategory ? `show` : ``
                   }`}
                   id="sidebarCourses"
                 >
@@ -144,7 +152,7 @@ const Sidebar = ({ page }: any) => {
                       <a
                       href="#sidebarCategory"
                         className={`nav-link menu-link collapsed ${
-                          isAddCategory || category ? `active` : ``
+                          isAddCategory || category || isAddSubCategory || subCategory ? `active` : ``
                         }`}
                         data-bs-toggle="collapse"
                         role="button"
@@ -155,7 +163,7 @@ const Sidebar = ({ page }: any) => {
                       </a>
                       <div
                         className={`collapse menu-dropdown ${
-                         isAddCategory || category ? `show` : ``
+                         isAddCategory || category || isAddSubCategory || subCategory ? `show` : ``
                         }`}
                         id="sidebarCategory"
                       >
@@ -171,11 +179,29 @@ const Sidebar = ({ page }: any) => {
                           </li>
                           <li className="nav-item">
                             <a
+                              href="/subcategory"
+                              className={`nav-link ${subCategory ? `active`:``}`}
+                              data-key="t-categories"
+                            >
+                              Sub Category
+                            </a>
+                          </li>
+                          <li className="nav-item">
+                            <a
                               href="/addCategory"
                               className={`nav-link ${isAddCategory ? `active` : ``}`}
                               data-key="t-addcategory"
                             >
                               Add Category
+                            </a>
+                          </li>                          
+                          <li className="nav-item">
+                            <a
+                              href="/addsubCategory"
+                              className={`nav-link ${isAddSubCategory ? `active` : ``}`}
+                              data-key="t-addcategory"
+                            >
+                              Add Sub Category
                             </a>
                           </li>
                         </ul>
