@@ -76,6 +76,26 @@ export const deleteCartData = async (data:any) => {
     });
 };
 
+export const getPurchaseCourses = async () => {
+
+  return axios({
+    method: "get",
+    url: `${baseUrl}/getpurchasecourses`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
 export const getBlogs = async () => {
   return axios({
     method: "get",
@@ -214,19 +234,56 @@ export const saveAddress = async (data: any) => {
     });
 };
 
-export const purchaseCourse = async (data: any) => {
+export const getPurchaseCourse = async () => {
   return axios({
-    method: "post",
-    url: `${baseUrl}/purchasecourse`,
+    method: "get",
+    url: `${baseUrl}/getpurchasecourses`,
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
     },
-    data: data,
     timeout: 5000,
   })
     .then((response) => {
       console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const getCategory = async () => {
+  return axios({
+    method: "get",
+    url: `${baseUrl}/getcategories`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+
+export const getSubCategory = async () => {
+  return axios({
+    method: "get",
+    url: `${baseUrl}/getsubcategories`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+  })
+    .then((response) => {
       return response.data;
     })
     .catch((error) => {

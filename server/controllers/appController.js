@@ -3,6 +3,8 @@ const subscriptionEmail = require("../services/subscribeMail");
 const Contact = require("../models/adminModels/contactModel");
 const Courses = require("../models/adminModels/courseModel");
 const Purchase = require("../models/userModels/purchaseModel");
+const Category = require("../models/adminModels/categoryModel");
+const SubCategory = require("../models/adminModels/subCategoryModel");
 const Blogs = require("../models/adminModels/blogModel");
 const Wishlist = require("../models/adminModels/wishlistModel");
 const Cart = require("../models/userModels/cartModel");
@@ -119,6 +121,32 @@ exports.getAllBlogs = async (req, res) => {
   }
 };
 
+exports.getAllCategories = async (req, res) => {
+  try {
+    const categories = await Category.find();
+    res.status(200).json({ data: categories, status: true });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get all contacts",
+      status: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.getAllSubCategories = async (req, res) => {
+  try {
+    const subcategories = await SubCategory.find();
+    res.status(200).json({ data: subcategories, status: true });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get all contacts",
+      status: false,
+      error: error.message,
+    });
+  }
+};
+
 exports.getCartDetails = async (req, res) => {
   try {
     const cart = await Cart.find();
@@ -132,6 +160,20 @@ exports.getCartDetails = async (req, res) => {
   }
 };
 
+exports.getPurchaseCourses = async (req, res) => {
+  try {
+    const courseList = await Purchase.find();
+    if(courseList){
+    res.status(200).json({ data: courseList, status: true });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get courses purchased",
+      status: false,
+      error: error.message,
+    });
+  }
+};
 exports.addWishlist = async (req, res) => {
   try {
     const { token, courseId, status } = req.body;

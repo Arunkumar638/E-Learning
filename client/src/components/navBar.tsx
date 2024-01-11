@@ -5,7 +5,16 @@ import { logoutUser } from "@/actions/userActions";
 import { useRouter } from "next/navigation";
 import swal from "sweetalert";
 import { Toaster, toast } from "sonner";
-import { getCourses } from "@/actions/otherActions";
+import { getCourses, getCategory, getSubCategory } from "@/actions/otherActions";
+import SubBar from "./subCategory";
+
+interface combineCategory {
+  categorytitle: string;
+  image: String;
+  status: String;
+  _id: String;
+}
+
 
  const Navbar = ({active}:any) =>{
   
@@ -16,8 +25,10 @@ import { getCourses } from "@/actions/otherActions";
     const [isBlog, setIsBlog] = useState(false);
     const [isBlogDetails, setIsBlogDetails] = useState(false);
     const [isContactUs, setIsContactUs] = useState(false);
+    const [isPurchaseHistory, setIsPurchaseHistory] = useState(false);
     const [isLogin, setIsLogin] = useState(false);
     const [token, setToken] = useState("");
+    const [categories, setCategories] = useState<combineCategory[]>([]);
     const [course, setCourse] = useState({
       _id:"",
     });
@@ -31,7 +42,9 @@ import { getCourses } from "@/actions/otherActions";
         toast.error(data);
       }
     };
-    
+    const routecart = () =>{
+      router.push('/cart')
+    }
     const logout = () =>{
       const data = {"token":token}
       logoutUser(data)
@@ -57,7 +70,6 @@ import { getCourses } from "@/actions/otherActions";
       });
     }
 
-
     useEffect(()=>{
       const data = localStorage.getItem('token')
       if(data){
@@ -68,6 +80,12 @@ import { getCourses } from "@/actions/otherActions";
     getCourses().then((data) => {
       if (data) {
         setCourse(data[0]);
+      }
+    });
+
+    getCategory().then((data) => {
+      if (data) {
+        setCategories(data.data);
       }
     });
 
@@ -91,6 +109,9 @@ import { getCourses } from "@/actions/otherActions";
     }
     if(active =='contactus'){
       setIsContactUs(true);
+    }
+    if(active =='purchasehistory'){
+      setIsPurchaseHistory(true);
     }
     },[])
    
@@ -160,7 +181,7 @@ import { getCourses } from "@/actions/otherActions";
                     </a>
                     <ul className="dropdown-menu">
                       <li className="nav-item">
-                        <a href="/ourcourses" className={`nav-link ${isOurCourses?`active`:``}`}>
+                        <a href="/" className={`nav-link ${isOurCourses?`active`:``}`}>
                           Our Courses
                         </a>
                       </li>
@@ -170,6 +191,14 @@ import { getCourses } from "@/actions/otherActions";
                           className={`nav-link ${isCourseDetails?`active`:``}`}
                         >
                           Course Details
+                        </a>
+                      </li>
+                      <li className="nav-item">
+                        <a
+                          href={`/purchasehistory`}
+                          className={`nav-link ${isPurchaseHistory?`active`:``}`}
+                        >
+                          Purchase History
                         </a>
                       </li>
                     </ul>
@@ -191,6 +220,23 @@ import { getCourses } from "@/actions/otherActions";
                       </li>
                     </ul>
                   </li>
+                  <li className={`nav-item ${isContactUs?`active`:``}`}>
+                    <a href="" className="nav-link dropdown-toggle">
+                      Categories
+                    </a>
+                    <ul className="dropdown-menu">
+                    {categories.map((category, index) =>
+                      (
+                      <li className="nav-item" key={index}>
+                        <a href="" className={`nav-link ${isBlog?`active`:``}`}>
+                          {category.categorytitle}
+                        </a> 
+                        <SubBar category={category.categorytitle}/>                                                                                        
+                      </li>                     
+                      )
+                      )}
+                    </ul>
+                  </li>
                   <Toaster position="top-right" expand={true} richColors />
                   <li className="nav-item">
                     <a href="/contactus" className={`nav-link ${isContactUs?`active`:``}`}>
@@ -198,6 +244,7 @@ import { getCourses } from "@/actions/otherActions";
                     </a>
                   </li>
                 </ul>
+                <i className="ri-shopping-cart-2-line p-4" style={{cursor:"pointer", fontSize:"1.3rem"}} onClick={routecart}/>
                 {isLogin ? <div className="others-options">
                   <ul className="d-flex justify-content-between align-items-center">
                     <li>

@@ -3,7 +3,7 @@
 import Script from "next/script";
 import { Footer, Subscribe } from "../../components/components";
 import { Suspense, lazy, useEffect, useState } from "react";
-import { getCourses } from "@/actions/otherActions";
+import { getCategory, getCourses } from "@/actions/otherActions";
 import { Toaster, toast } from "sonner";
 
 interface combineCourse {
@@ -11,6 +11,7 @@ interface combineCourse {
   title: string;
   duration: String;
   lectures: String;
+  categorytitle: String;
   imagepath:String;
   type: String;
   price: String;
@@ -20,6 +21,7 @@ interface combineCourse {
 const OurCourses = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
   const [courses, setCourses] = useState<combineCourse[]>([]);
+  const [category, setCategory] = useState("");
   const [isCourseCard, setIsCourseCard] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
 
@@ -35,6 +37,8 @@ const OurCourses = () => {
         setIsCourseCard(true);
       }
     });
+    const urlCategory = window.location.search.split("=")[1];
+    setCategory(urlCategory);
     const data = localStorage.getItem("token");
     if (data) {
       setIsLogin(true);
@@ -127,26 +131,17 @@ const OurCourses = () => {
             </div>
           </div>
           <div className="row justify-content-center">
-            {isCourseCard
-              ? courses.map((course, index) => (
+            {courses.map((course, index) => (
+                category == course.categorytitle && 
                   <div className="col-xl-4 col-md-6" key={index}>
                     <div className="single-courses-item">
                       <div className="courses-img">
-                        {isLogin ? (
                           <a href={`/coursedetails/?=${course._id}`}>
                             <img
                               src={`${course.imagepath}`}
                               alt="Image"
                             />
-                          </a>
-                        ) : (
-                          <a href="#" onClick={notifyError}>
-                            <img
-                              src={`${course.imagepath}`}
-                              alt="Image"
-                            />
-                          </a>
-                        )}
+                          </a>    
                       </div>
                       <div className="courses-content">
                         <ul className="courses-view">
@@ -164,15 +159,9 @@ const OurCourses = () => {
                           </li>
                         </ul>
                         <h3>
-                          {isLogin ? (
                             <a href={`/coursedetails/?=${course._id}`}>
                               {course.title}
-                            </a>
-                          ) : (
-                            <a onClick={notifyError} href="#">
-                              {course.title}
-                            </a>
-                          )}
+                            </a>               
                         </h3>
                         <ul className="courses-time d-flex justify-content-between">
                           <li>
@@ -192,23 +181,17 @@ const OurCourses = () => {
                       <ul className="courses-fee d-flex justify-content-between">
                         <li>${course.price}</li>
                         <li>
-                          {isLogin ? (
                             <a href={`/coursedetails/?=${course._id}`} className="read-more">
                               More Details
                               <i className="ri-arrow-right-line" />
-                            </a>
-                          ) : (
-                            <a onClick={notifyError} href="#"  className="read-more">
-                              More Details
-                              <i className="ri-arrow-right-line" />
-                            </a>
-                          )}
+                            </a>                         
+                     
                         </li>
                       </ul>
                     </div>
                   </div>
                 ))
-              : null}
+              }
           </div>
         </div>
       </div>

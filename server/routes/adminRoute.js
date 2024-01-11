@@ -14,19 +14,39 @@ const storage = multer.diskStorage({
   });
 
 // Set up multer upload
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits:{"fileSize":1000000}
+  
+});
 
 router.post("/register", adminController.registerAdmin);
 router.post("/login", adminController.loginAdmin);
-router.post("/addcourse", upload.single('image'), adminController.addCourse);
-router.post("/addcategory", upload.single('image'), adminController.addCategory);
-router.post("/addsubcategory", upload.single('image'), adminController.addSubCategory);
-router.post("/addblog", upload.single('image'), adminController.addBlog);
+router.post("/addcourse", adminController.addCourse);
+router.post("/addcategory", adminController.addCategory);
+router.post("/addsubcategory", adminController.addSubCategory);
+router.post("/addblog", adminController.addBlog);
+router.post('/upload', upload.single('image'), (req, res) => {
+  console.log('Request received'); 
+  console.log(req.body); 
+  try {
+    const ImageUrl = `${process.env.IMAGE_URL}/${req.file.filename}`
+
+    return res.status(200).json({message:'File uploaded successfully',data:ImageUrl});
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    res.status(500).send('Error uploading file');
+    console.log('Error')
+  }
+});
 
 router.put("/updatestatus", adminController.updateStatus);
 router.put("/updatecoursestatus", adminController.updateCourseStatus);
 router.put("/updatecategory", adminController.updateCategory);
 router.put("/updatesubcategory", adminController.updateSubCategory);
+
+router.post("/getpurchasebyId",adminController.getPurchaseCourseById);
+router.post("/sendpurchasestatus",adminController.sendPurchaseStatusMail);
 
 router.get("/getcontacts",adminController.getContacts);
 router.get("/getwishlist",adminController.getWishlist);

@@ -11,9 +11,10 @@ import type { RcFile, UploadProps } from "antd/es/upload";
 import type { UploadFile } from "antd/es/upload/interface";
 import { addCategory } from "@/actions/otherActions";
 import Sidebar from "@/components/sideBar";
+import axios from "axios";
 
 const { TextArea } = Input;
-
+const ImageURL = 'http://localhost:8000/admin/upload';
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -25,15 +26,13 @@ const getBase64 = (file: RcFile): Promise<string> =>
 const AddCategory = () => {
   const [form] = Form.useForm();
   const router = useRouter();
-  const [type, setType] = useState("");
-  const [language, setLanguage] = useState("");
   const [category, setCategory] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
-
   const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
   const [image, setImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState("")
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
     console.error("Form submission failed");
@@ -60,11 +59,24 @@ const AddCategory = () => {
     );
   };
 
-  const handleImageChange: UploadProps["onChange"] = ({
+  const handleImageChange: UploadProps["onChange"] = async({
     fileList: newFileList,
   }) => {
     console.log(newFileList);
     setFileList(newFileList);
+    const Imagedata = {
+      image:newFileList[0].originFileObj
+    }
+    if(newFileList[0].status == "done"){
+    const response = await axios.post(ImageURL,Imagedata,{
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      console.log(response.data); 
+      const data = response.data;
+      setImageUrl(data.data);
+    }
   };
 
   const formatDate = () => {
@@ -101,8 +113,7 @@ const AddCategory = () => {
   );
   const onFinish = (values: any) => {
     values.createdAt = formatDate();
-    const uploadedFile = fileList[0];
-    values.image = uploadedFile.originFileObj;
+    values.image = imageUrl;
     values.status = "Active";
     console.log(values);
 

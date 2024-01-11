@@ -11,9 +11,10 @@ import type { RcFile, UploadProps } from "antd/es/upload";
 import type { UploadFile } from "antd/es/upload/interface";
 import { addCourse, getCategory } from "@/actions/otherActions";
 import Sidebar from "@/components/sideBar";
+import axios from "axios";
 
 const { TextArea } = Input;
-
+const ImageURL = 'http://localhost:8000/admin/upload';
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -37,7 +38,7 @@ const Addcourse = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
-
+  const [imageUrl, setImageUrl] = useState("");
   const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
   const [image, setImage] = useState(null);
   const onFinishFailed = (errorInfo: any) => {
@@ -66,11 +67,24 @@ const Addcourse = () => {
     );
   };
 
-  const handleImageChange: UploadProps["onChange"] = ({
+  const handleImageChange: UploadProps["onChange"] = async({
     fileList: newFileList,
   }) => {
     console.log(newFileList);
     setFileList(newFileList);
+    const Imagedata = {
+      image:newFileList[0].originFileObj
+    }
+    if(newFileList[0].status == "done"){
+      const response = await axios.post(ImageURL,Imagedata,{
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        console.log(response.data); 
+        const data = response.data;
+        setImageUrl(data.data);
+      }
   };
 
   const formatDate = (value: Date) => {
@@ -117,10 +131,9 @@ const Addcourse = () => {
   const onFinish = (values: any) => {
     values.type = type;
     values.language = language;
-    values.category = category;
+    values.category = selectCategory;
     values.deadline = formatDate(values.deadline);
-    const uploadedFile = fileList[0];
-    values.image = uploadedFile.originFileObj;
+    values.image = imageUrl;
     console.log(values);
 
     addCourse(values)
@@ -771,7 +784,7 @@ const Addcourse = () => {
                                         type="number"
                                         className="form-control"
                                         id="price-input"
-                                        placeholder="$"
+                                        placeholder="price in dollars"
                                       />
                                     </Form.Item>
                                   </div>

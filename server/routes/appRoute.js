@@ -13,7 +13,10 @@ router.post("/purchasecourse",appController.purchaseCourse);
 router.get("/getcourses", appController.getAllCourses);
 router.get("/getblogs", appController.getAllBlogs);
 router.get("/getcart", appController.getCartDetails);
+router.get("/getcategories",appController.getAllCategories);
+router.get("/getsubcategories",appController.getAllSubCategories);
 router.get("/getaddress", appController.getAddress);
+router.get("/getpurchasecourses", appController.getPurchaseCourses);
 
 router.delete("/deletecart", appController.deleteCartDetails);
 

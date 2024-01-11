@@ -9,7 +9,7 @@ import {
   Tesimonials,
 } from "../components/components";
 import { Suspense, lazy, useEffect, useState } from "react";
-import { getBlogs, getCourses } from "@/actions/otherActions";
+import { getBlogs, getCategory, getCourses } from "@/actions/otherActions";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -20,7 +20,7 @@ interface combineCourse {
   title: string;
   duration: string;
   lectures: string;
-  imgpath: string;
+  imagepath: string;
   type: string;
   price: string;
   _id: string;
@@ -29,10 +29,17 @@ interface combineCourse {
 interface combineBlog {
   title: string;
   usertype: String;
-  imgpath: String;
+  imagepath: String;
   date: String;
   views: String;
   blogId: String;
+  _id: String;
+}
+
+interface combineCategory {
+  categorytitle: string;
+  image: String;
+  status: String;
   _id: String;
 }
  const Home = () => {
@@ -40,7 +47,7 @@ interface combineBlog {
   const [blogs, setBlogs] = useState<combineBlog[]>([]);
   const [isBlogCard, setIsBlogCard] = useState(false);
   const [courses, setCourses] = useState<combineCourse[]>([]);
-  const [isCourseCard, setIsCourseCard] = useState(false);
+  const [categories, setCategories] = useState<combineCategory[]>([]);
 
 
   var settings = {
@@ -91,13 +98,17 @@ interface combineBlog {
     getCourses().then((data) => {
       if (data) {
         setCourses(data);
-        setIsCourseCard(true);
       }
     });
     getBlogs().then((data) => {
       if (data) {
         setBlogs(data);
         setIsBlogCard(true);
+      }
+    });
+    getCategory().then((data) => {
+      if (data) {
+        setCategories(data.data);
       }
     });
   }, []);
@@ -233,11 +244,14 @@ interface combineBlog {
                 Our Popular <span>Category</span>
               </h2>
             </div>
-            <div className="category-slide owl-carousel owl-theme">
-              <div className="single-category-item">
-                <a href="/ourcourses">
+
+            <Slider {...settings}> 
+            {categories.map((category, index) =>
+                (
+              <div className="single-category-item" key={index}>
+                <a href={`/ourcourses?=${category.categorytitle}`}>
                   <img
-                    src="assets/images/category/category-1.jpg"
+                    src={`${category.image}`}
                      alt="img"
                   />
                 </a>
@@ -246,87 +260,17 @@ interface combineBlog {
                     src="assets/images/category/category-icon-1.png"
                      alt="img"
                   />
-                  <div>
+                  <div className="p-3">
                     <h3>
-                      <a href="/ourcourses">Data &amp; Analytics</a>
-                    </h3>
-                    <p>
-                      <i className="ri-video-line" />
-                      61 Classes
-                    </p>
+                      <a href="/ourcourses">{category.categorytitle}</a>
+                    </h3>                  
                   </div>
                 </div>
               </div>
-              <div className="single-category-item">
-                <a href="/ourcourses">
-                  <img
-                    src="assets/images/category/category-2.jpg"
-                     alt="img"
-                  />
-                </a>
-                <div className="category-content d-flex justify-content-start">
-                  <img
-                    src="assets/images/category/category-icon-2.png"
-                     alt="img"
-                  />
-                  <div>
-                    <h3>
-                      <a href="/ourcourses">Business Marketing</a>
-                    </h3>
-                    <p>
-                      <i className="ri-video-line" />
-                      60 Classes
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="single-category-item">
-                <a href="/ourcourses">
-                  <img
-                    src="assets/images/category/category-3.jpg"
-                     alt="img"
-                  />
-                </a>
-                <div className="category-content d-flex justify-content-start">
-                  <img
-                    src="assets/images/category/category-icon-3.png"
-                     alt="img"
-                  />
-                  <div>
-                    <h3>
-                      <a href="/ourcourses">Web Development</a>
-                    </h3>
-                    <p>
-                      <i className="ri-video-line" />
-                      61 Classes
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="single-category-item">
-                <a href="/ourcourses">
-                  <img
-                    src="assets/images/category/category-2.jpg"
-                     alt="img"
-                  />
-                </a>
-                <div className="category-content d-flex justify-content-start">
-                  <img
-                    src="assets/images/category/category-icon-2.png"
-                     alt="img"
-                  />
-                  <div>
-                    <h3>
-                      <a href="/ourcourses">Business Marketing</a>
-                    </h3>
-                    <p>
-                      <i className="ri-video-line" />
-                      60 Classes
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+              )
+              )}
+              </Slider>
+
           </div>
         </div>
         <div className="about-area pt-100">
@@ -399,7 +343,7 @@ interface combineBlog {
                 <div className="courses-img">
                   <a href={`/coursedetails/?=${course._id}`}>
                     <img
-                      src={`${course.imgpath}`}
+                      src={`${course.imagepath}`}
                        alt="img"
                     />
                   </a>
@@ -536,7 +480,7 @@ interface combineBlog {
                     <a href={`/blogdetails/?=${blog._id}`}>
                       {/* <img src={process.env.PUBLIC_URL + `${blog.imgpath}`}  alt="img" /> */}
                       <img
-                      src={`${blog.imgpath}`}
+                      src={`${blog.imagepath}`}
                        alt="img"
                     />
                       {/* <img src="http://localhost:8000/server/uploads/1703913354379.jpg"  alt="img" /> */}
@@ -572,41 +516,6 @@ interface combineBlog {
                 )}
 
               </Slider>
-
-            {/* <div className="blog-slide owl-carousel owl-theme">
-              <div className="single-blog-item">
-                <a href="blog-details.html">
-                  <img src="assets/images/blog/blog-1.jpg"  alt="img" />
-                </a>
-                <div className="blog-content">
-                  <ul className="d-flex justify-content-between">
-                    <li>
-                      <a href="blog.html">
-                        <i className="ri-user-line"></i>
-                        <span>Admin</span>
-                      </a>
-                    </li>
-                    <li>
-                      <i className="ri-time-fill"></i>
-                      <span>Sep 8,2021</span>
-                    </li>
-                    <li>
-                      <i className="ri-eye-fill"></i>
-                      <span>32.2k Views</span>
-                    </li>
-                  </ul>
-                  <h3>
-                    <a href="blog-details.html">
-                      Education for Foreign Students & Institution’s Teachers
-                    </a>
-                  </h3>
-                  <a href="blog-details.html" className="read-more">
-                    More Details
-                    <i className="ri-arrow-right-line"></i>
-                  </a>
-                </div>
-              </div>
-            </div> */}
           </div>
         </div>
         <Subscribe />

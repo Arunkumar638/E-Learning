@@ -1,45 +1,46 @@
 "use client";
 
 import Script from "next/script";
-import { Form, Input, Modal, Upload } from "antd";
+import { Button, Form, Input, Modal, Upload } from "antd";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "sonner";
 import { useEffect, useState } from "react";
 import swal from "sweetalert";
 import { PlusOutlined } from "@ant-design/icons";
-import type { RcFile, UploadProps } from "antd/es/upload";
-import type { UploadFile } from "antd/es/upload/interface";
-import { addSubCategory, getCategory } from "@/actions/otherActions";
+import {
+  addCourse,
+  getCategory,
+  getPurchaseById,
+  sendPurchaseStatus,
+} from "@/actions/otherActions";
 import Sidebar from "@/components/sideBar";
-import axios from "axios";
+import { Card } from "antd";
 
 const { TextArea } = Input;
-const ImageURL = 'http://localhost:8000/admin/upload';
+
 interface combineCategory {
-    categorytitle: string;
-    status:string;
-    image: string;
-  }
-
-const getBase64 = (file: RcFile): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-
-const AddSubCategory = () => {
+  categorytitle: string;
+  status: string;
+  image: string;
+}
+const ViewOrder = () => {
   const [form] = Form.useForm();
   const router = useRouter();
+  
+  const [purchaseCourse, setPurchaseCourse] = useState({
+    _id: "",
+    name: "",
+    email: "",
+    title: "",
+    paymentType: "",
+    price: "",
+    type: "",
+    status: "",
+    message:""
+  });
   const [category, setCategory] = useState<combineCategory[]>([]);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
-  const [selectCategory, setSelectCategory] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
-  const [image, setImage] = useState(null);
+  const [selectStatus, setSelectStatus] = useState("");
+  const [isDeactive, setIsDeactive] = useState(false);
 
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
@@ -54,82 +55,30 @@ const AddSubCategory = () => {
       name: "${label} is too long!",
     },
   };
-  const handleCancel = () => setPreviewOpen(false);
 
-  const handleCategoryChange = (event: any) => {
-    setSelectCategory(event.target.value);
-  };
-  const handlePreview = async (file: UploadFile) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj as RcFile);
-    }
-    setPreviewImage(file.url || (file.preview as string));
-    setPreviewOpen(true);
-    setPreviewTitle(
-      file.name || file.url!.substring(file.url!.lastIndexOf("/") + 1)
-    );
-  };
-
-  const handleImageChange: UploadProps["onChange"] = async({
-    fileList: newFileList,
-  }) => {
-    console.log(newFileList);
-    setFileList(newFileList);
-    const Imagedata = {
-      image:newFileList[0].originFileObj
-    }
-    if(newFileList[0].status == "done"){
-      const response = await axios.post(ImageURL,Imagedata,{
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        console.log(response.data); 
-        const data = response.data;
-        setImageUrl(data.data);
-      }
-    }
-
-  const formatDate = () => {
-    const date = new Date();
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const day = ("0" + date.getDate()).slice(-2);
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-
-    const formattedDate = `${day} ${month} ${year}`;
-    return formattedDate;
-  };
   const notifyError = (data: any) => {
     toast.error(data.message);
   };
-  const uploadButton = (
-    <div>
-      <PlusOutlined />
-      <div style={{ marginTop: 8 }}>Upload</div>
-    </div>
-  );
-  const onFinish = (values: any) => {
-    values.createdAt = formatDate();
-    values.image = imageUrl;
-    values.categorytitle = selectCategory;
-    values.status = "Active";
-    console.log(values);
+  const handleStatusChange = (event: any) => {
+    setSelectStatus(event.target.value);
+    console.log(event.target.value);
+    if(event.target.value == "Deactive"){
+        setIsDeactive(true);
+    }
+    else{
+        setIsDeactive(false);
+    }
+  };
 
-    addSubCategory(values)
+  const onFinish = (values: any) => {
+
+    values.Status = selectStatus;
+    purchaseCourse.status = selectStatus;
+    purchaseCourse.message = values.Message;
+    console.log(values);
+    console.log(purchaseCourse);
+
+    sendPurchaseStatus(purchaseCourse)
       .then((data) => {
         if (data.status == true) {
           swal({
@@ -137,6 +86,7 @@ const AddSubCategory = () => {
             text: data.message,
             icon: "success",
           });
+          localStorage.setItem("token", data.token);
           form.resetFields();
         }
       })
@@ -151,12 +101,18 @@ const AddSubCategory = () => {
         }
       });
   };
-useEffect(()=>{
-    getCategory()
+
+  useEffect(() => {
+    const urlId = window.location.search.split("=")[1];
+    const data = {
+      id: urlId,
+    };
+    getPurchaseById(data)
       .then((data) => {
         if (data.status == true) {
           console.log(data.data);
-          setCategory(data.data);
+          Object.assign(purchaseCourse, data.data);
+
         }
       })
       .catch((error) => {
@@ -169,7 +125,25 @@ useEffect(()=>{
           notifyError(message);
         }
       });
-},[])
+    getCategory()
+      .then((data) => {
+        if (data.status == true) {
+          console.log(data.data);
+          setCategory(data.data);
+          console.log(purchaseCourse);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error.response) {
+          const message = error.response.data;
+          console.log(message);
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
+          notifyError(message);
+        }
+      });
+  }, []);
   return (
     <>
       <meta charSet="utf-8" />
@@ -505,7 +479,7 @@ useEffect(()=>{
         </div>
         {/* /.modal */}
         {/* ========== App Menu ========== */}
-        <Sidebar page="addsubcategory" />
+        <Sidebar page="vieworder" />
         {/* Left Sidebar End */}
         {/* Vertical Overlay*/}
         <div className="vertical-overlay" />
@@ -516,16 +490,13 @@ useEffect(()=>{
               <div className="row">
                 <div className="col-12">
                   <div className="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 className="mb-sm-0">Add Sub Category</h4>
+                    <h4 className="mb-sm-0">View Order</h4>
                     <div className="page-title-right">
                       <ol className="breadcrumb m-0">
                         <li className="breadcrumb-item">
-                          <a href="/courses">Courses</a>
+                          <a href="javascript: void(0);">Orders</a>
                         </li>
-                        <li className="breadcrumb-item">
-                          <a href="/category">Category</a>
-                        </li>
-                        <li className="breadcrumb-item active">Add Sub Category</li>
+                        <li className="breadcrumb-item active">View Order</li>
                       </ol>
                     </div>
                   </div>
@@ -536,7 +507,7 @@ useEffect(()=>{
                 <div className="col-xl-12">
                   <div className="card">
                     <div className="card-header">
-                      <h5>Add Sub Category</h5>
+                      <h5>View Course Order</h5>
                     </div>
                     <div className="card-body form-steps">
                       <Form
@@ -554,104 +525,155 @@ useEffect(()=>{
                             role="tabpanel"
                             aria-labelledby="coursesDetails-tab"
                           >
-                            <div className="row g-3 align-items-center">
-                              <div className="col-lg-12">
-                                <div>
-                                  <label
-                                    htmlFor="course-title-input"
-                                    className="form-label"
-                                  >
-                                    Category title
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                  <Form.Item
-                                    name="category"
-                                    rules={[{ required: true }]}
-                                  >
-                                    <select
-                                      className="form-select"
-                                      id="category-input"
-                                      onChange={handleCategoryChange}
+                            <div
+                              className="col ml-4"
+                              style={{ padding: "0 10rem" }}
+                            >
+                              <Card>
+                                <div className="row-lg-6">
+                                  <div>
+                                    <label
+                                      htmlFor="course-title-input"
+                                      className="form-label"
                                     >
-                                      <option value="">Select Category</option>
-                                      {category.map((option) => (
-                                        option.status=="Active" &&
-                                        <option
-                                          value={option.categorytitle}
-                                          key={option.categorytitle}
-                                        >
-                                          {option.categorytitle}
+                                      Course title
+                                      <span className="text-danger">*</span>
+                                    </label>
+  
+                                      <Input
+                                        type="text"
+                                        id="course-title-input"
+                                        value={purchaseCourse.title}
+                                        className="form-control"
+                                        placeholder="Enter course title"
+                                        disabled
+                                      />
+
+                                  </div>
+                                </div>
+                                {/*end col*/}
+                                <div className="row-lg-3">
+                                  <div style={{padding:"1rem 0"}}>
+                                    <label
+                                      htmlFor="lavel-input"
+                                      className="form-label"
+                                    >
+                                      Courses Level
+                                      <span className="text-danger">*</span>
+                                    </label>
+
+                                      <Input
+                                        type="text"
+                                        id="course-level-input"
+                                        className="form-control"
+                                        value={purchaseCourse.type}
+                                        placeholder="Enter course level"
+                                        disabled
+                                      />
+
+                                  </div>
+                                </div>
+                                {/*end col*/}
+                                <div className="row-lg-3">
+                                  <div>
+                                    <label
+                                      htmlFor="payment-input"
+                                      className="form-label"
+                                    >
+                                      Payment Type
+                                      <span className="text-danger">*</span>
+                                    </label>
+
+                                      <Input
+                                        type="text"
+                                        className="form-control"
+                                        value={purchaseCourse.paymentType}
+                                        id="payment-input"
+                                        disabled
+                                      />
+
+                                  </div>
+                                </div>
+                                {/*end col*/}
+                                <div className="row-lg-3">
+                                  <div style={{padding:"1rem 0"}}>
+                                    <label
+                                      htmlFor="price-input"
+                                      className="form-label"
+                                    >
+                                      Course price
+                                      <span className="text-danger">*</span>
+                                    </label>
+                                    <div className="input-group">
+                                        <Input
+                                          type="text"
+                                          className="form-control"
+                                          value={'$' + purchaseCourse.price}
+                                          id="price-input"
+                                          disabled
+                                        />
+                                    </div>
+                                  </div>
+                                </div>
+                                {/*end col*/}
+                                <div className="row-lg-3">
+                                  <div>
+                                    <label
+                                      htmlFor="status-input"
+                                      className="form-label"
+                                    >
+                                      Status
+                                      <span className="text-danger">*</span>
+                                    </label>
+                                    <Form.Item 
+                                    name="Status"
+                                      rules={[{ required: true }]}>
+                                      <select
+                                        className="form-select"
+                                        id="category-input"
+                                        onChange={handleStatusChange}
+                                      >
+                                        <option value="">Select Status</option>
+                                        <option value="Active" key="Active">
+                                          Active
                                         </option>
-                                      ))}
-                                    </select>
-                                  </Form.Item>
+                                        <option value="Pending" key="Pending">
+                                          Pending
+                                        </option>
+                                        <option value="Deactive" key="Deactive">
+                                          Deactive
+                                        </option>
+                                      </select>
+                                    </Form.Item>
+                                  </div>
                                 </div>
-                              </div>
-                              {/*end col*/}
-                              <div className="col-lg-12">
-                                <div>
-                                  <label
-                                    htmlFor="sub-category-title-input"
-                                    className="form-label"
-                                  >
-                                    Sub Category title
-                                    <span className="fw-light p-2">
-
-                                    </span>
-                                  </label>
-                                  <Form.Item
-                                    name="subcategorytitle"
-                                    rules={[{ required: true }]}
-                                  >
-                                    <Input
-                                      type="text"
-                                      id="course-title-input"
-                                      className="form-control"
-                                      placeholder="Enter sub category title"
-                                    />
-                                  </Form.Item>
+                                {/*end col*/}
+                                { isDeactive &&
+                                <div className="row-lg-12">
+                                  <div>
+                                    <label
+                                      htmlFor="shortDescription"
+                                      className="form-label"
+                                    >
+                                      Reason
+                                      <span className="text-danger">*</span>
+                                    </label>
+                                    <Form.Item
+                                      name="Message"
+                                      rules={[{ required: true }]}
+                                    >
+                                      <TextArea
+                                        className="form-control"
+                                        id="shortDescription"
+                                        rows={6}
+                                        placeholder="Reason for Deactivation"
+                                      />
+                                    </Form.Item>
+                                  </div>
                                 </div>
-                                <span className="fw-light">Eg: Web development, Web Design, Hardware</span>
-                              </div>
-                              <div className="col-lg-2">
-                                <label
-                                  className="form-label"
-                                  htmlFor="sub-category-image"
-                                >
-                                  Image
-                                  <span className="fw-light p-2">
-                                  </span>
-                                </label>
-                                <Form.Item valuePropName="fileList" rules={[{ required: true }]}>
-                                  <Upload
-                                    listType="picture-card"
-                                    action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                                    maxCount={1}
-                                    name="uploadImage"
-                                    accept="image/*"
-                                    fileList={fileList || []}
-                                    onChange={handleImageChange}
-                                    onPreview={handlePreview}
-                                  >
-                                    {fileList.length == 1 ? null : uploadButton}
-                                  </Upload>
-
-                                  <Modal
-                                    open={previewOpen}
-                                    title={previewTitle}
-                                    footer={null}
-                                    onCancel={handleCancel}
-                                  >
-                                    <img
-                                      alt="example"
-                                      style={{ width: "100%" }}
-                                      src={previewImage}
-                                    />
-                                  </Modal>
-                                </Form.Item>
-                              </div>
+                                    }
+                              </Card>
                             </div>
-
 
                             {/*end row*/}
                             <div className="d-flex align-items-start gap-3 mt-4">
@@ -733,6 +755,4 @@ useEffect(()=>{
   );
 };
 
-export default AddSubCategory;
-
-
+export default ViewOrder;

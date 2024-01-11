@@ -19,6 +19,7 @@ mongoose
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use('/uploads', express.static('uploads'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use((err, req, res, next) => {
   if (err) {

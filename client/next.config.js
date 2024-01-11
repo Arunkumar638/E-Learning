@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const webpack = require('webpack');
+const withVideos = require('next-videos')
+
 const nextConfig = {
     env:{
         CURRENT_LATITUDE : "9.923234",
@@ -18,4 +20,4 @@ const nextConfig = {
     ],
 }
 
-module.exports = nextConfig
+module.exports = nextConfig, withVideos();

@@ -5,6 +5,7 @@ import { Form, Input, message, Modal, Upload } from "antd";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "sonner";
 import { useState } from "react";
+import axios from "axios";
 import {PlusOutlined} from "@ant-design/icons"
 import type { RcFile, UploadProps } from 'antd/es/upload';
 import type { UploadFile } from 'antd/es/upload/interface';
@@ -13,6 +14,7 @@ import { addBlog } from "@/actions/otherActions";
 import Sidebar from "@/components/sideBar";
 
 const { TextArea } = Input;
+const ImageURL = 'http://localhost:8000/admin/upload';
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -27,7 +29,7 @@ const Addblog = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
-
+  const [imageUrl, setImageUrl] = useState("");
   const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
 
   const onFinishFailed = (errorInfo: any) => {
@@ -45,9 +47,22 @@ const Addblog = () => {
       setPreviewTitle(file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1));
     };
    
-    const handleImageChange: UploadProps['onChange'] = ({ fileList: newFileList }) =>{
+    const handleImageChange: UploadProps['onChange'] = async({ fileList: newFileList }) =>{
       console.log(newFileList);
       setFileList(newFileList);
+      const Imagedata = {
+        image:newFileList[0].originFileObj
+      }
+      if(newFileList[0].status == "done"){
+      const response = await axios.post(ImageURL,Imagedata,{
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        console.log(response.data); 
+        const data = response.data;
+        setImageUrl(data.data);
+      }
     }
     const uploadButton = (
       <div>
@@ -97,20 +112,15 @@ const Addblog = () => {
   const onFinish = (values: any) => {
     values.type = type;
     values.date = formatDate(values.date);
-    const uploadedFile = fileList[0];
-    values.image = uploadedFile.originFileObj;
+    values.image = imageUrl;
     console.log(values);
     addBlog(values)
       .then((data) => {
         if (data.status == true) {
-          // swal({
-          //   title: "Success!",
-          //   text: data.message,
-          //   icon: "success",
-          // });
-
-          Modal.success({
-            content: data.message,
+          swal({
+            title: "Success!",
+            text: data.message,
+            icon: "success",
           });
           localStorage.setItem("token", data.token);
           form.resetFields();

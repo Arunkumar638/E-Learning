@@ -12,7 +12,6 @@ import Highlighter from "react-highlight-words";
 import { Input, Space, type InputRef, Button, Table } from "antd";
 import type { SorterResult, FilterConfirmProps } from "antd/es/table/interface";
 import Sidebar from "@/components/sideBar";
-import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { getPurchaseCourse, updateCourseStatus } from "@/actions/otherActions";
 
@@ -22,8 +21,6 @@ interface DataType {
   email:string;
   title: string;
   type: string;
-  paymentType: string;
-  price:string;
   status:string;
 }
 
@@ -33,7 +30,7 @@ const Courses = () =>{
     const [courses, setCourses] = useState([]);
     const [searchedColumn, setSearchedColumn] = useState("");
     const searchInput = useRef<InputRef>(null);
-  
+    const router = useRouter();
     const handleSearch = (
       selectedKeys: string[],
       confirm: (param?: FilterConfirmProps) => void,
@@ -55,53 +52,7 @@ const Courses = () =>{
     };
     const activate = (data:any) =>{
       const id = data._id;
-      const status = "Active";
-      const details = {
-          "id":id,
-          "status":status
-      }
-      updateCourseStatus(details)
-        .then((data) => {
-          if (data.status == true) {
-            setCourses(data.data);
-            setLoading(false);
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          if (error.response) {
-            const message = error.response.data;
-            console.log(message);
-            console.log("Response data:", error.response.data);
-            console.log("Response status:", error.response.status);
-            notifyError(message);
-          }
-        });
-    }
-    const deactivate = (data:any) =>{
-      const id = data._id;
-      const status = "Deactive";
-      const details = {
-          "id":id,
-          "status":status
-      }
-      updateCourseStatus(details)
-        .then((data) => {
-          if (data.status == true) {
-            setCourses(data.data);
-            setLoading(false);
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          if (error.response) {
-            const message = error.response.data;
-            console.log(message);
-            console.log("Response data:", error.response.data);
-            console.log("Response status:", error.response.status);
-            notifyError(message);
-          }
-        });
+      router.push(`/vieworder?=${id}`)
     }
     const getColumnSearchProps = (
       dataIndex: DataIndex
@@ -231,33 +182,12 @@ const Courses = () =>{
         sortDirections: ["descend", "ascend"],
         ...getColumnSearchProps("type"),
       },
-      {
-        title: "Payment",
-        key: "paymentType",
-        dataIndex: "paymentType",
-        width: "15%",
-        // sorter: (a, b) => a.paymentType.length - b.paymentType.length,
-        // sortDirections: ["descend", "ascend"],
-        ...getColumnSearchProps("paymentType"),
-      },
-      {
-        title: "Price",
-        key: "price",
-        dataIndex: "price",
-        width: "20%",
-        // sorter: (a, b) => a.paymentType.length - b.paymentType.length,
-        // sortDirections: ["descend", "ascend"],
-        ...getColumnSearchProps("price"),
-      },
         {
           title: 'Action',
           key: 'action',
           render: (details, record) => (
             <Space size="middle">
-              {details.status == "Deactive" ?
-              <Button type="primary" onClick={()=>{activate(record)}}>Activate</Button>:
-              <Button type="primary" danger onClick={()=>{deactivate(record)}}>Deactivate</Button>
-              }
+              <Button type="primary" onClick={()=>{activate(record)}}>View</Button>
               </Space>
           ),
         },
@@ -650,15 +580,9 @@ const Courses = () =>{
         <Script src="assets/js/plugins.js"></Script>
         <Script src="assets/js/layout.js"></Script>
         <Script src="assets/js/ckeditor.js"></Script>
-  
         <Script src="assets/js/dropzone-min.js"></Script>
-  
         <Script src="assets/js/form-editor.init.js"></Script>
-  
         <Script src="assets/js/form-wizard.init.js"></Script>
-  
-        {/* <Script src="assets/js/learning-create.init.js"></Script> */}
-  
         <Script src="assets/js/app.js"></Script>
       </>
     )

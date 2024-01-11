@@ -19,6 +19,7 @@ interface combineCart {
 const Cart = () => {
   const Navbar = lazy(() => import('../../components/navBar'));
   const [cart, setCart] = useState<combineCart[]>([])
+  const [isLogin, setIsLogin] = useState(false);
   const [price, setPrice] = useState(0)
 
   const notifyError = (data: any) => {
@@ -78,6 +79,10 @@ const Cart = () => {
     });
   };
   useEffect(()=>{
+    const token = localStorage.getItem('token');
+    if(token){
+      setIsLogin(true);
+    }
     getCartData().then((data) => {
       if (data) {
         setCart(data);
@@ -198,9 +203,11 @@ const Cart = () => {
                   </li>
                 </ul>
                 <Toaster position="top-right" expand={true} richColors />
-                <a href="/checkout" className="default-btn">
+                {isLogin ? <a href="/checkout" className="default-btn">
                   Proceed To Checkout
-                </a>
+                </a>:<a href="/login" className="default-btn">
+                  Proceed To Checkout
+                </a>}
               </div>
             </div>
           </div>

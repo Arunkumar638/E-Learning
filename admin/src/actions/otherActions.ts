@@ -176,6 +176,27 @@ export const getPurchaseCourse = async () => {
     });
 };
 
+export const getPurchaseById = async (data:any) => {
+
+  return axios({
+    method: "post",
+    url: `${baseUrl}/getpurchasebyId`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+    data:data,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
 export const updateCourseStatus = async (data:any) => {
   
   return axios({
@@ -270,6 +291,27 @@ export const deleteSubCategory = async (data:any) => {
     },
     data: data,
     timeout: 5000, 
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const sendPurchaseStatus = async (data:any) => {
+
+  return axios({
+    method: "post",
+    url: `${baseUrl}/sendpurchasestatus`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+    data:data,
   })
     .then((response) => {
       console.log(response.data);
