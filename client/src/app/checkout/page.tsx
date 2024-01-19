@@ -4,7 +4,7 @@ import Script from "next/script";
 import { Footer, Pagetitle } from "../../components/components";
 import { Suspense, lazy, useEffect } from "react";
 import { useState } from "react";
-import { getAddress, getCartData, purchaseCourse, saveAddress } from "@/actions/otherActions";
+import { addPurchaseCourse, deleteCart, getAddress, getCartData, getPurchaseId, purchaseCourse, saveAddress } from "@/actions/otherActions";
 import { Form } from "antd";
 import swal from "sweetalert";
 import { Toaster, toast } from "sonner";
@@ -13,7 +13,8 @@ import { error } from "console";
 interface combineCart {
   courseId: string;
   title: string;
-  imagepath: string;
+  image: string;
+  type:string;
   price: string;
   status: string;
 }
@@ -48,7 +49,7 @@ const Checkout = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
   const [cart, setCart] = useState<combineCart[]>([]);
   const [price, setPrice] = useState(0);
-  const [CourseId, setCourseId] = useState("");
+  const [purchaseId, setPurchaseId] = useState("");
   const [selected, setSelected] = useState(countryNames[0].value);
   const [cardDetails, setCardDetails] = useState({
     cardno: "",
@@ -83,6 +84,31 @@ const Checkout = () => {
       [name]: value,
     });
   };
+
+  const formatDate = () => {
+    const date = new Date();
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const day = ("0" + date.getDate()).slice(-2);
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    const formattedDate = `${day} ${month} ${year}`;
+    return formattedDate;
+  };
+
   const validateCardForm = () => {
     let valid = true;
     const newErrors = {
@@ -198,7 +224,15 @@ const Checkout = () => {
       pincode: "",
     });
   };
-
+  const getCart = () =>{
+    getCartData().then((data) => {
+      if (data) {
+        setCart(data);
+        console.log(data);
+        calculatePrice(data);
+      }
+    });
+  }
   const clearCard = () => {
     setCardDetails({
       cardno: "",
@@ -211,7 +245,17 @@ const Checkout = () => {
   const notifyError = (data: any) => {
     toast.error(data.message);
   };
-
+  const fetchAddress = () =>{
+    getAddress().then((data) => {
+      if (data) {
+        setBillingDetails(data.data[0]);
+        const country = data.data[0].country;
+        setSelected(country);
+        console.log(data.data[0]);
+        // calculatePrice(data);
+      }
+    });
+  }
   const handleBillingSubmit = (e: any) => {
     e.preventDefault();
 
@@ -225,6 +269,7 @@ const Checkout = () => {
               icon: "success",
             });
             clear();
+            fetchAddress();
           }
         })
         .catch((error) => {
@@ -238,17 +283,57 @@ const Checkout = () => {
     }
   };
 
+
   const handleCardSubmit = (e: any) => {
     e.preventDefault();
-    const data = {
-      courseId: CourseId,
-      name: billingDetails.name,
-      email: billingDetails.email,
-      payment:"card"
-    };
-    if (validateCardForm()) {
+    const combinedTitle = cart.reduce((result:any, item, index) => {
+      result[index] = item.title;
+      return result;
+    }, {});
 
-      purchaseCourse(data)
+    const combinedPrice = cart.reduce((result:any, item, index) => {
+      result[index] = item.price;
+      return result;
+    }, {});
+
+    const combinedType = cart.reduce((result:any, item, index) => {
+      result[index] = item.type;
+      return result;
+    }, {});
+
+    const setCourse = () =>{
+      getPurchaseId().then((data) => {
+        if (data) {
+          const courseId = data.data;
+          localStorage.setItem('purchaseCourseId',courseId);
+        }
+      })
+    }
+    const data = Object.values(combinedTitle).map((value, index) => ({ 
+      name:billingDetails.name,
+      email:billingDetails.email,
+      coursetitle: combinedTitle[index],
+      paymentType:"card",
+      type:combinedType[index],
+      price:combinedPrice[index],
+      status:"Active",
+      purchasedAt:formatDate()
+    }));
+    const finalData = {
+      name:billingDetails.name,
+      email:billingDetails.email,
+      purchaseDetails:data
+    }
+    console.log(finalData);
+
+    if (validateCardForm()) {
+      if(purchaseId){
+        const purchaseData = {
+          id:purchaseId,
+          purchaseCourse:data
+        }
+        console.log(purchaseData);
+        addPurchaseCourse(purchaseData)
         .then((data) => {
           if (data.status == true) {
             swal({
@@ -257,6 +342,10 @@ const Checkout = () => {
               icon: "success",
             });
             clearCard();
+            deleteCart().then((data)=>{
+              console.log(data);
+            });
+            getCart();
           }
         })
         .catch((error) => {
@@ -267,6 +356,32 @@ const Checkout = () => {
             notifyError(message);
           }
         });
+      }else{
+      purchaseCourse(finalData)
+        .then((data) => {
+          if (data.status == true) {
+            swal({
+              title: "Success!",
+              text: data.message,
+              icon: "success",
+            });
+            clearCard();
+            setCourse();
+            deleteCart().then((data)=>{
+              console.log(data);
+            });
+            getCart();
+          }
+        })
+        .catch((error) => {
+          if (error.response) {
+            const message = error.response.data;
+            console.log("Response data:", error.response.data);
+            console.log("Response status:", error.response.status);
+            notifyError(message);
+          }
+        });
+      }
     }
   };
 
@@ -276,14 +391,14 @@ const Checkout = () => {
   };
   const calculatePrice = (cartData: combineCart[]) => {
     let amount = 0;
-    let courseId = "Hi";
+    if(cartData){
     cartData.forEach((item) => {
-      const num = parseInt(item.price, 10);
+      const num = parseInt(item.price.replace(/\D/g, ''), 10);
       amount += num;
-      courseId = item.courseId;
     });
     setPrice(amount);
-    setCourseId(courseId);
+  }
+  setPrice(0);
   };
 
   useEffect(() => {
@@ -299,7 +414,13 @@ const Checkout = () => {
         setBillingDetails(data.data[0]);
         const country = data.data[0].country;
         setSelected(country);
+        console.log(data.data[0]);
         // calculatePrice(data);
+      }
+    });
+    getPurchaseId().then((data) => {
+      if (data) {
+        setPurchaseId(data.data);
       }
     });
   }, []);
@@ -344,6 +465,7 @@ const Checkout = () => {
                           <tr>
                             <th scope="col">Image</th>
                             <th scope="col">Course Title</th>
+                            <th scope="col">Price</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -352,7 +474,7 @@ const Checkout = () => {
                               <td className="product-thumbnail">
                                 <a href="/productdetails">
                                   <img
-                                    src={cart.imagepath}
+                                    src={cart.image}
                                     alt="Image"
                                     height={70}
                                     width={90}
@@ -361,6 +483,9 @@ const Checkout = () => {
                               </td>
                               <td className="product-name">
                                 <a href="/productdetails">{cart.title}</a>
+                              </td>
+                              <td className="product-name">
+                                <a href="/productdetails">{cart.price}</a>
                               </td>
                             </tr>
                           ))}
@@ -555,12 +680,13 @@ const Checkout = () => {
                   <div className="col-lg-6 col-md-6">
                     <div className="form-group">
                       <Toaster position="top-right" expand={true} richColors />
+
                       <button
                         className="default-btn"
                         onClick={handleBillingSubmit}
                       >
                         Save Address
-                      </button>
+                      </button>               
                     </div>
                   </div>
                 </div>

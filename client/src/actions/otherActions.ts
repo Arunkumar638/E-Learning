@@ -39,6 +39,25 @@ export const getCourses = async () => {
     });
 };
 
+export const getCourseById = async (data:any) => {
+  return axios({
+    method: "post",
+    url: `${baseUrl}/getcoursebyId`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+    data:data,
+  })
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
 export const getCartData = async () => {
   return axios({
     method: "get",
@@ -60,7 +79,7 @@ export const getCartData = async () => {
 export const deleteCartData = async (data:any) => {
   return axios({
     method: "delete",
-    url: `${baseUrl}/deletecart`,
+    url: `${baseUrl}/deletecartdata`,
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
@@ -76,16 +95,59 @@ export const deleteCartData = async (data:any) => {
     });
 };
 
-export const getPurchaseCourses = async () => {
+export const getPurchaseCourse = async (data:any) => {
 
   return axios({
-    method: "get",
+    method: "post",
     url: `${baseUrl}/getpurchasecourses`,
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
     },
     timeout: 5000,
+    data:data,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const purchaseCourse = async (data:any) => {
+
+  return axios({
+    method: "post",
+    url: `${baseUrl}/purchasecourse`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+    data:data,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const getCoursePurchased = async (data:any) => {
+
+  return axios({
+    method: "post",
+    url: `${baseUrl}/getcoursepurchased`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+    data:data
   })
     .then((response) => {
       console.log(response.data);
@@ -234,24 +296,6 @@ export const saveAddress = async (data: any) => {
     });
 };
 
-export const getPurchaseCourse = async () => {
-  return axios({
-    method: "get",
-    url: `${baseUrl}/getpurchasecourses`,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    },
-    timeout: 5000,
-  })
-    .then((response) => {
-      console.log(response.data);
-      return response.data;
-    })
-    .catch((error) => {
-      throw error;
-    });
-};
 
 export const getCategory = async () => {
   return axios({
@@ -264,7 +308,6 @@ export const getCategory = async () => {
     timeout: 5000,
   })
     .then((response) => {
-      console.log(response.data);
       return response.data;
     })
     .catch((error) => {
@@ -284,6 +327,65 @@ export const getSubCategory = async () => {
     timeout: 5000,
   })
     .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const getPurchaseId = async () => {
+
+  return axios({
+    method: "get",
+    url: `${baseUrl}/getpurchaseId`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const addPurchaseCourse = async (data: any) => {
+  return axios({
+    method: "post",
+    url: `${baseUrl}/addpurchasecourse`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    data: data,
+    timeout: 5000,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const deleteCart = async () => {
+  return axios({
+    method: "delete",
+    url: `${baseUrl}/deletecart`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+  })
+    .then((response) => {
+      console.log(response.data);
       return response.data;
     })
     .catch((error) => {

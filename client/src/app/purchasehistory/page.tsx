@@ -12,8 +12,9 @@ import { Toaster, toast } from "sonner";
 interface combinePurchaseCourses {
   name: string;
   email: string;
-  title: string;
+  coursetitle: string;
   paymentType: string;
+  purchasedAt:string;
   type: string;
   price: string;
   status: string;
@@ -29,14 +30,16 @@ const PurchaseHistory = () => {
     toast.error(data.message);
   };
 
-
-
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const purchaseId = localStorage.getItem("purchaseCourseId");
     if (token) {
       setIsLogin(true);
     }
-    getPurchaseCourse().then((data) => {
+    const data = {
+      id:purchaseId
+    }
+    getPurchaseCourse(data).then((data) => {
       if (data) {
         setCourses(data.data);
 
@@ -84,6 +87,7 @@ const PurchaseHistory = () => {
                         <th scope="col">Payment Type</th>
                         <th scope="col">Price</th>
                         <th scope="col">Status</th>
+                        <th scope="col">Purchased At</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -91,7 +95,7 @@ const PurchaseHistory = () => {
                         (
                       <tr>
                         <td className="product-name">
-                          <a href="/productdetails">{course.title}</a>
+                          <a href="/productdetails">{course.coursetitle}</a>
                         </td>
                         <td className="product-name">
                           <a href="/productdetails">{course.type}</a>
@@ -100,10 +104,13 @@ const PurchaseHistory = () => {
                           <a href="/productdetails">{course.paymentType}</a>
                         </td>
                         <td className="product-name">
-                          <a href="/productdetails">${course.price}</a>
+                          <a href="/productdetails">{course.price}</a>
                         </td>
                         <td className="product-price">
                           <span className="unit-amount">{course.status}</span>
+                        </td>
+                        <td className="product-price">
+                          <span className="unit-amount">{course.purchasedAt}</span>
                         </td>
                       </tr>
                         ))}

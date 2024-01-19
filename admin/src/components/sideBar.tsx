@@ -7,6 +7,7 @@ const Sidebar = ({ page }: any) => {
   const [isContact, setIsContact] = useState(false);
   const [isCreateCourse, setIsCreateCourse] = useState(false);
   const [isCourse, setIsCourse] = useState(false);
+  const [isCourseOrder, setIsCourseOrder] = useState(false);
   const [isBlog, setIsBlog] = useState(false);
   const [category, setCategory] = useState(false);
   const [subCategory, setSubCategory] = useState(false)
@@ -29,8 +30,9 @@ const Sidebar = ({ page }: any) => {
     }
     if (page == "course") {
       setIsCourse(true);
-      console.log(isCourse);
-      console.log(page);
+    }
+    if (page == "courseorder") {
+      setIsCourseOrder(true);
     }
     if (page == "home") {
       setIsHome(true);
@@ -147,7 +149,7 @@ const Sidebar = ({ page }: any) => {
                 </a>
                 <div
                   className={`collapse menu-dropdown ${
-                    isCreateCourse  || isAddCategory || category || isAddSubCategory || subCategory ? `show` : ``
+                    isCreateCourse  || isAddCategory || category || isAddSubCategory || subCategory || isCourse ? `show` : ``
                   }`}
                   id="sidebarCourses"
                 >
@@ -167,29 +169,11 @@ const Sidebar = ({ page }: any) => {
                       </a>
                       <div
                         className={`collapse menu-dropdown ${
-                         isAddCategory || category || isAddSubCategory || subCategory ? `show` : ``
+                         isAddCategory || category || isAddSubCategory || subCategory  ? `show` : ``
                         }`}
                         id="sidebarCategory"
                       >
-                        <ul className="nav nav-sm flex-column">
-                          <li className="nav-item">
-                            <a
-                              href="/category"
-                              className={`nav-link ${category ? `active`:``}`}
-                              data-key="t-categories"
-                            >
-                              Category
-                            </a>
-                          </li>
-                          <li className="nav-item">
-                            <a
-                              href="/subcategory"
-                              className={`nav-link ${subCategory ? `active`:``}`}
-                              data-key="t-categories"
-                            >
-                              Sub Category
-                            </a>
-                          </li>
+                        <ul className="nav nav-sm flex-column">                                    
                           <li className="nav-item">
                             <a
                               href="/addCategory"
@@ -197,6 +181,15 @@ const Sidebar = ({ page }: any) => {
                               data-key="t-addcategory"
                             >
                               Add Category
+                            </a>
+                          </li>
+                          <li className="nav-item">
+                            <a
+                              href="/category"
+                              className={`nav-link ${category ? `active`:``}`}
+                              data-key="t-categories"
+                            >
+                              Category
                             </a>
                           </li>                          
                           <li className="nav-item">
@@ -208,10 +201,18 @@ const Sidebar = ({ page }: any) => {
                               Add Sub Category
                             </a>
                           </li>
+                          <li className="nav-item">
+                            <a
+                              href="/subcategory"
+                              className={`nav-link ${subCategory ? `active`:``}`}
+                              data-key="t-categories"
+                            >
+                              Sub Category
+                            </a>
+                          </li>
                         </ul>
                       </div>
-                    </li>
-                    
+                    </li>                  
                     <li className="nav-item">
                       <a
                         href="/addCourse"
@@ -221,6 +222,15 @@ const Sidebar = ({ page }: any) => {
                         Create Course
                       </a>
                     </li>
+                    <li className="nav-item">
+                      <a
+                        href="/courses"
+                        className={`nav-link ${isCourse ? `active` : ``}`}
+                        data-key="t-create-course"
+                      >
+                        Courses
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>
@@ -228,7 +238,7 @@ const Sidebar = ({ page }: any) => {
                 <a
                   href="#sidebarOrders"
                   className={`nav-link menu-link collapsed ${
-                    isCourse || isOrder ? `active` : ``
+                    isCourseOrder || isOrder ? `active` : ``
                   }`}
                   data-bs-toggle="collapse"
                   role="button"
@@ -239,14 +249,14 @@ const Sidebar = ({ page }: any) => {
                   <span data-key="t-learning">Orders</span>
                 </a>
                 <div
-                  className={`collapse menu-dropdown ${isCourse || isOrder  ? `show` : ``}`}
+                  className={`collapse menu-dropdown ${isCourseOrder || isOrder  ? `show` : ``}`}
                   id="sidebarOrders"
                 >
                   <ul className="nav nav-sm flex-column">
                   <li className="nav-item">
                       <a
-                        href="/courses"
-                        className={`nav-link ${isCourse ? `active` : ``}`}
+                        href="/courseorders"
+                        className={`nav-link ${isCourseOrder ? `active` : ``}`}
                         data-key="t-overview"
                       >
                         Course Orders

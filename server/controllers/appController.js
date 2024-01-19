@@ -1,5 +1,6 @@
 const sendEmail = require("../services/resetEmail");
 const subscriptionEmail = require("../services/subscribeMail");
+const PurchaseSuccessEmail = require("../services/purchaseSuccessMail");
 const Contact = require("../models/adminModels/contactModel");
 const Courses = require("../models/adminModels/courseModel");
 const Purchase = require("../models/userModels/purchaseModel");
@@ -108,6 +109,20 @@ exports.getAllCourses = async (req, res) => {
   }
 };
 
+exports.getCourseById = async (req, res) => {
+  const { id } = req.body;
+  try {
+    const courses = await Courses.findById(id);
+    res.status(200).json({data:courses,status:true});
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get all courses",
+      status: false,
+      error: error.message,
+    });
+  }
+};
+
 exports.getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blogs.find();
@@ -161,10 +176,14 @@ exports.getCartDetails = async (req, res) => {
 };
 
 exports.getPurchaseCourses = async (req, res) => {
+  const {id} = req.body;
+  console.log(id);
   try {
-    const courseList = await Purchase.find();
+    const courseList = await Purchase.findById(
+      { _id:id });
     if(courseList){
-    res.status(200).json({ data: courseList, status: true });
+    const data = courseList.purchaseDetails;
+    res.status(200).json({ data: data, status: true });
     }
   } catch (error) {
     res.status(500).json({
@@ -174,6 +193,60 @@ exports.getPurchaseCourses = async (req, res) => {
     });
   }
 };
+
+exports.getPurchaseId = async (req, res) => {
+
+  try {
+    const purchaseCourseList = await Purchase.find();
+    if (!purchaseCourseList) {
+      res.status(400).json({
+        message: "Can't find the courses purchased",
+        status: false,
+      });
+    }
+    const data = purchaseCourseList[0]._id;
+
+    res.status(200).json({ data: data, status: true });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get courses purchased",
+      status: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.getCoursePurchased = async (req, res) => {
+  const { id,courseId } = req.body;
+
+  try {
+    const coursePurchased = await Courses.findById({_id:courseId});
+    if(coursePurchased){
+     const title = coursePurchased.title;
+
+     const Purchasedcourse = await Purchase.findOne(
+      { _id: id },
+      { _id: 0, purchaseDetails: { $elemMatch: { coursetitle: title } } }
+    );
+    console.log(Purchasedcourse);
+
+     res.status(200).json({ data: Purchasedcourse, status: true });
+    }
+    else{
+      return res.status(404).json({
+        status: false,
+        message: "Can't find the Course Purchased",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get courses purchased",
+      status: false,
+      error: error.message,
+    });
+  }
+};
+
 exports.addWishlist = async (req, res) => {
   try {
     const { token, courseId, status } = req.body;
@@ -224,9 +297,75 @@ exports.addWishlist = async (req, res) => {
   }
 };
 
+exports.addPurchaseCourse = async (req, res) => {
+  const {id,purchaseCourse} = req.body;
+
+  try {
+    const data = purchaseCourse[0];
+
+    // const result = await Purchase.findOne(
+    //   { _id: id },
+    //   { _id: 0, purchaseDetails: { $elemMatch: { coursetitle: purchaseCourse[0].coursetitle } } }
+    // );
+    // if(result.coursetitle == purchaseCourse[0].coursetitle){
+    //  return res.status(409).json({ message: 'Course Already Purchased', status: true });
+    // }
+    
+    const coursePurchased = await Purchase.findOneAndUpdate(
+      { _id: id },
+      { $push: { purchaseDetails: purchaseCourse } },
+      { new: true }
+    );
+
+    const courseDetails= await Purchase.findById({ _id: id });
+    const purchased = () =>{
+      let htmlmessage = ``;
+    if(purchaseCourse.length == 2){
+       htmlmessage = `<div>Dear&nbsp;${courseDetails.name},<br/><p>Congrats, Your Purchase with the course was Successful<br/><br/>
+      Your order Id is ${id}<br/><br/>Purchased Courses:<br/>${purchaseCourse[0].coursetitle}<br/>${purchaseCourse[1].coursetitle}</p></div>`;
+    }
+    if(purchaseCourse.length > 2){
+       htmlmessage = `<div>Dear&nbsp;${courseDetails.name},<br/><p>Congrats, Your Purchase with the course was Successful<br/><br/>
+      Your order Id is ${id}<br/><br/>Purchased Courses:<br/>${purchaseCourse[0].coursetitle}<br/>${purchaseCourse[1].coursetitle}<br/>${purchaseCourse[2].coursetitle}</p></div>`
+    }
+    if(purchaseCourse.length < 2){
+       htmlmessage = `<div>Dear&nbsp;${courseDetails.name},<br/><p>Congrats, Your Purchase with the course was Successful<br/><br/>
+      Your order Id is ${id}<br/><br/>Purchased Courses:<br/>${purchaseCourse[0].coursetitle}</p></div>`
+    }
+    return htmlmessage;
+  }
+    const mailDetails = {
+      email: courseDetails.email,
+      subject: "Purchase Successful",
+      message:`Congrats, Your Purchase with the course was Successful`,
+      htmlmessage:purchased(),
+    };
+    PurchaseSuccessEmail(mailDetails);
+
+    if(coursePurchased){
+     const title = coursePurchased.title;
+     const Purchasedcourse = await Purchase.findOne({ title });
+     res.status(200).json({ message: 'Order Placed Successfully', status: true });
+    }
+    else{
+      return res.status(404).json({
+        status: false,
+        message: "Can't find the Course Purchased",
+      });
+      
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get courses purchased",
+      status: false,
+      error: error.message,
+    });
+  }
+};
+
 exports.addCart = async (req, res) => {
   try {
-    const { courseId, title, price, imagepath, status } = req.body;
+    const { courseId, title, price, type, image, status } = req.body;
 
     const courseExists = await Cart.findOne({
       courseId,
@@ -241,8 +380,9 @@ exports.addCart = async (req, res) => {
     const newCart = new Cart({
       courseId,
       title,
+      type,
       price,
-      imagepath,
+      image,
       status,
     });
     await newCart.save();
@@ -263,14 +403,10 @@ exports.saveAddress = async (req, res) => {
   try {
     const { name, email, phone, country, city, state, street, pincode } = req.body;
 
-    const addressExists = await Address.findOne({
-      email,
-    });
+    const addressExists = await Address.find();
     if (addressExists) {
-      return res.status(409).json({
-        status: false,
-        message: "Address already exists",
-      });
+      const id = addressExists[0]._id;
+      const deleteAddress = await Address.findByIdAndDelete({_id:id})
     }
 
     const newAddress = new Address({
@@ -299,19 +435,11 @@ exports.saveAddress = async (req, res) => {
 
 exports.purchaseCourse = async (req, res) => {
   try {
-    const { name, email, courseId, payment } = req.body;
+    const purchaseData = req.body;
+    console.log(purchaseData);
 
-    const courseDetails = await Courses.findById({"_id":courseId});
-
-    const newPurchase = new Purchase({
-      name,
-      email,
-      title:courseDetails.title,
-      type:courseDetails.type,
-      price:"$"+courseDetails.price,
-      paymentType:payment,
-      status:"Deactive"
-    });
+    const newPurchase = new Purchase(purchaseData);
+  
     await newPurchase.save();
     res.status(201).json({
       status: true,
@@ -333,6 +461,24 @@ exports.getAddress = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to get all users",
+      status: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.deleteCart = async (req, res) => {
+
+  try {
+    const deleteCart = await Cart.deleteMany({});
+    if (deleteCart) {
+      res
+        .status(200)
+        .json({ status: true, message: "Cart cleared successfully" });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to remove cart details",
       status: false,
       error: error.message,
     });

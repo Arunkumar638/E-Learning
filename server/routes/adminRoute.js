@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
 // Set up multer upload
 const upload = multer({
   storage: storage,
-  limits:{"fileSize":1000000}
+  limits:{"fileSize":2000000}
   
 });
 
@@ -40,15 +40,32 @@ router.post('/upload', upload.single('image'), (req, res) => {
   }
 });
 
+router.post('/uploadvideo', upload.single('video'), (req, res) => {
+  console.log('Request received'); 
+  console.log(req.body); 
+  try {
+    const ImageUrl = `${process.env.IMAGE_URL}/${req.file.filename}`
+
+    return res.status(200).json({message:'File uploaded successfully',data:ImageUrl});
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    res.status(500).send('Error uploading file');
+    console.log('Error')
+  }
+});
+
 router.put("/updatestatus", adminController.updateStatus);
 router.put("/updatecoursestatus", adminController.updateCourseStatus);
 router.put("/updatecategory", adminController.updateCategory);
 router.put("/updatesubcategory", adminController.updateSubCategory);
 
 router.post("/getpurchasebyId",adminController.getPurchaseCourseById);
+router.post("/getcoursebyId",adminController.getCourseById);
 router.post("/sendpurchasestatus",adminController.sendPurchaseStatusMail);
+router.post("/addcoursecontent",adminController.addCourseContent);
 
 router.get("/getcontacts",adminController.getContacts);
+router.get("/getcourses", adminController.getAllCourses);
 router.get("/getwishlist",adminController.getWishlist);
 router.get("/getadmin",adminController.getAdmin);
 router.get("/getpurchasecourse",adminController.getPurchaseCourse);

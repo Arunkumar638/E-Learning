@@ -3,6 +3,7 @@ const Blog = require("../models/adminModels/blogModel");
 const Category = require("../models/adminModels/categoryModel");
 const SubCategory = require("../models/adminModels/subCategoryModel");
 const Course = require("../models/adminModels/courseModel");
+const CourseContent = require("../models/adminModels/courseContentModel");
 const Purchase = require("../models/userModels/purchaseModel");
 const Contact = require("../models/adminModels/contactModel");
 const Wishlist = require("../models/adminModels/wishlistModel");
@@ -125,32 +126,33 @@ exports.addCourse = async (req, res) => {
   const {
     title,
     duration,
-    lectures,
     type,
     price,
-    enrolled,
+    image,
+    video,
     language,
-    deadline,
-    instructor,
+    categorytitle,
     description,
     requirements,
     contents,
+    status,
+    createdAt
   } = req.body;
-  const image = req.file ? req.file.filename : null;
+
   try {
     const newCourse = new Course({
       title,
       duration,
-      lectures,
+      description,
       type,
       price,
-      enrolled,
+      video,
       language,
-      deadline,
-      instructor,
-      description,
+      categorytitle,
       requirements,
       contents,
+      status,
+      createdAt,
       image,
     });
     await newCourse.save();
@@ -167,6 +169,7 @@ exports.addCourse = async (req, res) => {
 
 exports.addCategory = async (req, res) => {
   const { categorytitle, status, image, createdAt } = req.body;
+  console.log(req.body);
   try {
     const newCategory = new Category({
       categorytitle,
@@ -186,9 +189,22 @@ exports.addCategory = async (req, res) => {
   }
 };
 
+exports.getAllCourses = async (req, res) => {
+  try {
+    const courses = await Course.find();
+    res.status(200).json({ data: courses, status: true });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get all courses",
+      status: false,
+      error: error.message,
+    });
+  }
+};
+
 exports.addSubCategory = async (req, res) => {
-  const { categorytitle, subcategorytitle, status, createdAt } = req.body;
-  const image = req.file ? req.file.filename : null;
+  const { categorytitle, subcategorytitle, status, image, createdAt } = req.body;
+
   try {
     const newsubCategory = new SubCategory({
       categorytitle,
@@ -233,6 +249,58 @@ exports.addBlog = async (req, res) => {
   }
 };
 
+exports.addCourseContent = async (req, res) => {
+  try {
+    const courseData = req.body;
+    console.log('Received course data:', courseData);
+
+    const { coursetitle, title, sections } = courseData;
+
+    // Extract and format nested values
+    const formattedSections = (sections || []).map((section) => {
+      const { title: sectionTitle, contents } = section;
+
+      // Ensure contents is defined before mapping over it
+      const formattedContents = (contents || []).map((content) => {
+        const { contenttitle, description, length, link, url } = content;
+        return {
+          contenttitle,
+          description,
+          length,
+          link,
+          url,
+        };
+      });
+
+      return {
+        title: sectionTitle,
+        contents: formattedContents,
+      };
+    });
+
+
+    const newCourseContent = new CourseContent({
+      coursetitle,
+      title,
+      sections: formattedSections,
+    });
+
+    // Save the instance to the database
+    const savedCourseContent = await newCourseContent.save();
+
+    res
+      .status(201)
+      .json({
+        data: savedCourseContent,
+        message: "Course Contents Saved Successfully",
+        status: true,
+      });
+  } catch (error) {
+    console.error("Error saving course:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 exports.updateStatus = async (req, res) => {
   const { id, status } = req.body;
 
@@ -253,13 +321,11 @@ exports.updateStatus = async (req, res) => {
       });
     }
     const user = await User.find();
-    res
-      .status(201)
-      .json({
-        message: "Status updated Successfully",
-        data: user,
-        status: true,
-      });
+    res.status(201).json({
+      message: "Status updated Successfully",
+      data: user,
+      status: true,
+    });
   } catch (error) {
     res
       .status(500)
@@ -271,9 +337,9 @@ exports.updateCourseStatus = async (req, res) => {
   const { id, status } = req.body;
 
   try {
-    const purchaseId = { _id: id };
-    const updateCourseStatus = await User.findByIdAndUpdate(
-      purchaseId,
+    const courseId = { _id: id };
+    const updateCourseStatus = await Course.findByIdAndUpdate(
+      courseId,
       {
         status,
       },
@@ -287,13 +353,11 @@ exports.updateCourseStatus = async (req, res) => {
       });
     }
     const purchase = await Purchase.find();
-    res
-      .status(201)
-      .json({
-        message: "Status updated Successfully",
-        data: purchase,
-        status: true,
-      });
+    res.status(201).json({
+      message: "Status updated Successfully",
+      data: purchase,
+      status: true,
+    });
   } catch (error) {
     res
       .status(500)
@@ -341,7 +405,7 @@ exports.getSubCategory = async (req, res) => {
 };
 
 exports.updateCategory = async (req, res) => {
-  const { id, categorytitle, status } = req.body;
+  const { id, categorytitle, status, image } = req.body;
 
   try {
     const categoryId = { _id: id };
@@ -350,6 +414,7 @@ exports.updateCategory = async (req, res) => {
       {
         categorytitle,
         status,
+        image,
       },
       {
         new: true,
@@ -362,13 +427,11 @@ exports.updateCategory = async (req, res) => {
       });
     }
     const category = await Category.find();
-    res
-      .status(201)
-      .json({
-        message: "Category updated Successfully",
-        data: category,
-        status: true,
-      });
+    res.status(201).json({
+      message: "Category updated Successfully",
+      data: category,
+      status: true,
+    });
   } catch (error) {
     res
       .status(500)
@@ -377,7 +440,7 @@ exports.updateCategory = async (req, res) => {
 };
 
 exports.updateSubCategory = async (req, res) => {
-  const { id, categorytitle, subcategorytitle, status } = req.body;
+  const { id, categorytitle, subcategorytitle, image, status } = req.body;
 
   try {
     const subcategoryId = { _id: id };
@@ -386,6 +449,7 @@ exports.updateSubCategory = async (req, res) => {
       {
         categorytitle,
         subcategorytitle,
+        image,
         status,
       },
       {
@@ -399,13 +463,11 @@ exports.updateSubCategory = async (req, res) => {
       });
     }
     const category = await SubCategory.find();
-    res
-      .status(201)
-      .json({
-        message: "SubCategory updated Successfully",
-        data: category,
-        status: true,
-      });
+    res.status(201).json({
+      message: "SubCategory updated Successfully",
+      data: category,
+      status: true,
+    });
   } catch (error) {
     res
       .status(500)
@@ -455,7 +517,17 @@ exports.getWishlist = async (req, res) => {
 exports.getPurchaseCourse = async (req, res) => {
   try {
     const courseList = await Purchase.find();
-    res.json({ data: courseList, status: true });
+    if(courseList){
+      const combinedType = courseList.reduce((result, item, index) => {
+        result["purchase"] = item.purchaseDetails;
+        return result;
+      }, {});
+      const data = {
+        id:courseList[0]._id,
+        details:combinedType,
+      }
+    res.json({ data: data, status: true });
+    }
   } catch (error) {
     res.status(500).json({
       message: "Failed to get courses purchased",
@@ -466,17 +538,43 @@ exports.getPurchaseCourse = async (req, res) => {
 };
 
 exports.getPurchaseCourseById = async (req, res) => {
-  const { id } = req.body;
+  const { id, courseId } = req.body;
 
   try {
-    const purchaseCourseList = await Purchase.findById(id);
+    const purchaseCourseList = await Purchase.findOne(
+      { _id: id },
+      { _id: 0, purchaseDetails: { $elemMatch: { _id: courseId } } }
+    );
     if (!purchaseCourseList) {
       res.status(400).json({
         message: "Can't find the courses purchased",
         status: false,
       });
     }
-    res.status(200).json({ data: purchaseCourseList, status: true });
+    const data = purchaseCourseList.purchaseDetails;
+    res.status(200).json({ data: data, status: true });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get courses purchased",
+      status: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.getCourseById = async (req, res) => {
+  const { id, courseId } = req.body;
+  console.log(req.body);
+  try {
+    const CourseList = await Course.findById({ _id: id },);
+    console.log(CourseList);
+    if (!CourseList) {
+      res.status(400).json({
+        message: "Can't find the courses purchased",
+        status: false,
+      });
+    }
+    res.status(200).json({ data: CourseList, status: true });
   } catch (error) {
     res.status(500).json({
       message: "Failed to get courses purchased",
@@ -505,13 +603,11 @@ exports.deleteCategory = async (req, res) => {
     const category = await Category.findByIdAndDelete(id);
     const categories = await Category.find();
     if (category) {
-      res
-        .status(200)
-        .json({
-          message: "Category Deleted Successfully",
-          data: categories,
-          status: true,
-        });
+      res.status(200).json({
+        message: "Category Deleted Successfully",
+        data: categories,
+        status: true,
+      });
     }
   } catch (error) {
     res.status(500).json({
@@ -528,13 +624,11 @@ exports.deleteSubCategory = async (req, res) => {
     const subcategory = await SubCategory.findByIdAndDelete(id);
     const subcategories = await SubCategory.find();
     if (subcategory) {
-      res
-        .status(200)
-        .json({
-          message: "SubCategory Deleted Successfully",
-          data: subcategories,
-          status: true,
-        });
+      res.status(200).json({
+        message: "SubCategory Deleted Successfully",
+        data: subcategories,
+        status: true,
+      });
     }
   } catch (error) {
     res.status(500).json({
@@ -564,12 +658,12 @@ exports.sendPurchaseStatusMail = async (req, res) => {
       email: email,
       subject: "Course Activation Failed",
       name: name,
-      message:message,
+      message: message,
     };
     PurchaseStatusEmail(mailDetails);
     const id = {
-      _id:_id,
-    }
+      _id: _id,
+    };
     const updateStatus = await Purchase.findByIdAndUpdate(
       id,
       {

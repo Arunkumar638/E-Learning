@@ -20,7 +20,7 @@ interface combineCourse {
   title: string;
   duration: string;
   lectures: string;
-  imagepath: string;
+  image: string;
   type: string;
   price: string;
   _id: string;
@@ -29,7 +29,7 @@ interface combineCourse {
 interface combineBlog {
   title: string;
   usertype: String;
-  imagepath: String;
+  image: String;
   date: String;
   views: String;
   blogId: String;
@@ -262,7 +262,7 @@ interface combineCategory {
                   />
                   <div className="p-3">
                     <h3>
-                      <a href="/ourcourses">{category.categorytitle}</a>
+                      <a href={`/ourcourses?=${category.categorytitle}`}>{category.categorytitle}</a>
                     </h3>                  
                   </div>
                 </div>
@@ -343,7 +343,7 @@ interface combineCategory {
                 <div className="courses-img">
                   <a href={`/coursedetails/?=${course._id}`}>
                     <img
-                      src={`${course.imagepath}`}
+                      src={`${course.image}`}
                        alt="img"
                     />
                   </a>
@@ -377,10 +377,10 @@ interface combineCategory {
                       <i className="ri-time-fill" />
                       {course.duration}
                     </li>
-                    <li>
+                    {/* <li>
                       <i className="ri-vidicon-fill" />
                       {course.lectures} Lectures
-                    </li>
+                    </li> */}
                     <li>
                       <i className="ri-list-check" />
                       {course.type}
@@ -480,7 +480,7 @@ interface combineCategory {
                     <a href={`/blogdetails/?=${blog._id}`}>
                       {/* <img src={process.env.PUBLIC_URL + `${blog.imgpath}`}  alt="img" /> */}
                       <img
-                      src={`${blog.imagepath}`}
+                      src={`${blog.image}`}
                        alt="img"
                     />
                       {/* <img src="http://localhost:8000/server/uploads/1703913354379.jpg"  alt="img" /> */}

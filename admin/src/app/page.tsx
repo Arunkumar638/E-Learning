@@ -22,22 +22,22 @@ import { Toaster, toast } from "sonner";
     const data = {
       "token":token
     }
-    getAdmin(data)
-    .then((data) => {
-      if (data.status == true) {
-        setAdmin(data.data);
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      if (error.response) {
-        const message = error.response.data;
-        console.log(message);
-        console.log("Response data:", error.response.data);
-        console.log("Response status:", error.response.status);
-        notifyError(message);
-      }
-    });
+    // getAdmin(data)
+    // .then((data) => {
+    //   if (data.status == true) {
+    //     setAdmin(data.data);
+    //   }
+    // })
+    // .catch((error) => {
+    //   console.log(error);
+    //   if (error.response) {
+    //     const message = error.response.data;
+    //     console.log(message);
+    //     console.log("Response data:", error.response.data);
+    //     console.log("Response status:", error.response.status);
+    //     notifyError(message);
+    //   }
+    // });
   },[])
   return (
     <>

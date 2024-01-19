@@ -3,7 +3,14 @@
 import Script from "next/script";
 import { Footer, Pagetitle } from "../../components/components";
 import { Suspense, lazy, useEffect, useState } from "react";
-import { addWish, getCourses, addToCart, getCartData } from "@/actions/otherActions";
+import {
+  addWish,
+  getCourses,
+  addToCart,
+  getCartData,
+  getCoursePurchased,
+} from "@/actions/otherActions";
+import { useRouter } from "next/navigation";
 import { Toaster, toast } from "sonner";
 
 interface combineCourse {
@@ -14,9 +21,10 @@ interface combineCourse {
   lectures: string;
   price: string;
   enrolled: string;
+  type:string;
   language: string;
   duration: string;
-  imagepath:string;
+  image: string;
   instructor: string;
   deadline: string;
   _id: string;
@@ -26,12 +34,16 @@ const CourseDetails = () => {
   const Navbar = lazy(() => import("../../components/navBar"));
   const [courses, setCourses] = useState<combineCourse[]>([]);
   const [id, setId] = useState("");
-  const [isCart, setIsCart] = useState(false)
-
+  const [courseActive, setCourseActive] = useState(false);
+  const [courseMessage, setCourseMessage] = useState("")
+  const [isCart, setIsCart] = useState(false);
+  const router = useRouter();
   const notifyError = (data: any) => {
     toast.error(data.message);
   };
-
+  const courseRoute = () =>{
+    router.push(`/learncourse/?=${id}`);
+  }
   const addWishList = () => {
     const token = localStorage.getItem("token");
     const data = {
@@ -56,54 +68,56 @@ const CourseDetails = () => {
         }
       });
   };
-  const cartAdd = (data:any) =>{
+  const cartAdd = (data: any) => {
     addToCart(data)
-    .then((data) => {
-      if (data.status == true) {
-        toast.success(data.message);
-        getCart();
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      if (error.response) {
-        const message = error.response.data;
-        console.log(message);
-        console.log("Response data:", error.response.data);
-        console.log("Response status:", error.response.status);
-        notifyError(message);
-      }
-    });
-  }
-  const getCart = () =>{
+      .then((data) => {
+        if (data.status == true) {
+          toast.success(data.message);
+          getCart();
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error.response) {
+          const message = error.response.data;
+          console.log(message);
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
+          notifyError(message);
+        }
+      });
+  };
+  const getCart = () => {
     getCartData().then((data) => {
-      data.forEach((element: any,index: any)=>{
+      data.forEach((element: any, index: any) => {
         const Id = window.location.search.split("=")[1];
-      if (element.courseId == Id) {
-        setIsCart(true);
-        console.log(isCart);
-      }
+        if (element.courseId == Id) {
+          setIsCart(true);
+          console.log(isCart);
+        }
+      });
     });
-    });
-  }
+  };
   const addCart = () => {
-    // const token = localStorage.getItem("token");
-    courses.forEach((element,index)=>{
-      if(id==element._id){
+
+    courses.forEach((element, index) => {
+      if (id == element._id) {
         const data = {
           courseId: id,
-          title:element.title,
-          price:element.price,
-          imagepath:element.imagepath,
+          title: element.title,
+          price: element.price,
+          type:element.type,
+          image: element.image,
           status: true,
         };
-        console.log(data.courseId);
+        console.log(data);
         cartAdd(data);
       }
-    })
+    });
   };
   useEffect(() => {
     const urlToken = window.location.search.split("=")[1];
+    const purchaseId = localStorage.getItem('purchaseCourseId')
     setId(urlToken);
     getCourses().then((data) => {
       if (data) {
@@ -111,13 +125,31 @@ const CourseDetails = () => {
       }
     });
     getCartData().then((data) => {
-      data.forEach((element: any,index: any)=>{
+      data.forEach((element: any, index: any) => {
         const Id = window.location.search.split("=")[1];
-      if (element.courseId == Id) {
-        setIsCart(true);
-        console.log(isCart);
-      }
+        if (element.courseId == Id) {
+          setIsCart(true);
+          console.log(isCart);
+        }
+      });
     });
+    const courseId = {
+      id:purchaseId,
+      courseId:urlToken,
+    }
+    getCoursePurchased(courseId).then((data) => {
+      if (data.status == true) {
+        setCourseActive(true);
+      }
+    }).catch((error) => {
+      console.log(error);
+      if (error.response) {
+        const message = error.response.data.message;
+        console.log(message);
+        console.log("Response data:", error.response.data);
+        console.log("Response status:", error.response.status);
+        setCourseMessage(message);
+      }
     });
   }, []);
   return (
@@ -207,12 +239,20 @@ const CourseDetails = () => {
                       alt="Image"
                     />
                     <div className="video-play">
+                      {
+                      courseActive ?
                       <a
-                        href="https://www.youtube.com/watch?v=-_X6PhkjpzU"
+                        onClick={courseRoute}
                         className="video-btn popup-youtube"
                       >
                         <i className="ri-play-fill" />
-                      </a>
+                      </a>:<a
+                        href=""
+                        onClick={()=>{toast.error(courseMessage)}}
+                        className="video-btn popup-youtube"
+                      >
+                        <i className="ri-play-fill" />
+                      </a>}
                     </div>
                   </div>
                   <div className="price-status">
@@ -223,36 +263,38 @@ const CourseDetails = () => {
                             <li>
                               Price <span>{course.price}</span>
                             </li>
-                            <li>
+                            {/* <li>
                               Instructor: <span>{course.instructor}</span>
-                            </li>
+                            </li> */}
                             <li>
                               Duration: <span>{course.duration}</span>
                             </li>
-                            <li>
+                            {/* <li>
                               Lectures: <span>{course.lectures}</span>
-                            </li>
+                            </li> */}
                             <li>
                               Enrolled: <span>{course.enrolled} students</span>
                             </li>
                             <li>
                               Language: <span>{course.language}</span>
                             </li>
-                            <li>
+                            {/* <li>
                               Deadline: <span>{course.deadline}</span>
-                            </li>
+                            </li> */}
                           </ul>
                         )
                     )}
                     <ul className="cart-wish-btn">
                       <li>
-                        { isCart ?
-                        <a className="default-btn" href="/cart">
-                          Go to Cart
-                        </a>:<button className="default-btn" onClick={addCart}>
-                          Add To Cart
-                        </button>
-                          }
+                        {isCart ? (
+                          <a className="default-btn" href="/cart">
+                            Go to Cart
+                          </a>
+                        ) : (
+                          <button className="default-btn" onClick={addCart}>
+                            Add To Cart
+                          </button>
+                        )}
                       </li>
                       <li>
                         <button

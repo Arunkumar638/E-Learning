@@ -12,7 +12,7 @@ interface combineCourse {
   duration: String;
   lectures: String;
   categorytitle: String;
-  imagepath:String;
+  image:String;
   type: String;
   price: String;
   _id: String;
@@ -138,7 +138,7 @@ const OurCourses = () => {
                       <div className="courses-img">
                           <a href={`/coursedetails/?=${course._id}`}>
                             <img
-                              src={`${course.imagepath}`}
+                              src={`${course.image}`}
                               alt="Image"
                             />
                           </a>    
@@ -168,10 +168,10 @@ const OurCourses = () => {
                             <i className="ri-time-fill" />
                             {course.duration}
                           </li>
-                          <li>
+                          {/* <li>
                             <i className="ri-vidicon-fill" />
                             {course.lectures} Lectures
-                          </li>
+                          </li> */}
                           <li>
                             <i className="ri-list-check" />
                             {course.type}
@@ -179,7 +179,7 @@ const OurCourses = () => {
                         </ul>
                       </div>
                       <ul className="courses-fee d-flex justify-content-between">
-                        <li>${course.price}</li>
+                        <li>{course.price}</li>
                         <li>
                             <a href={`/coursedetails/?=${course._id}`} className="read-more">
                               More Details

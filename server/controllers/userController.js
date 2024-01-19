@@ -4,10 +4,12 @@ const bcrypt = require("bcryptjs");
 
 const sendEmail = require("../services/resetEmail");
 const secretKey = `V5LzRs_Pw9OYSt5cMOSc3b8aK1V6n2wiBWaeAcJ48kY`;
-
+const expirationTimestamp =
+  Math.floor(Date.now() / 1000) + 3 * 30 * 24 * 60 * 60;
+  
 exports.registerUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, phoneNo, password } = req.body;
 
     // Check if the user already exists
     const userExists = await User.findOne({
@@ -23,11 +25,12 @@ exports.registerUser = async (req, res) => {
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const date = new Date;
-    console.log(date.now())
+    // const date = new Date;
+    // console.log(date.now())
     const newUser = new User({
       username,
       email,
+      phoneNo,
       password: hashedPassword,
       status:"Deactive"
     });
@@ -66,7 +69,9 @@ exports.loginUser = async (req, res) => {
     }
 
     // Create and send a JWT token
-    const token = jwt.sign({ userId: user._id }, secretKey);
+    const token = jwt.sign({ userId: user._id }, secretKey, {
+      expiresIn: expirationTimestamp,
+    });
 
     res
       .status(201)

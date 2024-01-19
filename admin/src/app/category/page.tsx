@@ -7,11 +7,20 @@ import { Toaster, toast } from "sonner";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import { Input, Space, type InputRef, Form } from "antd";
-import { Button, Table, Popconfirm, Modal } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import axios from "axios";
+import type { RcFile, UploadProps } from "antd/es/upload";
+import type { UploadFile } from "antd/es/upload/interface";
+import { Button, Table, Popconfirm, Modal, Upload } from "antd";
 import type { SorterResult, FilterConfirmProps } from "antd/es/table/interface";
 import Sidebar from "@/components/sideBar";
 import { useEffect, useRef, useState } from "react";
-import { deleteCategory, getCategory, updateCategory } from "@/actions/otherActions";
+import {
+  deleteCategory,
+  getCategory,
+  updateCategory,
+} from "@/actions/otherActions";
+
 
 type DataIndex = keyof DataType;
 interface DataType {
@@ -19,19 +28,70 @@ interface DataType {
   image: string;
   status: string;
 }
+const getBase64 = (file: RcFile): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+
 const Category = () => {
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [category, setCategory] = useState([]);
   const [id, setId] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
+  const [previousImage, setpreviousImage] = useState("");
+  const [imageUrl, setImageUrl] = useState("")
   const [categorydetails, setCategoryDetails] = useState({
     categorytitle: "",
+    image:"",
     id: "",
   });
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const router  = useRouter();
   const [visible, setVisible] = useState(false);
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef<InputRef>(null);
+  const ImageURL = 'http://localhost:8000/admin/upload';
 
+  const handleCancel = () => setPreviewOpen(false);
+
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as RcFile);
+    }
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+    setPreviewTitle(
+      file.name || file.url!.substring(file.url!.lastIndexOf("/") + 1)
+    );
+  };
+
+  const handleImageChange: UploadProps["onChange"] = async({
+    fileList: newFileList,
+  }) => {
+    console.log(newFileList);
+    setFileList(newFileList);
+    if(newFileList.length != 0){
+    const Imagedata = {
+      image:newFileList[0].originFileObj
+    }
+    if(newFileList[0].status == "done"){
+    const response = await axios.post(ImageURL,Imagedata,{
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      console.log(response.data); 
+      const data = response.data;
+      setImageUrl(data.data);
+    }
+  }
+  };
   const handleSearch = (
     selectedKeys: string[],
     confirm: (param?: FilterConfirmProps) => void,
@@ -50,8 +110,8 @@ const Category = () => {
     x: "max-content",
     y: 400,
   };
-const updateStatus = (details:any) =>{
-  updateCategory(details)
+  const updateStatus = (details: any) => {
+    updateCategory(details)
       .then((data) => {
         if (data.status == true) {
           setCategory(data.data);
@@ -69,34 +129,64 @@ const updateStatus = (details:any) =>{
           notifyError(message);
         }
       });
-}
-
-  const activate = (data:any) =>{
+  };
+  const getStatus = () =>{
+    getCategory()
+    .then((data) => {
+      if (data.status == true) {
+        setCategory(data.data);
+        setLoading(false);
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      if (error.response) {
+        const message = error.response.data;
+        console.log(message);
+        console.log("Response data:", error.response.data);
+        console.log("Response status:", error.response.status);
+        notifyError(message);
+      }
+    });
+  }
+  const activate = (data: any) => {
     const id = data._id;
     const status = "Active";
     const details = {
-        "id":id,
-        "status":status
-    }
+      id: id,
+      status: status,
+    };
     updateStatus(details);
-  }
-  const deactivate = (data:any) =>{
+    getStatus();
+  };
+  const deactivate = (data: any) => {
     const id = data._id;
     const status = "Deactive";
     const details = {
-        "id":id,
-        "status":status
-    }
+      id: id,
+      status: status,
+    };
     updateStatus(details);
-  }
+    getStatus();
+  };
 
-  const handleOpenModal = (data:any) => {
+  const handleOpenModal = (data: any) => {
     setVisible(true);
     categorydetails.categorytitle = data.categorytitle;
     categorydetails.id = data._id;
+    categorydetails.image = data.image;
+    const Imagedata = {
+      uid:'0',
+      name:'',
+      url:data.image
+    }
+    fileList[0] = Imagedata;
+    setImageUrl(data.image);
+    console.log("ImageURL",data.image);
+    console.log(fileList);
   };
 
-  const handleCancel = () => {
+  const handleModalCancel = () => {
     setVisible(false);
   };
 
@@ -112,12 +202,13 @@ const updateStatus = (details:any) =>{
     setCategoryDetails({
       id: "",
       categorytitle: "",
+      image:""
     });
   };
 
   const handleSubmit = () => {
-
     console.log(categorydetails);
+    categorydetails.image = imageUrl;
     updateStatus(categorydetails);
   };
 
@@ -145,6 +236,13 @@ const updateStatus = (details:any) =>{
         }
       });
   };
+
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
 
   const cancel = (e: React.MouseEvent<HTMLElement>) => {
     console.log(e);
@@ -265,7 +363,7 @@ const updateStatus = (details:any) =>{
             <Button
               type="primary"
               onClick={() => {
-                activate(record)
+                activate(record);
               }}
             >
               Activate
@@ -275,7 +373,7 @@ const updateStatus = (details:any) =>{
               type="primary"
               danger
               onClick={() => {
-                deactivate(record)
+                deactivate(record);
               }}
             >
               Deactivate
@@ -289,7 +387,7 @@ const updateStatus = (details:any) =>{
       key: "action",
       render: (details, record) => (
         <Space size="middle">
-          <Button type="primary" onClick={()=>handleOpenModal(record)}>
+          <Button type="primary" onClick={() => handleOpenModal(record)}>
             Edit
           </Button>
           <Popconfirm
@@ -665,27 +763,36 @@ const updateStatus = (details:any) =>{
           <Modal
             title="Enter Category Details"
             open={visible}
-            onCancel={handleCancel}
+            onCancel={handleModalCancel}
             footer={null}
           >
             <form>
-            <label
-              htmlFor="categorytitle"
-              className="form-label"
-            >
-              Category title
-              <span className="text-danger">*</span>
-            </label>
+              <label htmlFor="categorytitle" className="form-label">
+                Category title
+                <span className="text-danger">*</span>
+              </label>
               <input
                 type="text"
                 onChange={handleChange}
                 name="categorytitle"
                 value={categorydetails.categorytitle}
                 className="form-control"
-              /><br/>
-              <Button
-                type="primary"
-                onClick={handleSubmit}>
+              />
+              <br />
+              <Upload
+                listType="picture-card"
+                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                maxCount={1}
+                name="uploadImage"
+                accept="image/*"
+                fileList={fileList || []}
+                onChange={handleImageChange}
+                onPreview={handlePreview}
+              >
+                {fileList.length == 1 ? null : uploadButton}
+              </Upload>
+              <br />
+              <Button type="primary" onClick={handleSubmit}>
                 Submit
               </Button>
             </form>

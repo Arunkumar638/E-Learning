@@ -31,7 +31,7 @@ const ViewOrder = () => {
     _id: "",
     name: "",
     email: "",
-    title: "",
+    coursetitle: "",
     paymentType: "",
     price: "",
     type: "",
@@ -104,14 +104,16 @@ const ViewOrder = () => {
 
   useEffect(() => {
     const urlId = window.location.search.split("=")[1];
+    const courseId = localStorage.getItem('courseId');
     const data = {
       id: urlId,
+      courseId:courseId,
     };
     getPurchaseById(data)
       .then((data) => {
         if (data.status == true) {
           console.log(data.data);
-          Object.assign(purchaseCourse, data.data);
+          Object.assign(purchaseCourse, data.data[0]);
 
         }
       })
@@ -130,7 +132,6 @@ const ViewOrder = () => {
         if (data.status == true) {
           console.log(data.data);
           setCategory(data.data);
-          console.log(purchaseCourse);
         }
       })
       .catch((error) => {
@@ -543,7 +544,7 @@ const ViewOrder = () => {
                                       <Input
                                         type="text"
                                         id="course-title-input"
-                                        value={purchaseCourse.title}
+                                        value={purchaseCourse.coursetitle}
                                         className="form-control"
                                         placeholder="Enter course title"
                                         disabled
@@ -608,7 +609,7 @@ const ViewOrder = () => {
                                         <Input
                                           type="text"
                                           className="form-control"
-                                          value={'$' + purchaseCourse.price}
+                                          value={purchaseCourse.price}
                                           id="price-input"
                                           disabled
                                         />

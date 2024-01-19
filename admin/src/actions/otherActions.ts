@@ -6,7 +6,7 @@ export const addCourse = async (data: any) => {
     method: "post",
     url: `${baseUrl}/addcourse`,
     headers: {
-      "Content-Type": "multipart/form-data",
+      "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
     },
     data: data,
@@ -26,7 +26,7 @@ export const addCategory = async (data: any) => {
     method: "post",
     url: `${baseUrl}/addcategory`,
     headers: {
-      "Content-Type": "multipart/form-data",
+      "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
     },
     data: data,
@@ -46,7 +46,7 @@ export const addSubCategory = async (data: any) => {
     method: "post",
     url: `${baseUrl}/addsubcategory`,
     headers: {
-      "Content-Type": "multipart/form-data",
+      "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
     },
     data: data,
@@ -80,6 +80,45 @@ export const addBlog = async (data: any) => {
       throw error;
     });
 };
+
+export const addCourseContent = async (data: any) => {
+  return axios({
+    method: "post",
+    url: `${baseUrl}/addcoursecontent`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    data: data,
+    timeout: 5000,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const getCourses = async () => {
+  return axios({
+    method: "get",
+    url: `${baseUrl}/getcourses`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+  })
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
 
 export const getContacts = async () => {
   return axios({
@@ -181,6 +220,27 @@ export const getPurchaseById = async (data:any) => {
   return axios({
     method: "post",
     url: `${baseUrl}/getpurchasebyId`,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+    timeout: 5000,
+    data:data,
+  })
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const getCourseById = async (data:any) => {
+
+  return axios({
+    method: "post",
+    url: `${baseUrl}/getcoursebyId`,
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",

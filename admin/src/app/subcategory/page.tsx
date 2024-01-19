@@ -7,7 +7,10 @@ import { Toaster, toast } from "sonner";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import { Input, Space, type InputRef, Form } from "antd";
-import { Button, Table, Popconfirm, Modal } from "antd";
+import { Button, Table, Popconfirm, Modal, Upload } from "antd";
+import type { RcFile, UploadProps } from "antd/es/upload";
+import type { UploadFile } from "antd/es/upload/interface";
+import { PlusOutlined } from "@ant-design/icons";
 import type { SorterResult, FilterConfirmProps } from "antd/es/table/interface";
 import Sidebar from "@/components/sideBar";
 import { useEffect, useRef, useState } from "react";
@@ -16,6 +19,7 @@ import {
   getSubCategory,
   updateSubCategory,
 } from "@/actions/otherActions";
+import axios from "axios";
 
 type DataIndex = keyof DataType;
 interface DataType {
@@ -31,18 +35,34 @@ interface combineCategory {
   image: string;
 }
 
+const getBase64 = (file: RcFile): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+
 const Category = () => {
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [subcategory, setSubCategory] = useState<combineCategory[]>([]);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [selectCategory, setSelectCategory] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
+  const [previousImage, setpreviousImage] = useState("");
   const [subCategoryDetails, setSubCategoryDetails] = useState({
     categorytitle: "",
     subcategorytitle: "",
+    image:"",
     id: "",
   });
   const [visible, setVisible] = useState(false);
   const [searchedColumn, setSearchedColumn] = useState("");
+  const ImageURL = 'http://localhost:8000/admin/upload';
   const searchInput = useRef<InputRef>(null);
 
   const handleSearch = (
@@ -53,6 +73,41 @@ const Category = () => {
     confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
+  };
+
+  const handleCancel = () => setPreviewOpen(false);
+
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as RcFile);
+    }
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+    setPreviewTitle(
+      file.name || file.url!.substring(file.url!.lastIndexOf("/") + 1)
+    );
+  };
+
+  const handleImageChange: UploadProps["onChange"] = async({
+    fileList: newFileList,
+  }) => {
+    console.log(newFileList);
+    setFileList(newFileList);
+    if(newFileList.length != 0){
+    const Imagedata = {
+      image:newFileList[0].originFileObj
+    }
+    if(newFileList[0].status == "done"){
+    const response = await axios.post(ImageURL,Imagedata,{
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      console.log(response.data); 
+      const data = response.data;
+      setImageUrl(data.data);
+    }
+  }
   };
 
   const handleReset = (clearFilters: () => void) => {
@@ -92,6 +147,7 @@ const Category = () => {
       status: status,
     };
     updateStatus(details);
+    fetchSubCategory();
   };
   const deactivate = (data: any) => {
     const id = data._id;
@@ -101,6 +157,7 @@ const Category = () => {
       status: status,
     };
     updateStatus(details);
+    fetchSubCategory();
   };
 
   const handleOpenModal = (data: any) => {
@@ -108,9 +165,18 @@ const Category = () => {
     subCategoryDetails.categorytitle = data.categorytitle;
     subCategoryDetails.subcategorytitle = data.subcategorytitle;
     subCategoryDetails.id = data._id;
+    const Imagedata = {
+      uid:'0',
+      name:'',
+      url:data.image
+    }
+    fileList[0] = Imagedata;
+    setImageUrl(data.image);
+    console.log("ImageURL",data.image);
+    console.log(fileList);
   };
 
-  const handleCancel = () => {
+  const handleModalCancel = () => {
     setVisible(false);
   };
 
@@ -121,11 +187,30 @@ const Category = () => {
       [name]: value,
     });
   };
-
+  const fetchSubCategory = () =>{
+    getSubCategory()
+      .then((data) => {
+        if (data.status == true) {
+          setSubCategory(data.data);
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error.response) {
+          const message = error.response.data;
+          console.log(message);
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
+          notifyError(message);
+        }
+      });
+  }
   const handleSubmit = () => {
     console.log(subCategoryDetails);
-
+    subCategoryDetails.image = imageUrl;
     updateStatus(subCategoryDetails);
+    fetchSubCategory();
   };
 
   const delSubCategory = (data: any) => {
@@ -152,6 +237,12 @@ const Category = () => {
         }
       });
   };
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
 
   const cancel = (e: React.MouseEvent<HTMLElement>) => {
     console.log(e);
@@ -682,7 +773,7 @@ const Category = () => {
           <Modal
             title="Enter SubCategory Details"
             open={visible}
-            onCancel={handleCancel}
+            onCancel={handleModalCancel}
             footer={null}
           >
             <form>
@@ -712,6 +803,19 @@ const Category = () => {
                 value={subCategoryDetails.subcategorytitle}
                 className="form-control"
               />
+              <br />
+              <Upload
+                listType="picture-card"
+                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                maxCount={1}
+                name="uploadImage"
+                accept="image/*"
+                fileList={fileList || []}
+                onChange={handleImageChange}
+                onPreview={handlePreview}
+              >
+                {fileList.length == 1 ? null : uploadButton}
+              </Upload>
               <br />
               <Button type="primary" onClick={handleSubmit}>
                 Submit

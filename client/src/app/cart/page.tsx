@@ -12,7 +12,7 @@ const { confirm } = Modal;
 interface combineCart {
   courseId:string,
   title:string;
-  imagepath:string;
+  image:string;
   price:string;
   status:string;
 }
@@ -29,11 +29,14 @@ const Cart = () => {
   const calculatePrice = (cartData: combineCart[]) => {
     let amount = 0;
     console.log(cartData);
+    if(cartData){
     cartData.forEach((item) => {
-      const num = parseInt(item.price, 10); 
+      const num = parseInt(item.price.replace(/\D/g, ''), 10);
       amount += num;
     });
     setPrice(amount);
+  }
+  setPrice(0);
   };
 
   const deleteCart = (data:any) =>{
@@ -48,6 +51,7 @@ const Cart = () => {
       getCartData().then((data) => {
         if (data) {
           setCart(data);
+          calculatePrice(data);
         }
       });
     })
@@ -144,7 +148,7 @@ const Cart = () => {
                         <td className="product-thumbnail">
                           <a href="/productdetails">
                             <img
-                              src={cart.imagepath}
+                              src={cart.image}
                               alt="Image"
                             />
                           </a>
@@ -153,7 +157,7 @@ const Cart = () => {
                           <a href="/productdetails">{cart.title}</a>
                         </td>
                         <td className="product-price">
-                          <span className="unit-amount">${cart.price}</span>
+                          <span className="unit-amount">{cart.price}</span>
                         </td>
                       </tr>))}
                     </tbody>

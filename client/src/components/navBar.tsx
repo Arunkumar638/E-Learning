@@ -228,7 +228,7 @@ interface combineCategory {
                     {categories.map((category, index) =>
                       (
                       <li className="nav-item" key={index}>
-                        <a href="" className={`nav-link ${isBlog?`active`:``}`}>
+                        <a href="" className={`nav-link`}>
                           {category.categorytitle}
                         </a> 
                         <SubBar category={category.categorytitle}/>                                                                                        
